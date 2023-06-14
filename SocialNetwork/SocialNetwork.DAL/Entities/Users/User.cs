@@ -1,14 +1,17 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace SocialNetwork.DAL.Entities.Users;
 
 public class User
 {
+    [Key]
     public int UserId { get; set; }
     
-    public string Login { get; set; }
+    public string? Login { get; set; }
     
-    public string Password { get; set; }
+    public string? Password { get; set; }
     
-    public string Salt { get; set; }
+    public string? Salt { get; set; }
     
     public byte UserTypeId { get; set; }
     
