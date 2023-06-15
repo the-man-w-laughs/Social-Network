@@ -13,6 +13,8 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+app.UsePathBase("/api/v1");
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -28,10 +30,6 @@ app.MapControllers();
 
 using (var db = new SocialNetworkContext())
 {
-    // Adding
-    db.Posts.Add(new Post());
-    db.Users.Add(new User { Login = "lepesh", Password = Array.Empty<byte>() });
-    db.SaveChanges();
 }
 
 app.Run();
