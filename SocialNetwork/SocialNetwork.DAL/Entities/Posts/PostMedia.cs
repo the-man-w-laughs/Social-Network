@@ -1,10 +1,16 @@
+﻿using SocialNetwork.DAL.Entities.Medias;
+
 namespace SocialNetwork.DAL.Entities.Posts;
 
-public class PostMedia
+public partial class PostMedia
 {
-    public int PostMediaId { get; set; }
-    
-    public int PostId { get; set; }
-    
-    public int MediaId { get; set; }
+    public uint PostMediaId { get; set; }
+
+    public uint? PostId { get; set; }
+
+    public uint? MediaId { get; set; }
+
+    public virtual Media? Media { get; set; }
+
+    public virtual Post? Post { get; set; }
 }

@@ -1,12 +1,16 @@
-namespace SocialNetwork.DAL.Entities.Users;
+﻿namespace SocialNetwork.DAL.Entities.Users;
 
-public class UserFollower
+public partial class UserFollower
 {
-    public int UserFollowerId { get; set; }
-    
-    public int UserId { get; set; }
-    
-    public int FollowerId { get; set; }
-    
+    public uint UserFollowerId { get; set; }
+
+    public uint? TargetId { get; set; }
+
+    public uint? SourceId { get; set; }
+
     public DateTime CreatedAt { get; set; }
+
+    public virtual User? Source { get; set; }
+
+    public virtual User? Target { get; set; }
 }

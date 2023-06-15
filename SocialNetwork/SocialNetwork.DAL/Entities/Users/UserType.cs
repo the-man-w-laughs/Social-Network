@@ -1,8 +1,10 @@
-namespace SocialNetwork.DAL.Entities.Users;
+﻿namespace SocialNetwork.DAL.Entities.Users;
 
-public class UserType
+public partial class UserType
 {
-    public int UserTypeId { get; set; }
-    
-    public string UserTypeName { get; set; }
+    public byte UserTypeId { get; set; }
+
+    public string? UserTypeName { get; set; }
+
+    public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

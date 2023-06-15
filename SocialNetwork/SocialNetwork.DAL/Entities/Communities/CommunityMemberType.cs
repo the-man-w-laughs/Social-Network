@@ -1,8 +1,10 @@
-namespace SocialNetwork.DAL.Entities.Communities;
+﻿namespace SocialNetwork.DAL.Entities.Communities;
 
-public class CommunityMemberType
+public partial class CommunityMemberType
 {
-    public int CommunityMemberTypeId { get; set; }
-    
-    public string CommunityMemberTypeName { get; set; }
+    public byte CommunityMemberTypeId { get; set; }
+
+    public string? TypeName { get; set; }
+
+    public virtual ICollection<CommunityMember> CommunityMembers { get; set; } = new List<CommunityMember>();
 }

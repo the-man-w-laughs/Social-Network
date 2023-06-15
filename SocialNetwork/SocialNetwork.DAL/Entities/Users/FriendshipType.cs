@@ -1,8 +1,10 @@
-namespace SocialNetwork.DAL.Entities.Users;
+﻿namespace SocialNetwork.DAL.Entities.Users;
 
-public class FriendshipType
+public partial class FriendshipType
 {
-    public int FriendshipTypeId { get; set; }
-    
-    public string FriendshipTypeName { get; set; }
+    public byte FriendshipTypeId { get; set; }
+
+    public string? FriendshipType1 { get; set; }
+
+    public virtual ICollection<UserFriend> UserFriends { get; set; } = new List<UserFriend>();
 }

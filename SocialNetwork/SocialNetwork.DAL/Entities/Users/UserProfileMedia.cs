@@ -1,10 +1,16 @@
+﻿using SocialNetwork.DAL.Entities.Medias;
+
 namespace SocialNetwork.DAL.Entities.Users;
 
-public class UserProfileMedia
+public partial class UserProfileMedia
 {
-    public int UserProfileMediaId { get; set; }
-    
-    public int UserId { get; set; }
-    
-    public int MediaId { get; set; }
+    public uint UserProfileMediaId { get; set; }
+
+    public uint? UserProfileId { get; set; }
+
+    public uint? MediaId { get; set; }
+
+    public virtual Media? Media { get; set; }
+
+    public virtual UserProfile? UserProfile { get; set; }
 }

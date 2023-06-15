@@ -1,4 +1,4 @@
-﻿using SocialNetwork.DAL.DataContext;
+﻿using SocialNetwork.DAL.Context;
 using SocialNetwork.DAL.Entities.Posts;
 using SocialNetwork.DAL.Entities.Users;
 
@@ -26,15 +26,11 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-using (ApplicationContext db = new ApplicationContext())
+using (var db = new SocialNetworkContext())
 {
-    User user1 = new User {};
-    User user2 = new User { };
-    Post post = new Post() {};
-    // Добавление\
-    db.Posts.Add(post);
-    db.Users.Add(user1);
-    db.Users.Add(user2);
+    // Adding
+    db.Posts.Add(new Post());
+    db.Users.Add(new User { Login = "lepesh", Password = Array.Empty<byte>() });
     db.SaveChanges();
 }
 

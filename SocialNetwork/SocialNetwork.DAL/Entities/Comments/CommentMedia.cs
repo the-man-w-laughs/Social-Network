@@ -1,10 +1,16 @@
+﻿using SocialNetwork.DAL.Entities.Medias;
+
 namespace SocialNetwork.DAL.Entities.Comments;
 
-public class CommentMedia
+public partial class CommentMedia
 {
     public int CommentMediaId { get; set; }
-    
-    public int CommentId { get; set; }
-    
-    public int MediaId { get; set; }
+
+    public uint CommentId { get; set; }
+
+    public uint MediaId { get; set; }
+
+    public virtual Comment Comment { get; set; } = null!;
+
+    public virtual Media Media { get; set; } = null!;
 }

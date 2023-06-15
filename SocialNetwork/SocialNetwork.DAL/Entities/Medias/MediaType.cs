@@ -1,8 +1,10 @@
-namespace SocialNetwork.DAL.Entities.Medias;
+﻿namespace SocialNetwork.DAL.Entities.Medias;
 
-public class MediaType
+public partial class MediaType
 {
-    public int MediaTypeId { get; set; }
-    
-    public string MediaTypeName { get; set; }
+    public byte MediaTypeId { get; set; }
+
+    public string? MediaType1 { get; set; }
+
+    public virtual ICollection<Media> Media { get; set; } = new List<Media>();
 }

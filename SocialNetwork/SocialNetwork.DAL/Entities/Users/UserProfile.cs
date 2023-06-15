@@ -1,24 +1,28 @@
-namespace SocialNetwork.DAL.Entities.Users;
+﻿namespace SocialNetwork.DAL.Entities.Users;
 
-public class UserProfile
+public partial class UserProfile
 {
-    public int UserProfileId { get; set; }
-    
-    public int UserId { get; set; }
-    
-    public string UserEmail { get; set; }
-    
-    public string UserName { get; set; }
-    
-    public string UserSurname { get; set; }
-    
-    public string UserSex { get; set; }
-    
-    public string UserCountry { get; set; }
-    
-    public string UserEducation { get; set; }
-    
+    public uint UserProfileId { get; set; }
+
+    public uint UserId { get; set; }
+
+    public string? UserEmail { get; set; }
+
+    public string? UserName { get; set; }
+
+    public string? UserSurname { get; set; }
+
+    public string? UserSex { get; set; }
+
+    public string? UserCountry { get; set; }
+
+    public string? UserEducation { get; set; }
+
     public DateTime CreatedAt { get; set; }
-    
+
     public DateTime UpdatedAt { get; set; }
+
+    public virtual User User { get; set; } = null!;
+
+    public virtual ICollection<UserProfileMedia> UserProfileMedia { get; set; } = new List<UserProfileMedia>();
 }
