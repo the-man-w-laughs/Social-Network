@@ -10,4 +10,8 @@
       <ProjectReference Include="..\SocialNetwork.DAL\SocialNetwork.DAL.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="DTO\" />
+    </ItemGroup>
+
 </Project>
