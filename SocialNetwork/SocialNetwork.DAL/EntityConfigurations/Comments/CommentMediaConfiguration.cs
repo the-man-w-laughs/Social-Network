@@ -8,28 +8,27 @@ public class CommentMediaConfiguration : IEntityTypeConfiguration<CommentMedia>
 {
     public void Configure(EntityTypeBuilder<CommentMedia> builder)
     {
-        builder.HasKey(e => e.CommentMediaId).HasName("PRIMARY");
-
-        builder.ToTable("comment_medias");
+        builder.ToTable("comment_medias"); 
+        
+        builder.HasKey(e => e.Id).HasName("PRIMARY");
 
         builder.HasIndex(e => e.CommentId, "FK_comment_medias_comments_idx");
-
         builder.HasIndex(e => e.MediaId, "FK_comment_medias_medias_idx");
 
-        builder.Property(e => e.CommentMediaId)
-            .ValueGeneratedNever()
-            .HasColumnName("comment_media_id");
-        builder.Property(e => e.CommentId).HasColumnName("comment_id");
-        builder.Property(e => e.MediaId).HasColumnName("media_id");
+        builder.Property(e => e.Id).HasColumnName("id").IsRequired()
+            .ValueGeneratedOnAdd();
+        
+        builder.Property(e => e.CommentId).HasColumnName("comment_id").IsRequired();
+        builder.Property(e => e.MediaId).HasColumnName("media_id").IsRequired();
 
         builder.HasOne(d => d.Comment).WithMany(p => p.CommentMedia)
             .HasForeignKey(d => d.CommentId)
-            .OnDelete(DeleteBehavior.ClientSetNull)
+            .OnDelete(DeleteBehavior.Cascade)
             .HasConstraintName("FK_comment_medias_comments");
 
         builder.HasOne(d => d.Media).WithMany(p => p.CommentMedia)
             .HasForeignKey(d => d.MediaId)
-            .OnDelete(DeleteBehavior.ClientSetNull)
+            .OnDelete(DeleteBehavior.Cascade)
             .HasConstraintName("FK_comment_medias_medias");
     }
 }

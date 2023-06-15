@@ -8,25 +8,20 @@ public class CommunityConfiguration : IEntityTypeConfiguration<Community>
 {
     public void Configure(EntityTypeBuilder<Community> builder)
     {
-        builder.HasKey(e => e.CommunityId).HasName("PRIMARY");
-
         builder.ToTable("communities");
+        
+        builder.HasKey(e => e.Id).HasName("PRIMARY");
 
-        builder.Property(e => e.CommunityId)
-            .ValueGeneratedNever()
-            .HasColumnName("community_id");
-        builder.Property(e => e.CreatedAt)
-            .HasColumnType("datetime")
-            .HasColumnName("created_at");
-        builder.Property(e => e.Description)
-            .HasColumnType("text")
-            .HasColumnName("description");
-        builder.Property(e => e.IsPrivate).HasColumnName("is_private");
-        builder.Property(e => e.Name)
-            .HasMaxLength(45)
-            .HasColumnName("name");
-        builder.Property(e => e.UpdatedAt)
-            .HasColumnType("datetime")
-            .HasColumnName("updated_at");
+        builder.Property(e => e.Id).HasColumnName("id").IsRequired()
+            .ValueGeneratedNever();
+        builder.Property(e => e.Name).HasColumnName("name").IsRequired()
+            .HasMaxLength(Constants.CommunityNameMaxLength);
+        builder.Property(e => e.Description).HasColumnName("description")
+            .HasColumnType("text");
+        builder.Property(e => e.IsPrivate).HasColumnName("is_private").IsRequired();
+        builder.Property(e => e.CreatedAt).HasColumnName("created_at").IsRequired()
+            .HasColumnType("datetime");
+        builder.Property(e => e.UpdatedAt).HasColumnName("updated_at")
+            .HasColumnType("datetime");
     }
 }

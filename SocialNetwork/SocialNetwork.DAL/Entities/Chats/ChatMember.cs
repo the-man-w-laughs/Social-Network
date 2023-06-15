@@ -5,21 +5,16 @@ namespace SocialNetwork.DAL.Entities.Chats;
 
 public partial class ChatMember
 {
-    public uint UserChatId { get; set; }
-
-    public uint UserId { get; set; }
-
-    public uint ChatId { get; set; }
-
-    public byte ChatMemberType { get; set; }
-
+    public enum Type { Member, Admin }
+    
+    public uint Id { get; set; }
+    public Type TypeId { get; set; }
     public DateTime CreatedAt { get; set; }
 
-    public virtual Chat Chat { get; set; } = null!;
-
-    public virtual ChatMembersType ChatMemberTypeNavigation { get; set; } = null!;
-
-    public virtual ICollection<MessageLike> MessageLikes { get; set; } = new List<MessageLike>();
+    public uint UserId { get; set; }
+    public uint ChatId { get; set; }
 
     public virtual User User { get; set; } = null!;
+    public virtual Chat Chat { get; set; } = null!;
+    public virtual ICollection<MessageLike> MessageLikes { get; set; } = new List<MessageLike>();
 }

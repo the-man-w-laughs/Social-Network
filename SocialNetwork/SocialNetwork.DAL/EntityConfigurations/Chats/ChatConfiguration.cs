@@ -8,18 +8,15 @@ public class ChatConfiguration : IEntityTypeConfiguration<Chat>
 {
     public void Configure(EntityTypeBuilder<Chat> builder)
     {
-        builder.HasKey(e => e.ChatId).HasName("PRIMARY");
-        
         builder.ToTable("chats");
         
-        builder.HasIndex(e => e.ChatId, "chat_id_UNIQUE").IsUnique();
+        builder.HasKey(e => e.Id).HasName("PRIMARY");
+        
+        builder.HasIndex(e => e.Id, "chat_id_UNIQUE").IsUnique();
 
-        builder.Property(e => e.ChatId).HasColumnName("chat_id");
-        builder.Property(e => e.CreatedAt)
-            .HasMaxLength(45)
-            .HasColumnName("created_at");
-        builder.Property(e => e.Name)
-            .HasMaxLength(45)
-            .HasColumnName("name");
+        builder.Property(e => e.Id).HasColumnName("id").IsRequired();
+        builder.Property(e => e.CreatedAt).HasColumnName("created_at").IsRequired();
+        builder.Property(e => e.Name).HasColumnName("name").IsRequired()
+            .HasMaxLength(Constants.ChatNameMaxLength);
     }
 }

@@ -8,44 +8,48 @@ public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
 {
     public void Configure(EntityTypeBuilder<UserProfile> builder)
     {
-        builder.HasKey(e => e.UserProfileId).HasName("PRIMARY");
-
         builder.ToTable("user_profiles");
-
+        
+        builder.HasKey(e => e.Id).HasName("PRIMARY");
+        
         builder.HasIndex(e => e.UserId, "FK_user_profiles_users_idx");
 
-        builder.Property(e => e.UserProfileId)
-            .ValueGeneratedNever()
-            .HasColumnName("user_profile_id");
-        builder.Property(e => e.CreatedAt)
-            .HasColumnType("datetime")
-            .HasColumnName("created_at");
-        builder.Property(e => e.UpdatedAt)
-            .HasColumnType("datetime")
-            .HasColumnName("updated_at");
-        builder.Property(e => e.UserCountry)
-            .HasMaxLength(45)
-            .HasColumnName("user_country");
-        builder.Property(e => e.UserEducation)
-            .HasMaxLength(45)
-            .HasColumnName("user_education");
+        builder.Property(e => e.Id)
+            .HasColumnName("id")
+            .ValueGeneratedOnAdd()
+            .IsRequired();
         builder.Property(e => e.UserEmail)
-            .HasMaxLength(100)
-            .HasColumnName("user_email");
-        builder.Property(e => e.UserId).HasColumnName("user_id");
+            .HasColumnName("user_email")
+            .HasMaxLength(Constants.EmailMaxLength);
         builder.Property(e => e.UserName)
-            .HasMaxLength(45)
-            .HasColumnName("user_name");
-        builder.Property(e => e.UserSex)
-            .HasMaxLength(45)
-            .HasColumnName("user_sex");
+            .HasColumnName("user_name")
+            .HasMaxLength(Constants.UserNameMaxLength);
         builder.Property(e => e.UserSurname)
-            .HasMaxLength(45)
-            .HasColumnName("user_surname");
-
+            .HasColumnName("user_surname")
+            .HasMaxLength(Constants.UserSurnameMaxLength);
+        builder.Property(e => e.UserSex)
+            .HasColumnName("user_sex")
+            .HasMaxLength(Constants.UserSexMaxLength);
+        builder.Property(e => e.UserCountry)
+            .HasColumnName("user_country")
+            .HasMaxLength(Constants.CountryNameMaxLength);
+        builder.Property(e => e.UserEducation)
+            .HasColumnName("user_education")
+            .HasMaxLength(Constants.UserEducationMaxLength);
+        builder.Property(e => e.CreatedAt)
+            .HasColumnName("created_at")
+            .HasColumnType("datetime")
+            .IsRequired();
+        builder.Property(e => e.UpdatedAt)
+            .HasColumnName("updated_at")
+            .HasColumnType("datetime");
+        builder.Property(e => e.UserId)
+            .HasColumnName("user_id")
+            .IsRequired();
+    
         builder.HasOne(d => d.User).WithMany(p => p.UserProfiles)
             .HasForeignKey(d => d.UserId)
-            .OnDelete(DeleteBehavior.ClientSetNull)
+            .OnDelete(DeleteBehavior.Cascade)
             .HasConstraintName("FK_user_profiles_users");
     }
 }

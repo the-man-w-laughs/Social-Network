@@ -8,28 +8,27 @@ public class CommentLikeConfiguration : IEntityTypeConfiguration<CommentLike>
 {
     public void Configure(EntityTypeBuilder<CommentLike> builder)
     {
-        builder.HasKey(e => e.CommentLikeId).HasName("PRIMARY");
-
         builder.ToTable("comment_likes");
-
+        
+        builder.HasKey(e => e.Id).HasName("PRIMARY");
+        
         builder.HasIndex(e => e.CommentId, "FK_comment_likes_comments_idx");
-
         builder.HasIndex(e => e.UserId, "FK_comment_likes_users_idx");
 
-        builder.Property(e => e.CommentLikeId)
-            .ValueGeneratedNever()
-            .HasColumnName("comment_like_id");
-        builder.Property(e => e.CommentId).HasColumnName("comment_id");
-        builder.Property(e => e.UserId).HasColumnName("user_id");
+        builder.Property(e => e.Id).HasColumnName("id").IsRequired()
+            .ValueGeneratedOnAdd();
+        
+        builder.Property(e => e.CommentId).HasColumnName("comment_id").IsRequired();
+        builder.Property(e => e.UserId).HasColumnName("user_id").IsRequired();
 
         builder.HasOne(d => d.Comment).WithMany(p => p.CommentLikes)
             .HasForeignKey(d => d.CommentId)
-            .OnDelete(DeleteBehavior.ClientSetNull)
+            .OnDelete(DeleteBehavior.Cascade)
             .HasConstraintName("FK_comment_likes_comments");
 
         builder.HasOne(d => d.User).WithMany(p => p.CommentLikes)
             .HasForeignKey(d => d.UserId)
-            .OnDelete(DeleteBehavior.ClientSetNull)
+            .OnDelete(DeleteBehavior.Cascade)
             .HasConstraintName("FK_comment_likes_users");
     }
 }

@@ -8,34 +8,20 @@ public class MediaConfiguration : IEntityTypeConfiguration<Media>
 {
     public void Configure(EntityTypeBuilder<Media> builder)
     {
-        builder.HasKey(e => e.MediaId).HasName("PRIMARY");
-
         builder.ToTable("medias");
+        
+        builder.HasKey(e => e.Id).HasName("PRIMARY");
 
-        builder.HasIndex(e => e.MediaType, "FK_medias_media_types_idx");
-
-        builder.Property(e => e.MediaId)
-            .ValueGeneratedNever()
-            .HasColumnName("media_id");
-        builder.Property(e => e.CreatedAt)
-            .HasColumnType("datetime")
-            .HasColumnName("created_at");
-        builder.Property(e => e.EntityType)
-            .HasMaxLength(45)
-            .HasColumnName("entity_type");
-        builder.Property(e => e.FileName)
-            .HasMaxLength(255)
-            .HasColumnName("file_name");
-        builder.Property(e => e.FilePath)
-            .HasMaxLength(1024)
-            .HasColumnName("file_path");
-        builder.Property(e => e.MediaType).HasColumnName("media_type");
-        builder.Property(e => e.UpdatedAt)
-            .HasColumnType("datetime")
-            .HasColumnName("updated_at");
-
-        builder.HasOne(d => d.MediaTypeNavigation).WithMany(p => p.Media)
-            .HasForeignKey(d => d.MediaType)
-            .HasConstraintName("FK_medias_media_types");
+        builder.Property(e => e.Id).HasColumnName("id").IsRequired()
+            .ValueGeneratedOnAdd();
+        builder.Property(e => e.FileName).HasColumnName("file_name").IsRequired()
+            .HasMaxLength(Constants.MediaFileNameMaxLength);
+        builder.Property(e => e.FilePath).HasColumnName("file_path").IsRequired()
+            .HasMaxLength(Constants.MediaFilePathMaxLength);
+        builder.Property(e => e.MediaTypeId).HasColumnName("media_type").IsRequired();
+        builder.Property(e => e.CreatedAt).HasColumnName("created_at").IsRequired()
+            .HasColumnType("datetime");
+        builder.Property(e => e.UpdatedAt).HasColumnName("updated_at")
+            .HasColumnType("datetime");
     }
 }

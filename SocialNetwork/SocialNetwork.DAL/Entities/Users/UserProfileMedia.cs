@@ -2,15 +2,13 @@
 
 namespace SocialNetwork.DAL.Entities.Users;
 
-public partial class UserProfileMedia
+public sealed class UserProfileMedia
 {
-    public uint UserProfileMediaId { get; set; }
+    public uint Id { get; set; }
 
-    public uint? UserProfileId { get; set; }
+    public uint UserProfileId { get; set; }
+    public uint MediaId { get; set; }
 
-    public uint? MediaId { get; set; }
-
-    public virtual Media? Media { get; set; }
-
-    public virtual UserProfile? UserProfile { get; set; }
+    public Media Media { get; set; } = null!;
+    public UserProfile UserProfile { get; set; } = null!;
 }
