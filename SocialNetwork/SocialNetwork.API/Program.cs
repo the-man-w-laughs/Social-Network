@@ -1,3 +1,7 @@
+﻿using SocialNetwork.DAL.Context;
+using SocialNetwork.DAL.Entities.Posts;
+using SocialNetwork.DAL.Entities.Users;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -21,5 +25,13 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+using (var db = new SocialNetworkContext())
+{
+    // Adding
+    db.Posts.Add(new Post());
+    db.Users.Add(new User { Login = "lepesh", Password = Array.Empty<byte>() });
+    db.SaveChanges();
+}
 
 app.Run();
