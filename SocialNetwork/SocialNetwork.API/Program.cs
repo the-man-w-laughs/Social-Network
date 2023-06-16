@@ -1,5 +1,6 @@
-﻿using SocialNetwork.BLL;
+using SocialNetwork.BLL;
 using SocialNetwork.DAL.Context;
+
 
 var builder = WebApplication.CreateBuilder(args);
 

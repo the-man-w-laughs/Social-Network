@@ -4,7 +4,7 @@ using AutoMapper;
 using SocialNetwork.BLL.DTO;
 using SocialNetwork.DAL.Entities.Users;
 
-namespace IO.Swagger.Controllers
+namespace SocialNetwork.Controllers
 {
     /// <summary>
     /// 
@@ -46,7 +46,7 @@ namespace IO.Swagger.Controllers
         /// <param name="limit"></param>
         /// <param name="nextCursor"></param>
         [HttpGet]
-        [Route("chats")]        
+        [Route("{userId}/chats")]        
         public virtual IActionResult GetUsersUserIdChats([FromQuery][Required()]decimal? limit, [FromQuery]decimal? nextCursor)
         {
             return Ok("GetAllUserChats");
@@ -98,8 +98,7 @@ namespace IO.Swagger.Controllers
         /// GetUserProfileInfo
         /// </summary>
         /// <remarks>Get user&#x27;s info.</remarks>
-        /// <param name="userId"></param>
-        /// <response code="200">OK</response>
+        /// <param name="userId"></param>        
         [HttpGet]
         [Route("{userId}/profile")]
         public virtual IActionResult GetUsersUserIdProfile([FromRoute][Required]string userId)
@@ -124,8 +123,7 @@ namespace IO.Swagger.Controllers
         /// </summary>
         /// <remarks>Change authentification fields.</remarks>
         /// <param name="userId"></param>
-        /// <param name="body">Conrains fields to change.</param>
-        /// <response code="200">Updated version of info.</response>
+        /// <param name="body">Conrains fields to change.</param>        
         [HttpPatch]
         [Route("{userId}/auth")]
         public virtual IActionResult PatchUsersUserIdAuth([FromRoute][Required]string userId)
@@ -138,8 +136,7 @@ namespace IO.Swagger.Controllers
         /// </summary>
         /// <remarks>Change personal info (status, sex).</remarks>
         /// <param name="userId"></param>
-        /// <param name="body">Conrains fields to change.</param>
-        /// <response code="200">Updated version of info.</response>
+        /// <param name="body">Contains fields to change.</param>        
         [HttpPatch]
         [Route("{userId}/profile")]
         public virtual IActionResult PatchUsersUserIdProfile([FromRoute][Required]string userId)
