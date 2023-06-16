@@ -10,6 +10,7 @@ public partial class ChatMember
     public uint Id { get; set; }
     public Type TypeId { get; set; }
     public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 
     public uint UserId { get; set; }
     public uint ChatId { get; set; }

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-
+using SocialNetwork.BLL.DTO.ChatDto.Request;
+using SocialNetwork.BLL.DTO.ChatDto.Response;
 using System.ComponentModel.DataAnnotations;
 
 namespace SocialNetwork.Controllers
@@ -18,7 +19,7 @@ namespace SocialNetwork.Controllers
         /// <param name="chatId"></param>        
         [HttpDelete]
         [Route("{chatId}")]
-        public virtual IActionResult DeleteChatsChatId([FromRoute][Required]uint chatId)
+        public virtual ActionResult<DeleteChatDto> DeleteChatsChatId([FromRoute][Required]uint chatId)
         {             
             return Ok($"DeleteChat");            
         }
@@ -31,11 +32,12 @@ namespace SocialNetwork.Controllers
         /// <param name="memberId"></param>        
         [HttpDelete]
         [Route("{chatId}/members/{memberId}")]
-        public virtual IActionResult DeleteChatsChatIdMembersParticipantId([FromRoute][Required]string chatId, [FromRoute][Required]string memberId)
+        public virtual ActionResult<DeleteChatMemberDto> DeleteChatsChatIdMembersParticipantId([FromRoute][Required] uint chatId, [FromRoute][Required] uint memberId)
         {
             return Ok($"DeleteChatMember");
         }
 
+        //TODO: Make Dto
         /// <summary>
         /// GetAllChatMedias
         /// </summary>
@@ -45,11 +47,12 @@ namespace SocialNetwork.Controllers
         /// <param name="nextCursor"></param>
         [HttpGet]
         [Route("{chatId}/medias")]
-        public virtual IActionResult GetChatChatIdMedias([FromRoute][Required]string chatId, [FromQuery]decimal? limit, [FromQuery]decimal? nextCursor)
+        public virtual IActionResult GetChatChatIdMedias([FromRoute][Required] uint chatId, [FromQuery] uint? limit, [FromQuery] uint? nextCursor)
         {
             return Ok($"GetAllChatMedias");
         }
 
+        // TODO: MAKE DTO
         /// <summary>
         /// GetChatInfo
         /// </summary>
@@ -57,7 +60,7 @@ namespace SocialNetwork.Controllers
         /// <param name="chatId"></param>        
         [HttpGet]
         [Route("chats/{chatId}")]
-        public virtual IActionResult GetChatsChatId([FromRoute][Required]string chatId)
+        public virtual IActionResult GetChatsChatId([FromRoute][Required] uint chatId)
         {
             return Ok($"GetChatInfo");
         }
@@ -71,7 +74,7 @@ namespace SocialNetwork.Controllers
         /// <param name="nextCursor"></param>
         [HttpGet]
         [Route("{chatId}/members")]
-        public virtual IActionResult GetChatsChatIdMembers([FromRoute][Required]string chatId, [FromQuery][Required()]decimal? limit, [FromQuery]decimal? nextCursor)
+        public virtual ActionResult<List<DeleteChatMemberDto>> GetChatsChatIdMembers([FromRoute][Required] uint chatId, [FromQuery][Required()] uint? limit, [FromQuery] uint? nextCursor)
         {
             return Ok("GetAllChatMembers");
         }
@@ -85,7 +88,7 @@ namespace SocialNetwork.Controllers
         /// <param name="nextCursor"></param>
         [HttpGet]
         [Route("{chatId}/messages")]
-        public virtual IActionResult GetChatsChatIdMessages([FromRoute][Required]string chatId, [FromQuery][Required()]decimal? limit_, [FromQuery]decimal? nextCursor)
+        public virtual ActionResult<List<GetAllChatMessagesDto>> GetChatsChatIdMessages([FromRoute][Required] uint chatId, [FromQuery][Required()] uint? limit_, [FromQuery] uint? nextCursor)
         {
             return Ok("GetAllChatMessages");
         }
@@ -97,7 +100,7 @@ namespace SocialNetwork.Controllers
         /// <param name="chatId"></param>        
         [HttpPatch]
         [Route("{chatId}")]        
-        public virtual IActionResult PatchChatsChatId([FromRoute][Required]string chatId)
+        public virtual ActionResult<DeleteChatDto> PatchChatsChatId([FromRoute][Required] uint chatId, [FromBody][Required] PostChatDto deleteChatDto)
         {
             return Ok("ChangeChatInfo");
         }
@@ -110,7 +113,7 @@ namespace SocialNetwork.Controllers
         /// <param name="memberId"></param>        
         [HttpPatch]
         [Route("{chatId}/members/{memberId}")]
-        public virtual IActionResult PatchChatsChatIdMembersMemberId([FromRoute][Required]string chatId, [FromRoute][Required]string memberId)
+        public virtual ActionResult<DeleteChatMemberDto> PatchChatsChatIdMembersMemberId([FromRoute][Required]uint chatId, [FromRoute][Required] uint memberId,[FromBody][Required] ChangeChatMemberStatusDto changeChatMemberStatusDto)
         {
             return Ok("ChangeMemberStatus");
         }
@@ -120,7 +123,7 @@ namespace SocialNetwork.Controllers
         /// </summary>
         /// <remarks>Create new chat</remarks>        
         [HttpPost]        
-        public virtual IActionResult PostChats()
+        public virtual IActionResult PostChats([FromBody][Required] PostChatDto deleteChatDto)
         {
             return Ok("CreateChat");
         }
@@ -132,7 +135,7 @@ namespace SocialNetwork.Controllers
         /// <param name="chatId"></param>        
         [HttpPost]
         [Route("{chatId}/members")]
-        public virtual IActionResult PostChatsChatIdMembers([FromRoute][Required]string chatId)
+        public virtual ActionResult<PostChatMemberResponseDto> PostChatsChatIdMembers([FromRoute][Required]uint chatId, [FromBody][Required] PostChatMemberRequestDto postChatMemberDto)
         {
             return Ok("AddChatMember");
         }
@@ -144,7 +147,7 @@ namespace SocialNetwork.Controllers
         /// <param name="chatId"></param>        
         [HttpPost]
         [Route("{chatId}/messages")]
-        public virtual IActionResult PostChatsChatIdMessages([FromRoute][Required]string chatId)
+        public virtual ActionResult<PostMessageResponseDto> PostChatsChatIdMessages([FromRoute][Required]string chatId, [FromBody][Required] PostMessageRequestDto postChatMemberDto)
         {
             return Ok("SendMessage");
         }

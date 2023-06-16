@@ -13,5 +13,4 @@ public class UserDto
     public DateTime? UpdatedAt { get; set; }
     public bool IsDeleted { get; set; }
     public bool IsDeactivated { get; set; }
-
 }
