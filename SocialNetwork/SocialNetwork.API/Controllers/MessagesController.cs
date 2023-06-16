@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SocialNetwork.DAL.Entities.Chats;
 using System.ComponentModel.DataAnnotations;
 
-namespace SocialNetwork.API.Controllers
+namespace SocialNetwork.Controllers
 {    
     [ApiController]
     [Route("[controller]")]
@@ -66,7 +66,7 @@ namespace SocialNetwork.API.Controllers
         /// <param name="messageId"></param>        
         [HttpDelete]
         [Route("{messageId}")]
-        public virtual IActionResult DeleteChatsChatIdMessagesMessageId([FromRoute][Required] string messageId)
+        public virtual IActionResult DeleteMessagesMessageId([FromRoute][Required] string messageId)
         {
             return Ok($"DeleteChatMessage");
         }
@@ -78,7 +78,7 @@ namespace SocialNetwork.API.Controllers
         /// <param name="messageId"></param>
         [HttpGet]
         [Route("{messageId}")]
-        public virtual IActionResult GetChatsChatIdMessagesMessageId([FromRoute][Required] string messageId)
+        public virtual IActionResult GetMessagesMessageId([FromRoute][Required] string messageId)
         {
             return Ok("GetChatMessageInfo");
         }

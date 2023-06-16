@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using System.ComponentModel.DataAnnotations;
 
-namespace IO.Swagger.Controllers
+namespace SocialNetwork.Controllers
 {
     /// <summary>
     /// 
@@ -45,7 +45,7 @@ namespace IO.Swagger.Controllers
         /// <param name="currCursor"></param>
         [HttpGet]
         [Route("{postId}/likes")]
-        public virtual IActionResult GetPostsPostId([FromRoute][Required]string postId, [FromQuery]decimal? limit, [FromQuery]decimal? currCursor)
+        public virtual IActionResult GetPostsPostIdLikes([FromRoute][Required]string postId, [FromQuery]decimal? limit, [FromQuery]decimal? currCursor)
         { 
             return Ok("GetAllPostLikes");
         }
@@ -74,19 +74,6 @@ namespace IO.Swagger.Controllers
         public virtual IActionResult PatchPostsPostId([FromRoute][Required]string postId)
         {
             return Ok("ChangePost");
-        }
-
-        /// <summary>
-        /// ChangePostComment
-        /// </summary>
-        /// <remarks>Change post comment (for comment owner).</remarks>
-        /// <param name="postId"></param>
-        /// <param name="commentId"></param>        
-        [HttpPatch]
-        [Route("{postId}/comments/{commentId}")]
-        public virtual IActionResult PatchPostsPostIdCommentsCommentId([FromRoute][Required]string postId, [FromRoute][Required]string commentId)
-        {
-            return Ok("ChangePostComment");
         }
 
         /// <summary>

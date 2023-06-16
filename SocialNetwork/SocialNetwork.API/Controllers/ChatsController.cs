@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using System.ComponentModel.DataAnnotations;
 
-namespace IO.Swagger.Controllers
+namespace SocialNetwork.Controllers
 {
     /// <summary>
     /// 
