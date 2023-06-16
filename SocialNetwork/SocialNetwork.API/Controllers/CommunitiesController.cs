@@ -77,7 +77,7 @@ namespace IO.Swagger.Controllers
         /// <param name="communityId"></param>        
         [HttpPost]
         [Route("{communityId}/posts")]        
-        public virtual IActionResult PostCommunitiesPosts([FromRoute][Required]string communityId)
+        public virtual IActionResult PostCommunitiesCommunityIdPosts([FromRoute][Required]string communityId)
         {
             return Ok($"CreateCommunityPost");
         }

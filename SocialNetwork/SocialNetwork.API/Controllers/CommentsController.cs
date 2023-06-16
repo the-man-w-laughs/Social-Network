@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
-namespace SocialNetwork.API.Controllers
+namespace SocialNetwork.Controllers
 {    
     [ApiController]
     [Route("[controller]")]
@@ -14,7 +14,7 @@ namespace SocialNetwork.API.Controllers
         /// <param name="commentId"></param>        
         [HttpDelete]
         [Route("{commentId}")]
-        public virtual IActionResult DeletePostsPostIdCommentsCommentId([FromRoute][Required] string commentId)
+        public virtual IActionResult DeleteCommentsCommentId([FromRoute][Required] string commentId)
         {
             return Ok("DeletePostComment");
         }
@@ -26,7 +26,7 @@ namespace SocialNetwork.API.Controllers
         /// <param name="commentId"></param>        
         [HttpDelete]
         [Route("{commentId}/likes")]
-        public virtual IActionResult DeletePostsPostIdComments([FromRoute][Required] string commentId)
+        public virtual IActionResult DeleteComments([FromRoute][Required] string commentId)
         {
             return Ok("UnlikePostComment");
         }
@@ -40,7 +40,7 @@ namespace SocialNetwork.API.Controllers
         /// <param name="currCursor"></param>
         [HttpGet]
         [Route("{commentId}/likes")]
-        public virtual IActionResult GetPostsCommentPostId([FromRoute][Required] string commentId, [FromQuery] decimal? limit, [FromQuery] decimal? currCursor)
+        public virtual IActionResult GetCommentsCommentIdLikes([FromRoute][Required] string commentId, [FromQuery] decimal? limit, [FromQuery] decimal? currCursor)
         {
             return Ok("GetAllPostCommentLikes");
         }
@@ -52,9 +52,22 @@ namespace SocialNetwork.API.Controllers
         /// <param name="commentId"></param>        
         [HttpPost]
         [Route("{commentId}/likes")]
-        public virtual IActionResult PostPostsPostIdCommentsCommentIdLikes([FromRoute][Required] string commentId)
+        public virtual IActionResult PostCommentsCommentIdLikes([FromRoute][Required] string commentId)
         {
             return Ok("LikePostComment");
+        }
+
+        /// <summary>
+        /// ChangePostComment
+        /// </summary>
+        /// <remarks>Change post comment (for comment owner).</remarks>
+        /// <param name="postId"></param>
+        /// <param name="commentId"></param>        
+        [HttpPatch]
+        [Route("{commentId}")]
+        public virtual IActionResult PatchCommentsCommentId([FromRoute][Required] string postId, [FromRoute][Required] string commentId)
+        {
+            return Ok("ChangePostComment");
         }
     }
 }

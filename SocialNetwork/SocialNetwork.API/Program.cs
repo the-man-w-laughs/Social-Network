@@ -1,6 +1,4 @@
 ﻿using SocialNetwork.DAL.Context;
-using SocialNetwork.DAL.Entities.Posts;
-using SocialNetwork.DAL.Entities.Users;
 
 var builder = WebApplication.CreateBuilder(args);
 
