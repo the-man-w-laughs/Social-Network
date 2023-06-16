@@ -1,6 +1,5 @@
-﻿using SocialNetwork.DAL.Context;
-using SocialNetwork.DAL.Entities.Posts;
-using SocialNetwork.DAL.Entities.Users;
+﻿using SocialNetwork.BLL;
+using SocialNetwork.DAL.Context;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +9,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
 
 var app = builder.Build();
 
@@ -30,6 +30,7 @@ app.MapControllers();
 
 using (var db = new SocialNetworkContext())
 {
+    
 }
 
 app.Run();

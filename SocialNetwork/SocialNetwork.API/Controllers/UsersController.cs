@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
+using AutoMapper;
+using SocialNetwork.BLL.DTO;
+using SocialNetwork.DAL.Entities.Users;
 
 namespace IO.Swagger.Controllers
 {
@@ -10,7 +13,15 @@ namespace IO.Swagger.Controllers
     [Route("[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
-    { 
+    {
+
+        private readonly IMapper _mapper;
+
+        public UsersController(IMapper mapper)
+        {
+            _mapper = mapper;
+        }
+
         /// <summary>
         /// GetAllUsers
         /// </summary>
@@ -18,9 +29,14 @@ namespace IO.Swagger.Controllers
         /// <param name="limit"></param>
         /// <param name="currCursor"></param>        
         [HttpGet]        
-        public virtual IActionResult GetUsers([FromQuery][Required()]decimal? limit, [FromQuery]decimal? currCursor)
+        public virtual ActionResult<List<UserDto>> GetUsers([FromQuery][Required()]decimal? limit, [FromQuery]decimal? currCursor)
         {
-            return Ok("GetAllUsers");
+            var users = new List<User>
+            {
+                new (){ Id = 1, Login = "lepesh1" },
+                new (){ Id = 2, Login = "lepesh2" },
+            };
+            return Ok(users.Select(user=>_mapper.Map<UserDto>(user)));
         }
 
         /// <summary>
