@@ -1,3 +1,4 @@
+using SocialNetwork.DAL.Entities.Enums;
 using SocialNetwork.DAL.Entities.Users;
 
 namespace SocialNetwork.BLL.DTO;
@@ -5,7 +6,7 @@ namespace SocialNetwork.BLL.DTO;
 public class UserDto
 {
     public string Login { get; set; } = null!;
-    public User.UserType TypeId { get; set; }
+    public UserType TypeId { get; set; }
     public DateTime LastActiveAt { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? DeletedAt { get; set; }

@@ -1,14 +1,13 @@
 ﻿using SocialNetwork.DAL.Entities.Chats;
 using SocialNetwork.DAL.Entities.Comments;
 using SocialNetwork.DAL.Entities.Communities;
+using SocialNetwork.DAL.Entities.Enums;
 using SocialNetwork.DAL.Entities.Posts;
 
 namespace SocialNetwork.DAL.Entities.Users;
 
 public partial class User
-{
-    public enum UserType { User, Admin }
-    
+{        
     public uint Id { get; set; }
     public string Login { get; set; } = null!;
     public byte[] Password { get; set; } = null!;

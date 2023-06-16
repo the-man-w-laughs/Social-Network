@@ -20,8 +20,8 @@ namespace SocialNetwork.Controllers
         [HttpDelete]
         [Route("{chatId}")]
         public virtual ActionResult<DeleteChatDto> DeleteChatsChatId([FromRoute][Required]uint chatId)
-        {             
-            return Ok($"DeleteChat");            
+        {
+            return new DeleteChatDto() { Id = chatId, CreatedAt = DateTime.Now, Name = "Svin" };
         }
 
         /// <summary>
@@ -32,9 +32,9 @@ namespace SocialNetwork.Controllers
         /// <param name="memberId"></param>        
         [HttpDelete]
         [Route("{chatId}/members/{memberId}")]
-        public virtual ActionResult<DeleteChatMemberDto> DeleteChatsChatIdMembersParticipantId([FromRoute][Required] uint chatId, [FromRoute][Required] uint memberId)
+        public virtual ActionResult<PostChatMemberResponseDto> DeleteChatsChatIdMembersParticipantId([FromRoute][Required] uint chatId, [FromRoute][Required] uint memberId)
         {
-            return Ok($"DeleteChatMember");
+            return new PostChatMemberResponseDto();
         }
 
         //TODO: Make Dto
@@ -74,9 +74,9 @@ namespace SocialNetwork.Controllers
         /// <param name="nextCursor"></param>
         [HttpGet]
         [Route("{chatId}/members")]
-        public virtual ActionResult<List<DeleteChatMemberDto>> GetChatsChatIdMembers([FromRoute][Required] uint chatId, [FromQuery][Required()] uint? limit, [FromQuery] uint? nextCursor)
+        public virtual ActionResult<List<PostChatMemberResponseDto>> GetChatsChatIdMembers([FromRoute][Required] uint chatId, [FromQuery][Required()] uint? limit, [FromQuery] uint? nextCursor)
         {
-            return Ok("GetAllChatMembers");
+            return new List<PostChatMemberResponseDto>();
         }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace SocialNetwork.Controllers
         [Route("{chatId}/messages")]
         public virtual ActionResult<List<GetAllChatMessagesDto>> GetChatsChatIdMessages([FromRoute][Required] uint chatId, [FromQuery][Required()] uint? limit_, [FromQuery] uint? nextCursor)
         {
-            return Ok("GetAllChatMessages");
+            return new List<GetAllChatMessagesDto>();
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace SocialNetwork.Controllers
         [Route("{chatId}")]        
         public virtual ActionResult<DeleteChatDto> PatchChatsChatId([FromRoute][Required] uint chatId, [FromBody][Required] PostChatDto deleteChatDto)
         {
-            return Ok("ChangeChatInfo");
+            return new DeleteChatDto();
         }
 
         /// <summary>
@@ -113,9 +113,9 @@ namespace SocialNetwork.Controllers
         /// <param name="memberId"></param>        
         [HttpPatch]
         [Route("{chatId}/members/{memberId}")]
-        public virtual ActionResult<DeleteChatMemberDto> PatchChatsChatIdMembersMemberId([FromRoute][Required]uint chatId, [FromRoute][Required] uint memberId,[FromBody][Required] ChangeChatMemberStatusDto changeChatMemberStatusDto)
+        public virtual ActionResult<PostChatMemberResponseDto> PatchChatsChatIdMembersMemberId([FromRoute][Required]uint chatId, [FromRoute][Required] uint memberId,[FromBody][Required] PostChatMemberRequestDto changeChatMemberStatusDto)
         {
-            return Ok("ChangeMemberStatus");
+            return new PostChatMemberResponseDto();
         }
 
         /// <summary>
@@ -123,9 +123,9 @@ namespace SocialNetwork.Controllers
         /// </summary>
         /// <remarks>Create new chat</remarks>        
         [HttpPost]        
-        public virtual IActionResult PostChats([FromBody][Required] PostChatDto deleteChatDto)
+        public virtual ActionResult<DeleteChatDto> PostChats([FromBody][Required] PostChatDto deleteChatDto)
         {
-            return Ok("CreateChat");
+            return new DeleteChatDto();
         }
 
         /// <summary>
@@ -137,7 +137,7 @@ namespace SocialNetwork.Controllers
         [Route("{chatId}/members")]
         public virtual ActionResult<PostChatMemberResponseDto> PostChatsChatIdMembers([FromRoute][Required]uint chatId, [FromBody][Required] PostChatMemberRequestDto postChatMemberDto)
         {
-            return Ok("AddChatMember");
+            return new PostChatMemberResponseDto();
         }
 
         /// <summary>
@@ -149,7 +149,7 @@ namespace SocialNetwork.Controllers
         [Route("{chatId}/messages")]
         public virtual ActionResult<PostMessageResponseDto> PostChatsChatIdMessages([FromRoute][Required]string chatId, [FromBody][Required] PostMessageRequestDto postChatMemberDto)
         {
-            return Ok("SendMessage");
+            return new PostMessageResponseDto();
         }
     }
 }
