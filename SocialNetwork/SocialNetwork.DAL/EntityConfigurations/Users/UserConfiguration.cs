@@ -17,7 +17,9 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .ValueGeneratedOnAdd();
         builder.Property(e => e.Login).HasColumnName("login").IsRequired()
             .HasMaxLength(Constants.UserLoginMaxLength);
-        builder.Property(e => e.Password).HasColumnName("password").IsRequired()
+        builder.Property(e => e.Email).HasColumnName("email").IsRequired()
+            .HasMaxLength(Constants.UserEmailMaxLength);
+        builder.Property(e => e.PasswordHash).HasColumnName("Password").IsRequired()
             .HasMaxLength(32)
             .IsFixedLength();
         builder.Property(e => e.Salt).HasColumnName("salt").IsRequired()
@@ -31,7 +33,13 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasColumnType("datetime");
         builder.Property(e => e.DeactivatedAt).HasColumnName("deactivated_at")
             .HasColumnType("datetime");
-        builder.Property(e => e.UpdatedAt).HasColumnName("updated_at")
+        builder.Property(e => e.UserTypeUpdatedAt).HasColumnName("user_type_updated_at")
+            .HasColumnType("datetime");
+        builder.Property(e => e.LoginUpdatedAt).HasColumnName("login_updated_at")
+            .HasColumnType("datetime");
+        builder.Property(e => e.EmailUpdatedAt).HasColumnName("email_updated_at")
+            .HasColumnType("datetime");
+        builder.Property(e => e.PasswordUpdatedAt).HasColumnName("Password_updated_at")
             .HasColumnType("datetime");
         builder.Property(e => e.IsDeactivated).HasColumnName("is_deactivated");
         builder.Property(e => e.IsDeleted).HasColumnName("is_deleted");
