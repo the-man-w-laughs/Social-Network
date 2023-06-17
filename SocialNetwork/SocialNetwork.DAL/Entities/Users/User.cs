@@ -1,7 +1,6 @@
 ﻿using SocialNetwork.DAL.Entities.Chats;
 using SocialNetwork.DAL.Entities.Comments;
 using SocialNetwork.DAL.Entities.Communities;
-using SocialNetwork.DAL.Entities.Enums;
 using SocialNetwork.DAL.Entities.Posts;
 
 namespace SocialNetwork.DAL.Entities.Users;

@@ -1,5 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
+using SocialNetwork.BLL.DTO.CommentDto.Request;
+using SocialNetwork.BLL.DTO.CommentDto.Response;
+using SocialNetwork.BLL.DTO.Posts.Request;
+using SocialNetwork.BLL.DTO.Posts.Response;
 
 namespace SocialNetwork.API.Controllers;
 
@@ -10,53 +14,45 @@ public class PostsController : ControllerBase
     /// <summary>
     /// DeletePost
     /// </summary>
-    /// <remarks>Delete post.</remarks>
-    /// <param name="postId"></param>        
+    /// <remarks>Delete post.</remarks>         
     [HttpDelete]
     [Route("{postId}")]        
-    public virtual IActionResult DeletePostsPostId([FromRoute][Required]string postId)
+    public virtual ActionResult<PostResponseDto> DeletePostsPostId([FromRoute][Required] uint postId)
     {
-        return Ok("DeletePost");
+        return Ok(new PostResponseDto());
     }
 
     /// <summary>
     /// UnlikePost
     /// </summary>
-    /// <remarks>Unlike post (for like owner).</remarks>
-    /// <param name="postId"></param>        
+    /// <remarks>Unlike post (for like owner).</remarks>        
     [HttpDelete]
     [Route("{postId}/likes")]        
-    public virtual IActionResult DeletePostsPostIdLikes([FromRoute][Required]string postId)
+    public virtual ActionResult<PostLikeResponse> DeletePostsPostIdLikes([FromRoute][Required] uint postId)
     {
-        return Ok("UnlikePost");
+        return Ok(new PostLikeResponse());
     }
 
     /// <summary>
     /// GetAllPostLikes
     /// </summary>
-    /// <remarks>Get all post likes using pagination.</remarks>
-    /// <param name="postId"></param>
-    /// <param name="limit"></param>
-    /// <param name="currCursor"></param>
+    /// <remarks>Get all post likes using pagination.</remarks>    
     [HttpGet]
     [Route("{postId}/likes")]
-    public virtual IActionResult GetPostsPostIdLikes([FromRoute][Required]string postId, [FromQuery]decimal? limit, [FromQuery]decimal? currCursor)
+    public virtual ActionResult<List<PostLikeResponse>> GetPostsPostIdLikes([FromRoute][Required]string postId, [FromQuery]uint? limit, [FromQuery]uint? currCursor)
     { 
-        return Ok("GetAllPostLikes");
+        return Ok(new List<PostLikeResponse>() { new PostLikeResponse()});
     }
 
     /// <summary>
     /// GetAllPostComments
     /// </summary>
-    /// <remarks>Get all post comments using pagination.</remarks>
-    /// <param name="postId"></param>
-    /// <param name="limit"></param>
-    /// <param name="currCursor"></param>
+    /// <remarks>Get all post comments using pagination.</remarks>    
     [HttpGet]
     [Route("{postId}/comments")]
-    public virtual IActionResult GetPostsPostIdComments([FromRoute][Required]string postId, [FromQuery]decimal? limit, [FromQuery]decimal? currCursor)
+    public virtual ActionResult<List<CommentResponseDto>> GetPostsPostIdComments([FromRoute][Required] uint postId, [FromQuery] uint? limit, [FromQuery] uint? currCursor)
     {
-        return Ok("GetAllPostComments");
+        return Ok(new List<CommentResponseDto>() {new CommentResponseDto()});
     }
 
     /// <summary>
@@ -66,32 +62,43 @@ public class PostsController : ControllerBase
     /// <param name="postId"></param>        
     [HttpPatch]
     [Route("{postId}")]       
-    public virtual IActionResult PatchPostsPostId([FromRoute][Required]string postId)
+    public virtual ActionResult<PostResponseDto> PatchPostsPostId([FromRoute][Required]uint postId, [FromBody][Required] PostRequestDto postRequestDto)
     {
-        return Ok("ChangePost");
+        return Ok(new PostResponseDto());
+    }
+
+
+    /// <summary>
+    /// Repost
+    /// </summary>
+    /// <remarks>Change post.</remarks>
+    /// <param name="postId"></param>        
+    [HttpPost]
+    [Route("{postId}")]
+    public virtual ActionResult<PostResponseDto> PostPostsPostId([FromRoute][Required] uint postId, [FromBody][Required] PostRequestDto postRequestDto)
+    {
+        return Ok(new PostResponseDto());
     }
 
     /// <summary>
     /// CommentPost
     /// </summary>
-    /// <remarks>Comment post.</remarks>
-    /// <param name="postId"></param>        
+    /// <remarks>Comment post.</remarks>          
     [HttpPost]
     [Route("{postId}/comments")]
-    public virtual IActionResult PostPostsPostIdComments([FromRoute][Required]string postId)
+    public virtual ActionResult<CommentResponseDto> PostPostsPostIdComments([FromRoute][Required] uint postId, [FromBody][Required] CommentRequestDto commentRequestDto)
     {
-        return Ok("CommentPost");
+        return Ok(new CommentResponseDto());
     }
 
     /// <summary>
     /// LikePost
     /// </summary>
-    /// <remarks>Like post.</remarks>
-    /// <param name="postId"></param>        
+    /// <remarks>Like post.</remarks>       
     [HttpPost]
     [Route("{postId}/likes")]        
-    public virtual IActionResult PostPostsPostIdLikes([FromRoute][Required]string postId)
+    public virtual ActionResult<PostLikeResponse> PostPostsPostIdLikes([FromRoute][Required] uint postId)
     { 
-        return Ok("LikePost");
+        return Ok(new PostLikeResponse());
     }
 }

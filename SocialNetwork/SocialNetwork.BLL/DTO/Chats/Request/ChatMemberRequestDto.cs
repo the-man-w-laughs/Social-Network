@@ -1,8 +1,8 @@
-﻿using SocialNetwork.DAL.Entities.Enums;
+﻿using SocialNetwork.DAL.Chats;
 
 namespace SocialNetwork.BLL.DTO.ChatDto.Request;
 
-public class PostChatMemberRequestDto
+public class ChatMemberRequestDto
 {        
     public ChatMemberType TypeId { get; set; }        
 }

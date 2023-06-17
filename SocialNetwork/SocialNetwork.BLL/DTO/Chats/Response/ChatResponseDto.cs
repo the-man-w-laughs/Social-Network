@@ -1,6 +1,6 @@
 ﻿namespace SocialNetwork.BLL.DTO.ChatDto.Response;
 
-public class DeleteChatDto
+public class ChatResponseDto
 {
     public uint Id { get; set; }
     public string Name { get; set; } = null!;

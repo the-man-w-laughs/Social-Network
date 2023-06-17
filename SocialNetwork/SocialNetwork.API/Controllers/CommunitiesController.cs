@@ -1,5 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
+using SocialNetwork.BLL.DTO.Communities.Request;
+using SocialNetwork.BLL.DTO.Communities.Response;
+using SocialNetwork.BLL.DTO.Posts.Request;
+using SocialNetwork.BLL.DTO.Posts.Response;
 
 namespace SocialNetwork.API.Controllers;
 
@@ -10,51 +14,44 @@ public class CommunitiesController : ControllerBase
     /// <summary>
     /// DeleteCommunity
     /// </summary>
-    /// <remarks>Delete community (for community admins, admins).</remarks>
-    /// <param name="communityId"></param>        
+    /// <remarks>Delete community (for community admins, admins).</remarks>          
     [HttpDelete]
     [Route("{communityId}")]
-    public virtual IActionResult DeleteCommunitiesCommunityId([FromRoute][Required]string communityId)
+    public virtual ActionResult<CommunityResponseDto> DeleteCommunitiesCommunityId([FromRoute][Required] uint communityId)
     {
-        return Ok($"DeleteCommunity");
+        return new CommunityResponseDto();
     }
 
     /// <summary>
     /// GetAllCommunities
     /// </summary>
-    /// <remarks>Get all communities using pagination.</remarks>
-    /// <param name="limit"></param>
-    /// <param name="currCursor"></param>
+    /// <remarks>Get all communities using pagination.</remarks>    
     [HttpGet]              
-    public virtual IActionResult GetCommunities([FromQuery][Required()]decimal? limit, [FromQuery]decimal? currCursor)
+    public virtual ActionResult<List<CommunityResponseDto>> GetCommunities([FromQuery][Required()] uint? limit, [FromQuery] uint? currCursor)
     {
-        return Ok($"GetAllCommunities");
+        return new List<CommunityResponseDto>() { new CommunityResponseDto() };
     }
 
     /// <summary>
     /// GetAllCommunityPosts
     /// </summary>
-    /// <remarks>Get all community posts using pagination.</remarks>
-    /// <param name="communityId"></param>
-    /// <param name="limit"></param>
-    /// <param name="currCursor"></param>
+    /// <remarks>Get all community posts using pagination.</remarks>    
     [HttpGet]
     [Route("{communityId}/posts")]
-    public virtual IActionResult GetCommunitiesPosts([FromRoute][Required]string communityId, [FromQuery]decimal? limit, [FromQuery]decimal? currCursor)
+    public virtual ActionResult<List<CommunityPostResponseDto>> GetCommunitiesPosts([FromRoute][Required] uint communityId, [FromQuery] uint? limit, [FromQuery] uint? currCursor)
     {
-        return Ok($"GetAllCommunityPosts");
+        return new List<CommunityPostResponseDto>() { new CommunityPostResponseDto() };
     }
 
     /// <summary>
     /// ChangeCommunityInfo
     /// </summary>
-    /// <remarks>Change community info (for community admins, admins).</remarks>
-    /// <param name="communityId"></param>        
+    /// <remarks>Change community info (for community admins, admins).</remarks>        
     [HttpPatch]
     [Route("{communityId}")]
-    public virtual IActionResult PatchCommunitiesCommunityId([FromRoute][Required]string communityId)
+    public virtual ActionResult<CommunityResponseDto> PatchCommunitiesCommunityId([FromRoute][Required] uint communityId, [FromBody][Required] CommunityRequestDto communityRequestDto)
     {
-        return Ok($"ChangeCommunityInfo");
+        return Ok(new CommunityResponseDto());
     }
 
     /// <summary>
@@ -62,20 +59,19 @@ public class CommunitiesController : ControllerBase
     /// </summary>
     /// <remarks>Create community.</remarks>        
     [HttpPost]        
-    public virtual IActionResult PostCommunities()
+    public virtual ActionResult<CommunityResponseDto> PostCommunities([FromBody][Required] CommunityRequestDto communityRequestDto)
     {
-        return Ok($"CreateCommunity");
+        return Ok(new CommunityResponseDto());
     }
 
     /// <summary>
     /// CreateCommunityPost
     /// </summary>
-    /// <remarks>Create community post (depending on isPrivate field it could be available for community members or for everybody).</remarks>
-    /// <param name="communityId"></param>        
+    /// <remarks>Create community post (depending on isPrivate field it could be available for community members or for everybody).</remarks>         
     [HttpPost]
     [Route("{communityId}/posts")]        
-    public virtual IActionResult PostCommunitiesCommunityIdPosts([FromRoute][Required]string communityId)
+    public virtual ActionResult<PostResponseDto> PostCommunitiesCommunityIdPosts([FromRoute][Required] uint communityId, [FromBody][Required] PostRequestDto communityRequestDto)
     {
-        return Ok($"CreateCommunityPost");
+        return Ok(new PostResponseDto());
     }
 }

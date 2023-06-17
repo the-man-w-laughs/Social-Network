@@ -17,7 +17,10 @@ public class CommentLikeConfiguration : IEntityTypeConfiguration<CommentLike>
 
         builder.Property(e => e.Id).HasColumnName("id").IsRequired()
             .ValueGeneratedOnAdd();
-        
+
+        builder.Property(e => e.CreatedAt).HasColumnName("created_at").IsRequired()
+            .HasColumnType("datetime");
+
         builder.Property(e => e.CommentId).HasColumnName("comment_id").IsRequired();
         builder.Property(e => e.UserId).HasColumnName("user_id").IsRequired();
 

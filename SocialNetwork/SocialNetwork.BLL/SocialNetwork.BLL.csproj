@@ -7,10 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="DTO\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\SocialNetwork.DAL\SocialNetwork.DAL.csproj" />
     </ItemGroup>
 

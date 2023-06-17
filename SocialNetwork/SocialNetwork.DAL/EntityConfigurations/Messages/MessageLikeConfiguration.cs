@@ -17,7 +17,10 @@ public class MessageLikeConfiguration : IEntityTypeConfiguration<MessageLike>
 
         builder.Property(e => e.Id).HasColumnName("id").IsRequired()
             .ValueGeneratedOnAdd();
-        
+        builder.Property(e => e.CreatedAt).HasColumnName("created_at").IsRequired()
+            .HasColumnType("datetime");
+
+
         builder.Property(e => e.ChatMemberId).HasColumnName("chat_member_id").IsRequired();
         builder.Property(e => e.MessageId).HasColumnName("message_id").IsRequired();
 

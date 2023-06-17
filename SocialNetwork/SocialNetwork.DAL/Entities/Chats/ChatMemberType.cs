@@ -1,4 +1,4 @@
-﻿namespace SocialNetwork.DAL.Entities.Enums;
+﻿namespace SocialNetwork.DAL.Chats;
 
 public enum ChatMemberType : byte
 {
