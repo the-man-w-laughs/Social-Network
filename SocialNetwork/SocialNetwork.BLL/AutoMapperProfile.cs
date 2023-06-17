@@ -13,6 +13,5 @@ public class AutoMapperProfile : Profile
         CreateMap<User, UserDto>();
         CreateMap<Chat, DeleteChatDto>();
         CreateMap<ChatMember, PostChatMemberResponseDto>();
-
     }
 }

@@ -1,7 +1,6 @@
-﻿namespace SocialNetwork.DAL.Entities.Enums
+﻿namespace SocialNetwork.DAL.Entities.Enums;
+
+public enum ChatMemberType : byte
 {
-    public enum ChatMemberType : byte
-    {
-        Member, Admin, Owner
-    }
+    Member, Admin, Owner
 }

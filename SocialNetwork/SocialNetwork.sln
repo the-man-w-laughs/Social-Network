@@ -1,18 +1,10 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.5.33530.505
-MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SocialNetwork.API", "SocialNetwork.API\SocialNetwork.API.csproj", "{6432C1E3-1DBA-40E2-B98E-AD28A95F34A1}"
-	ProjectSection(ProjectDependencies) = postProject
-		{234E4060-4948-483F-8408-9B90BE6FAD15} = {234E4060-4948-483F-8408-9B90BE6FAD15}
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocialNetwork.API", "SocialNetwork.API\SocialNetwork.API.csproj", "{18EBA721-76B7-4632-8D68-3DFF19238330}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SocialNetwork.DAL", "SocialNetwork.DAL\SocialNetwork.DAL.csproj", "{234E4060-4948-483F-8408-9B90BE6FAD15}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocialNetwork.BLL", "SocialNetwork.BLL\SocialNetwork.BLL.csproj", "{A343CCBF-14FD-4F7B-81AC-786950DFFA36}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SocialNetwork.BLL", "SocialNetwork.BLL\SocialNetwork.BLL.csproj", "{575467DD-F894-482C-89C5-C708E7499104}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SocialNetwork.Tests", "SocialNetwork.Tests\SocialNetwork.Tests.csproj", "{1F9A852E-07FF-4EC8-A1FC-AF9F15F08AC9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocialNetwork.DAL", "SocialNetwork.DAL\SocialNetwork.DAL.csproj", "{E8E1B6EA-8431-495E-99ED-7EBAF4C51DE3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,24 +12,17 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6432C1E3-1DBA-40E2-B98E-AD28A95F34A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6432C1E3-1DBA-40E2-B98E-AD28A95F34A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6432C1E3-1DBA-40E2-B98E-AD28A95F34A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6432C1E3-1DBA-40E2-B98E-AD28A95F34A1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{234E4060-4948-483F-8408-9B90BE6FAD15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{234E4060-4948-483F-8408-9B90BE6FAD15}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{234E4060-4948-483F-8408-9B90BE6FAD15}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{234E4060-4948-483F-8408-9B90BE6FAD15}.Release|Any CPU.Build.0 = Release|Any CPU
-		{575467DD-F894-482C-89C5-C708E7499104}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{575467DD-F894-482C-89C5-C708E7499104}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{575467DD-F894-482C-89C5-C708E7499104}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{575467DD-F894-482C-89C5-C708E7499104}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1F9A852E-07FF-4EC8-A1FC-AF9F15F08AC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1F9A852E-07FF-4EC8-A1FC-AF9F15F08AC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1F9A852E-07FF-4EC8-A1FC-AF9F15F08AC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1F9A852E-07FF-4EC8-A1FC-AF9F15F08AC9}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
+		{18EBA721-76B7-4632-8D68-3DFF19238330}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18EBA721-76B7-4632-8D68-3DFF19238330}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18EBA721-76B7-4632-8D68-3DFF19238330}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18EBA721-76B7-4632-8D68-3DFF19238330}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A343CCBF-14FD-4F7B-81AC-786950DFFA36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A343CCBF-14FD-4F7B-81AC-786950DFFA36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A343CCBF-14FD-4F7B-81AC-786950DFFA36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A343CCBF-14FD-4F7B-81AC-786950DFFA36}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E8E1B6EA-8431-495E-99ED-7EBAF4C51DE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8E1B6EA-8431-495E-99ED-7EBAF4C51DE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8E1B6EA-8431-495E-99ED-7EBAF4C51DE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8E1B6EA-8431-495E-99ED-7EBAF4C51DE3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

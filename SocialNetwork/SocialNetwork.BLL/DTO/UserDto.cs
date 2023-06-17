@@ -1,5 +1,4 @@
 using SocialNetwork.DAL.Entities.Enums;
-using SocialNetwork.DAL.Entities.Users;
 
 namespace SocialNetwork.BLL.DTO;
 

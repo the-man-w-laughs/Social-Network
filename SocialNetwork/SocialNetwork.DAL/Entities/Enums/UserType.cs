@@ -1,7 +1,6 @@
-﻿namespace SocialNetwork.DAL.Entities.Enums
+﻿namespace SocialNetwork.DAL.Entities.Enums;
+
+public enum UserType : byte
 {
-    public enum UserType : byte
-    {
-        User, Admin
-    }
+    User, Admin
 }
