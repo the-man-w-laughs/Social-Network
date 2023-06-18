@@ -6,21 +6,27 @@ using SocialNetwork.DAL.Entities.Posts;
 namespace SocialNetwork.DAL.Entities.Users;
 
 public partial class User
-{
-    public enum UserType { User, Admin }
-    
+{        
     public uint Id { get; set; }
+
+    public string? Email { get; set; }
+    public DateTime EmailUpdatedAt { get; set; }
+
     public string Login { get; set; } = null!;
-    public byte[] Password { get; set; } = null!;
+    public DateTime LoginUpdatedAt { get; set; }
+
+    public byte[] PasswordHash { get; set; } = null!;
     public string Salt { get; set; } = null!;
+    public DateTime PasswordUpdatedAt { get; set; }
+
     public UserType TypeId { get; set; }
+    public DateTime UserTypeUpdatedAt { get; set; }
     public DateTime LastActiveAt { get; set; }
     public DateTime CreatedAt { get; set; }
-    public DateTime? DeletedAt { get; set; }
-    public DateTime? DeactivatedAt { get; set; }
-    public DateTime? UpdatedAt { get; set; }
     public bool IsDeleted { get; set; }
+    public DateTime? DeletedAt { get; set; }
     public bool IsDeactivated { get; set; }
+    public DateTime? DeactivatedAt { get; set; }      
 
     public virtual ICollection<ChatMember> ChatMembers { get; set; } = new List<ChatMember>();
     public virtual ICollection<CommentLike> CommentLikes { get; set; } = new List<CommentLike>();

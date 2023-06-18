@@ -1,86 +1,89 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
-using SocialNetwork.DAL.Entities.Chats;
-using System.ComponentModel.DataAnnotations;
+using SocialNetwork.BLL.DTO.Messages.Request;
+using SocialNetwork.BLL.DTO.Messages.Response;
 
-namespace SocialNetwork.Controllers
-{    
-    [ApiController]
-    [Route("[controller]")]
-    public class MessagesController : ControllerBase
+namespace SocialNetwork.API.Controllers;
+
+[ApiController]
+[Route("[controller]")]
+public class MessagesController : ControllerBase
+{
+    /// <summary>
+    /// UnlikeMessage
+    /// </summary>
+    /// <remarks>Unlike chat message (for like owner).</remarks>    
+    [HttpDelete]
+    [Route("{messageId}/likes")]
+    public virtual ActionResult<MessageLikeResponseDto> DeleteMessagesMessageIdLikes([FromRoute][Required] uint messageId)
     {
-        /// <summary>
-        /// UnlikeMessage
-        /// </summary>
-        /// <remarks>Unlike chat message (for like owner).</remarks>
-        /// <param name="messageId"></param>        
-        [HttpDelete]
-        [Route("{messageId}/likes")]
-        public virtual IActionResult DeleteMessagesMessageIdLikes([FromRoute][Required] string messageId)
-        {
-            return Ok($"UnlikeMessage");
-        }
+        return Ok(new MessageLikeResponseDto());
+    }
 
-        /// <summary>
-        /// GetAllMessageLikes
-        /// </summary>
-        /// <remarks>Get all message likes using pagination (for chat members).</remarks>
-        /// <param name="messageId"></param>
-        /// <param name="limit"></param>
-        /// <param name="currCursor"></param>
-        [HttpGet]
-        [Route("{messageId}/likes")]
-        public virtual IActionResult GetMessagesMessageId([FromRoute][Required] string messageId, [FromQuery] decimal? limit, [FromQuery] string currCursor)
-        {
-            return Ok($"GetAllMessageLikes");
-        }
+    /// <summary>
+    /// GetAllMessageLikes
+    /// </summary>
+    /// <remarks>Get all message likes using pagination (for chat members).</remarks>    
+    [HttpGet]
+    [Route("{messageId}/likes")]
+    public virtual ActionResult<List<MessageLikeResponseDto>> GetMessagesMessageId([FromRoute][Required] uint messageId, [FromQuery] uint? limit, [FromQuery] uint currCursor)
+    {
+        return Ok(new List<MessageLikeResponseDto>() { new MessageLikeResponseDto() });
+    }
 
-        /// <summary>
-        /// LikeMessage
-        /// </summary>
-        /// <remarks>Like chat message (for chat members).</remarks>
-        /// <param name="messageId"></param>        
-        [HttpPost]
-        [Route("{messageId}/likes")]
-        public virtual IActionResult PostMessagesMessageIdLikes([FromRoute][Required] string messageId)
-        {
-            return Ok($"LikeMessage");
-        }
+    /// <summary>
+    /// LikeMessage
+    /// </summary>
+    /// <remarks>Like chat message (for chat members).</remarks>        
+    [HttpPost]
+    [Route("{messageId}/likes")]
+    public virtual ActionResult<MessageLikeResponseDto> PostMessagesMessageIdLikes([FromRoute][Required] uint messageId)
+    {
+        return Ok(new MessageLikeResponseDto());
+    }
 
-        /// <summary>
-        /// ChangeMessage
-        /// </summary>
-        /// <remarks>Like chat message (for chat members).</remarks>
-        /// <param name="messageId"></param>        
-        [HttpPatch]
-        [Route("{messageId}")]
-        public virtual IActionResult PatchMessagesMessageId([FromRoute][Required] string messageId)
-        {
-            return Ok($"ChangeMessage");
-        }
+    /// <summary>
+    /// ChangeMessage
+    /// </summary>
+    /// <remarks>Change chat message (for message senders, chat admins, admins).</remarks>          
+    [HttpPatch]
+    [Route("{messageId}")]
+    public virtual ActionResult<MessageResponseDto> PatchMessagesMessageId([FromRoute][Required] uint messageId, [FromBody][Required] MessageRequestDto messageRequestDto)
+    {
+        return Ok(new MessageResponseDto());
+    }
 
-        /// <summary>
-        /// DeleteChatMessage
-        /// </summary>
-        /// <remarks>Delete chat message (for message senders, chat admins, admins).</remarks>        
-        /// <param name="messageId"></param>        
-        [HttpDelete]
-        [Route("{messageId}")]
-        public virtual IActionResult DeleteMessagesMessageId([FromRoute][Required] string messageId)
-        {
-            return Ok($"DeleteChatMessage");
-        }
+    /// <summary>
+    /// ReplyMessage
+    /// </summary>
+    /// <remarks>Reply chat message (for chat members).</remarks>          
+    [HttpPost]
+    [Route("{messageId}")]
+    public virtual ActionResult<MessageResponseDto> PostMessagesMessageId([FromRoute][Required] uint messageId, [FromBody][Required] MessageRequestDto messageRequestDto)
+    {
+        return Ok(new MessageResponseDto());
+    }
 
-        /// <summary>
-        /// GetChatMessageInfo
-        /// </summary>
-        /// <remarks>Get information about chat message.</remarks>        
-        /// <param name="messageId"></param>
-        [HttpGet]
-        [Route("{messageId}")]
-        public virtual IActionResult GetMessagesMessageId([FromRoute][Required] string messageId)
-        {
-            return Ok("GetChatMessageInfo");
-        }
+    /// <summary>
+    /// DeleteChatMessage
+    /// </summary>
+    /// <remarks>Delete chat message (for message senders, chat admins, admins).</remarks>                   
+    [HttpDelete]
+    [Route("{messageId}")]
+    public virtual ActionResult<MessageResponseDto> DeleteMessagesMessageId([FromRoute][Required] uint messageId)
+    {
+        return Ok(new MessageResponseDto());
+    }
+
+    // TODO: aggregate message info
+    /// <summary>
+    /// GetChatMessageInfo
+    /// </summary>
+    /// <remarks>Get information about chat message.</remarks>            
+    [HttpGet]
+    [Route("{messageId}")]
+    public virtual IActionResult GetMessagesMessageId([FromRoute][Required] uint messageId)
+    {
+        return Ok("GetChatMessageInfo");
     }
 }

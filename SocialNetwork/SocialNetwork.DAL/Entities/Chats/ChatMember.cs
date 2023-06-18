@@ -1,15 +1,15 @@
-﻿using SocialNetwork.DAL.Entities.Messages;
+﻿using SocialNetwork.DAL.Chats;
+using SocialNetwork.DAL.Entities.Messages;
 using SocialNetwork.DAL.Entities.Users;
 
 namespace SocialNetwork.DAL.Entities.Chats;
 
 public partial class ChatMember
-{
-    public enum Type { Member, Admin }
-    
+{       
     public uint Id { get; set; }
-    public Type TypeId { get; set; }
+    public ChatMemberType TypeId { get; set; }
     public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 
     public uint UserId { get; set; }
     public uint ChatId { get; set; }

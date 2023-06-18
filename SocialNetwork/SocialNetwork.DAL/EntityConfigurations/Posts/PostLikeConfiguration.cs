@@ -17,7 +17,9 @@ public class PostLikeConfiguration : IEntityTypeConfiguration<PostLike>
 
         builder.Property(e => e.Id).HasColumnName("post_like_id").IsRequired()
             .ValueGeneratedOnAdd();
-        
+        builder.Property(e => e.CreatedAt).HasColumnName("created_at").IsRequired()
+            .HasColumnType("datetime");
+
         builder.Property(e => e.PostId).HasColumnName("post_id").IsRequired();
         builder.Property(e => e.UserId).HasColumnName("user_id").IsRequired();
 

@@ -11,6 +11,7 @@ public static class Constants
     public const int MessageTextMaxLength = 65535;
     public const int PostContentMaxLength = 65535;
     public const int UserLoginMaxLength = 20;
+    public const int UserEmailMaxLength = 32;
     public const int CountryNameMaxLength = 40;
     public const int UserEducationMaxLength = 40;
     public const int UserSurnameMaxLength = 40;

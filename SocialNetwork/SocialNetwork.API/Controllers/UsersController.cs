@@ -1,170 +1,172 @@
-using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using SocialNetwork.BLL.DTO;
+using SocialNetwork.BLL.DTO.ChatDto.Request;
+using SocialNetwork.BLL.DTO.ChatDto.Response;
+using SocialNetwork.BLL.DTO.Communities.Response;
+using SocialNetwork.BLL.DTO.Posts.Request;
+using SocialNetwork.BLL.DTO.Posts.Response;
+using SocialNetwork.BLL.DTO.Users.request;
+using SocialNetwork.BLL.DTO.Users.response;
 using SocialNetwork.DAL.Entities.Users;
 
-namespace SocialNetwork.Controllers
+namespace SocialNetwork.API.Controllers;
+
+[ApiController]
+[Route("[controller]")]
+public class UsersController : ControllerBase
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    /// 
-    [Route("[controller]")]
-    [ApiController]
-    public class UsersController : ControllerBase
+    private readonly IMapper _mapper;
+
+    public UsersController(IMapper mapper)
     {
+        _mapper = mapper;
+    }
 
-        private readonly IMapper _mapper;
-
-        public UsersController(IMapper mapper)
+    /// <summary>
+    /// GetAllUsers
+    /// </summary>
+    /// <remarks>Returns all users using pagination.</remarks>
+    [HttpGet]        
+    public virtual ActionResult<List<UserProfileResponseDto>> GetUsers([FromQuery][Required()]uint? limit, [FromQuery] uint? currCursor)
+    {
+        var users = new List<UserProfile>
         {
-            _mapper = mapper;
-        }
+            new (){ UserSex = "helicopter", UserName = "Zhanna" },
+            new (){UserSex = "Mig - 29", UserName = "Palina"},
+        };
+        return Ok(users.Select(user => _mapper.Map<UserProfileResponseDto>(user)));        
+    }
 
-        /// <summary>
-        /// GetAllUsers
-        /// </summary>
-        /// <remarks>Returns all users using pagination.</remarks>
-        /// <param name="limit"></param>
-        /// <param name="currCursor"></param>        
-        [HttpGet]        
-        public virtual ActionResult<List<UserDto>> GetUsers([FromQuery][Required()]decimal? limit, [FromQuery]decimal? currCursor)
-        {
-            var users = new List<User>
-            {
-                new (){ Id = 1, Login = "lepesh1" },
-                new (){ Id = 2, Login = "lepesh2" },
-            };
-            return Ok(users.Select(user=>_mapper.Map<UserDto>(user)));
-        }
+    /// <summary>
+    /// GetAllUserChats
+    /// </summary>
+    /// <remarks>Get all users chats using pagination (for account owner).</remarks>    
+    [HttpGet]
+    [Route("{userId}/chats")]        
+    public virtual ActionResult<List<ChatResponseDto>> GetUsersUserIdChats([FromQuery][Required()] uint? limit, [FromQuery] uint? nextCursor)
+    {
+        return Ok(new List<ChatResponseDto>() { new ChatResponseDto()});
+    }
 
-        /// <summary>
-        /// GetAllUserChats
-        /// </summary>
-        /// <remarks>Get all users chats using pagination (for account owner).</remarks>
-        /// <param name="limit"></param>
-        /// <param name="nextCursor"></param>
-        [HttpGet]
-        [Route("{userId}/chats")]        
-        public virtual IActionResult GetUsersUserIdChats([FromQuery][Required()]decimal? limit, [FromQuery]decimal? nextCursor)
-        {
-            return Ok("GetAllUserChats");
-        }
+    /// <summary>
+    /// GetAllUserCommunities
+    /// </summary>
+    /// <remarks>Get user's communities using pagination.</remarks>    
+    [HttpGet]
+    [Route("{userId}/communities")]
+    public virtual ActionResult<List<CommunityResponseDto>> GetUsersUserIdCommunities([FromRoute][Required] uint userId, [FromQuery][Required()] uint? limit, [FromQuery] uint? nextCursor)
+    {
+        return Ok(new List<CommunityResponseDto>(){ new CommunityResponseDto()});
+    }
 
-        /// <summary>
-        /// GetAllUserCommunities
-        /// </summary>
-        /// <remarks>Get user&#x27;s communities using pagination.</remarks>
-        /// <param name="userId"></param>
-        /// <param name="limit"></param>
-        /// <param name="nextCursor"></param>
-        [HttpGet]
-        [Route("{userId}/communities")]
-        public virtual IActionResult GetUsersUserIdCommunities([FromRoute][Required] string userId, [FromQuery][Required()] decimal? limit, [FromQuery] decimal? nextCursor)
-        {
-            return Ok("GetAllUserCommunities");
-        }
+    /// <summary>
+    /// GetAllUserFriends
+    /// </summary>
+    /// <remarks>Get all user's friends using pagination.</remarks>    
+    [HttpGet]
+    [Route("{userId}/friends")]  
+    public virtual ActionResult<List<UserProfileResponseDto>> GetUsersUserIdFriends([FromRoute][Required] uint userId, [FromQuery][Required()] uint? limit, [FromQuery] uint? nextCursor)
+    {
+        return Ok(new List<UserProfileResponseDto>() { new UserProfileResponseDto() });
+    }
 
-        /// <summary>
-        /// GetAllUserFriends
-        /// </summary>
-        /// <remarks>Get all user&#x27;s friends using pagination.</remarks>
-        /// <param name="userId"></param>
-        /// <param name="limit"></param>
-        /// <param name="nextCursor"></param>
-        [HttpGet]
-        [Route("{userId}/friends")]  
-        public virtual IActionResult GetUsersUserIdFriends([FromRoute][Required]string userId, [FromQuery][Required()]decimal? limit, [FromQuery]decimal? nextCursor)
-        {
-            return Ok("GetAllUserFriends");
-        }
+    /// <summary>
+    /// GetAllUserPosts
+    /// </summary>
+    /// <remarks>Get all user's posts using pagination.</remarks>    
+    [HttpGet]
+    [Route("{userId}/posts")]
+    public virtual ActionResult<List<PostResponseDto>> GetUsersUserIdPosts([FromRoute][Required] uint userId, [FromQuery]uint? limit, [FromQuery]uint? currCursor)
+    {
+        return Ok(new List<PostResponseDto>() { new PostResponseDto()});
+    }
 
-        /// <summary>
-        /// GetAllUserPosts
-        /// </summary>
-        /// <remarks>Get all user&#x27;s posts using pagination.</remarks>
-        /// <param name="userId"></param>
-        /// <param name="limit"></param>
-        /// <param name="currCursor"></param>
-        [HttpGet]
-        [Route("{userId}/posts")]
-        public virtual IActionResult GetUsersUserIdPosts([FromRoute][Required]string userId, [FromQuery]decimal? limit, [FromQuery]decimal? currCursor)
-        {
-            return Ok("GetAllUserPosts");
-        }
+    /// <summary>
+    /// GetUserProfile
+    /// </summary>
+    /// <remarks>Get user's profile.</remarks>           
+    [HttpGet]
+    [Route("{userId}/profile")]
+    public virtual ActionResult<UserProfileResponseDto> GetUsersUserIdProfile([FromRoute][Required]uint userId)
+    {
+        return Ok(new UserProfileResponseDto());
+    }
 
-        /// <summary>
-        /// GetUserProfileInfo
-        /// </summary>
-        /// <remarks>Get user&#x27;s info.</remarks>
-        /// <param name="userId"></param>        
-        [HttpGet]
-        [Route("{userId}/profile")]
-        public virtual IActionResult GetUsersUserIdProfile([FromRoute][Required]string userId)
-        {
-            return Ok("GetUserProfileInfo");
-        }
+    /// <summary>
+    /// ChangeUserActivityFields
+    /// </summary>
+    /// <remarks>Makes user's account deactivated (for account owner or admin).</remarks>    
+    [HttpPatch]
+    [Route("{userId}/activity")]
+    public virtual ActionResult<UserActivityResponseDto> PatchUsersUserId([FromRoute][Required]uint userId, [FromBody][Required] UserActivityRequestDto userActivityRequestDto)
+    {
+        return Ok(new UserActivityResponseDto());
+    }
 
-        /// <summary>
-        /// ChangeUserActivityFields
-        /// </summary>
-        /// <remarks>Makes user&#x27;s account deactivated (for account owner or admin).</remarks>
-        /// <param name="userId"></param>        
-        [HttpPatch]
-        [Route("{userId}")]
-        public virtual IActionResult PatchUsersUserId([FromRoute][Required]string userId)
-        {
-            return Ok("ChangeUserActivityFields");
-        }
+    /// <summary>
+    /// ChangeUserLogin
+    /// </summary>
+    /// <remarks>Change Login.</remarks>        
+    [HttpPatch]
+    [Route("{userId}/login")]
+    public virtual ActionResult<UserLoginResponseDto> PatchUsersUserIdLogin([FromRoute][Required]uint userId, [FromBody][Required] UserLoginRequestDto userLoginRequestDto)
+    {
+        return Ok(new UserLoginResponseDto());
+    }
 
-        /// <summary>
-        /// ChangeUserAuthFields
-        /// </summary>
-        /// <remarks>Change authentification fields.</remarks>
-        /// <param name="userId"></param>
-        /// <param name="body">Conrains fields to change.</param>        
-        [HttpPatch]
-        [Route("{userId}/auth")]
-        public virtual IActionResult PatchUsersUserIdAuth([FromRoute][Required]string userId)
-        {
-            return Ok("ChangeUserAuthFields");
-        }
+    /// <summary>
+    /// ChangeUserPassword
+    /// </summary>
+    /// <remarks>Change Password.</remarks>        
+    [HttpPatch]
+    [Route("{userId}/password")]
+    public virtual ActionResult<UserPasswordResponseDto> PatchUsersUserIdPassword([FromRoute][Required] uint userId, [FromBody][Required] UserLoginRequestDto userLoginRequestDto)
+    {
+        return Ok(new UserPasswordResponseDto());
+    }
 
-        /// <summary>
-        /// ChangeUserProfileInfo
-        /// </summary>
-        /// <remarks>Change personal info (status, sex).</remarks>
-        /// <param name="userId"></param>
-        /// <param name="body">Contains fields to change.</param>        
-        [HttpPatch]
-        [Route("{userId}/profile")]
-        public virtual IActionResult PatchUsersUserIdProfile([FromRoute][Required]string userId)
-        {
-            return Ok("ChangeUserProfileInfo");
-        }
+    /// <summary>
+    /// ChangeUserEmail
+    /// </summary>
+    /// <remarks>Change user email.</remarks>        
+    [HttpPatch]
+    [Route("{userId}/email")]
+    public virtual ActionResult<UserEmailResponseDto> PatchUsersUserIdProfile([FromRoute][Required] uint userId, [FromBody][Required] UserEmailRequestDto userLoginRequestDto)
+    {
+        return Ok(new UserEmailResponseDto());
+    }
 
-        /// <summary>
-        /// CreateUser
-        /// </summary>
-        /// <remarks>Creates new user using login and password.</remarks>
-        /// <param name="body"></param>
-        [HttpPost]        
-        public virtual IActionResult PostUsers()
-        {
-            return Ok("CreateUser");
-        }
+    /// <summary>
+    /// ChangeUserProfile
+    /// </summary>
+    /// <remarks>Change user profile(status, sex).</remarks>        
+    [HttpPatch]
+    [Route("{userId}/profile")]
+    public virtual ActionResult<UserProfileResponseDto> PatchUsersUserIdProfile([FromRoute][Required]uint userId, [FromBody][Required] UserProfileRequestDto userLoginRequestDto)
+    {
+        return Ok(new UserProfileResponseDto());
+    }
 
-        /// <summary>
-        /// CreateUserPost
-        /// </summary>
-        /// <remarks>Create user&#x27;s post.</remarks>
-        /// <param name="userId"></param>
-        [HttpPost]
-        [Route("{userId}/posts")]
-        public virtual IActionResult PostUsersUserIdPosts([FromRoute][Required]string userId)
-        {
-            return Ok("CreateUserPost");
-        }
+    /// <summary>
+    /// CreateUser
+    /// </summary>
+    /// <remarks>Creates new user using login and Password.</remarks>    
+    [HttpPost]        
+    public virtual ActionResult<UserResponseDto> PostUsers([FromBody][Required] UserRequestDto userRequestDto)
+    {
+        return Ok(new UserResponseDto());
+    }
+
+    /// <summary>
+    /// CreateUserPost
+    /// </summary>
+    /// <remarks>Create user's post.</remarks>    
+    [HttpPost]
+    [Route("{userId}/posts")]
+    public virtual ActionResult<PostResponseDto> PostUsersUserIdPosts([FromRoute][Required]uint userId, [FromBody][Required] PostRequestDto postRequestDto)
+    {
+        return Ok(new PostResponseDto());
     }
 }

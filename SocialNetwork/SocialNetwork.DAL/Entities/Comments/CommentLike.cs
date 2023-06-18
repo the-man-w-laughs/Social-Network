@@ -5,7 +5,8 @@ namespace SocialNetwork.DAL.Entities.Comments;
 public partial class CommentLike
 {
     public int Id { get; set; }
-    
+    public DateTime CreatedAt { get; set; }
+
     public uint CommentId { get; set; }
     public uint UserId { get; set; }
 

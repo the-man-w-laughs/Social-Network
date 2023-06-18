@@ -3,12 +3,11 @@
 namespace SocialNetwork.DAL.Entities.Communities;
 
 public partial class CommunityMember
-{
-    public enum Type {}
-    
+{      
     public uint Id { get; set; }
-    public Type TypeId { get; set; }
+    public CommunityMemberType TypeId { get; set; }
     public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 
     public uint UserId { get; set; }
     public uint CommunityId { get; set; }

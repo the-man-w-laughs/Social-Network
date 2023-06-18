@@ -1,73 +1,77 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
+using SocialNetwork.BLL.DTO.CommentDto.Request;
+using SocialNetwork.BLL.DTO.CommentDto.Response;
 
-namespace SocialNetwork.Controllers
-{    
-    [ApiController]
-    [Route("[controller]")]
-    public class ControllersController : ControllerBase
+namespace SocialNetwork.API.Controllers;
+
+[ApiController]
+[Route("[controller]")]
+public class ControllersController : ControllerBase
+{
+    /// <summary>
+    /// DeletePostComment
+    /// </summary>
+    /// <remarks>Delete post comment (for comment owner).</remarks>                   
+    [HttpDelete]
+    [Route("{commentId}")]
+    public virtual ActionResult<CommentResponseDto> DeleteCommentsCommentId([FromRoute][Required] uint commentId)
     {
-        /// <summary>
-        /// DeletePostComment
-        /// </summary>
-        /// <remarks>Delete post comment (for comment owner).</remarks>        
-        /// <param name="commentId"></param>        
-        [HttpDelete]
-        [Route("{commentId}")]
-        public virtual IActionResult DeleteCommentsCommentId([FromRoute][Required] string commentId)
-        {
-            return Ok("DeletePostComment");
-        }
+        return new CommentResponseDto();
+    }
 
-        /// <summary>
-        /// UnlikePostComment
-        /// </summary>
-        /// <remarks>Unlike post comment (for comment owner).</remarks>        
-        /// <param name="commentId"></param>        
-        [HttpDelete]
-        [Route("{commentId}/likes")]
-        public virtual IActionResult DeleteComments([FromRoute][Required] string commentId)
-        {
-            return Ok("UnlikePostComment");
-        }
+    /// <summary>
+    /// UnlikePostComment
+    /// </summary>
+    /// <remarks>Unlike post comment (for comment owner).</remarks>                 
+    [HttpDelete]
+    [Route("{commentId}/likes")]
+    public virtual ActionResult<CommentLikeResponseDto> DeleteComments([FromRoute][Required] uint commentId)
+    {
+        return new CommentLikeResponseDto();
+    }
+    
+    /// <summary>
+    /// GetAllPostCommentLikes
+    /// </summary>
+    /// <remarks>Get all post comment likes using pagination.</remarks>            
+    [HttpGet]
+    [Route("{commentId}/likes")]
+    public virtual ActionResult<List<CommentLikeResponseDto>> GetCommentsCommentIdLikes([FromRoute][Required] uint commentId, [FromQuery] uint? limit, [FromQuery] uint? currCursor)
+    {
+        return new List<CommentLikeResponseDto>() { new CommentLikeResponseDto()};
+    }
 
-        /// <summary>
-        /// GetAllPostCommentLikes
-        /// </summary>
-        /// <remarks>Get all post comment likes using pagination.</remarks>        
-        /// <param name="commentId"></param>
-        /// <param name="limit"></param>
-        /// <param name="currCursor"></param>
-        [HttpGet]
-        [Route("{commentId}/likes")]
-        public virtual IActionResult GetCommentsCommentIdLikes([FromRoute][Required] string commentId, [FromQuery] decimal? limit, [FromQuery] decimal? currCursor)
-        {
-            return Ok("GetAllPostCommentLikes");
-        }
+    /// <summary>
+    /// LikePostComment
+    /// </summary>
+    /// <remarks>Like post comment.</remarks>                 
+    [HttpPost]
+    [Route("{commentId}/likes")]
+    public virtual ActionResult<CommentLikeResponseDto> PostCommentsCommentIdLikes([FromRoute][Required] uint commentId)
+    {
+        return new CommentLikeResponseDto();
+    }
 
-        /// <summary>
-        /// LikePostComment
-        /// </summary>
-        /// <remarks>Like post comment.</remarks>        
-        /// <param name="commentId"></param>        
-        [HttpPost]
-        [Route("{commentId}/likes")]
-        public virtual IActionResult PostCommentsCommentIdLikes([FromRoute][Required] string commentId)
-        {
-            return Ok("LikePostComment");
-        }
+    /// <summary>
+    /// ChangePostComment
+    /// </summary>
+    /// <remarks>Change post comment (for comment owner).</remarks>          
+    [HttpPatch]
+    [Route("{commentId}")]
+    public virtual ActionResult<CommentResponseDto> PatchCommentsCommentId([FromRoute][Required] uint postId, [FromRoute][Required] uint commentId, [FromBody][Required] CommentRequestDto commentRequestDto)
+    {
+        return new CommentResponseDto();
+    }
 
-        /// <summary>
-        /// ChangePostComment
-        /// </summary>
-        /// <remarks>Change post comment (for comment owner).</remarks>
-        /// <param name="postId"></param>
-        /// <param name="commentId"></param>        
-        [HttpPatch]
-        [Route("{commentId}")]
-        public virtual IActionResult PatchCommentsCommentId([FromRoute][Required] string postId, [FromRoute][Required] string commentId)
-        {
-            return Ok("ChangePostComment");
-        }
+    /// <summary>
+    /// ReplyComment
+    /// </summary>
+    /// <remarks>Reply comment (for comment owner).</remarks>          
+    [HttpPost]
+    [Route("{commentId}")]
+    public virtual ActionResult<CommentResponseDto> PostCommentsCommentId([FromRoute][Required] uint postId, [FromRoute][Required] uint commentId, [FromBody][Required] CommentRequestDto commentRequestDto)
+    {
+        return new CommentResponseDto();
     }
 }
