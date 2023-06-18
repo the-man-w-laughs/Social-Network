@@ -1,8 +1,8 @@
 using System.Linq.Expressions;
 
-namespace SocialNetwork.DAL.Repositories;
+namespace SocialNetwork.DAL.Contracts.Base;
 
-public interface IBaseRepository<TEntity> where TEntity : class, new()
+public interface IRepository<TEntity> where TEntity : class, new()
 {
     Task<List<TEntity>> Select(Expression<Func<TEntity, bool>>? whereFilter = null);
     Task<TEntity> Add(TEntity entity);

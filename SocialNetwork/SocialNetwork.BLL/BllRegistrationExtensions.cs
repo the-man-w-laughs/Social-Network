@@ -7,8 +7,9 @@ public static class BllRegistrationExtensions
 {
     public static void RegisterBllDependencies(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddAutoMapper(typeof(AutoMapperProfile));
+        
         // TODO - register services
-        // services.AddAutoMapper(typeof(AutoMapperProfile));
         // services.AddScoped<UserService>();
     }
 }

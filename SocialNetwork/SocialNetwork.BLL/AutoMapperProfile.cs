@@ -1,7 +1,6 @@
 using AutoMapper;
-using SocialNetwork.BLL.DTO;
-using SocialNetwork.BLL.DTO.ChatDto.Response;
-using SocialNetwork.BLL.DTO.Users.response;
+using SocialNetwork.BLL.DTO.Chats.Response;
+using SocialNetwork.BLL.DTO.Users.Response;
 using SocialNetwork.DAL.Entities.Chats;
 using SocialNetwork.DAL.Entities.Users;
 

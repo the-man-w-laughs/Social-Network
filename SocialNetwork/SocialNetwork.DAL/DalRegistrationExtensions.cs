@@ -2,6 +2,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SocialNetwork.DAL.Context;
+using SocialNetwork.DAL.Contracts;
+using SocialNetwork.DAL.Repositories;
 
 namespace SocialNetwork.DAL;
 
@@ -18,9 +20,12 @@ public static class DalRegistrationExtensions
             builder.UseMySQL(connectionString);
         });
 
-        // TODO - register repositories
-        // services.AddScoped<UserRepository>();
-        // or
-        // services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IChatRepository, ChatRepository>();
+        services.AddScoped<ICommentRepository, CommentRepository>();
+        services.AddScoped<ICommunityRepository, CommunityRepository>();
+        services.AddScoped<IMediaRepository, MediaRepository>();
+        services.AddScoped<IMessageRepository, MessageRepository>();
+        services.AddScoped<IPostRepository, PostRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
     }
 }
