@@ -1,12 +1,14 @@
 using System.ComponentModel.DataAnnotations;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using SocialNetwork.BLL.Contracts;
 using SocialNetwork.BLL.DTO.Chats.Response;
 using SocialNetwork.BLL.DTO.Communities.Response;
 using SocialNetwork.BLL.DTO.Posts.Request;
 using SocialNetwork.BLL.DTO.Posts.Response;
 using SocialNetwork.BLL.DTO.Users.Request;
 using SocialNetwork.BLL.DTO.Users.Response;
+using SocialNetwork.DAL.Contracts;
 using SocialNetwork.DAL.Entities.Users;
 
 namespace SocialNetwork.API.Controllers;
@@ -16,10 +18,14 @@ namespace SocialNetwork.API.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly IMapper _mapper;
-
-    public UsersController(IMapper mapper)
+    private readonly IUserRepository _userRepository;
+    private readonly IPasswordHashService _passwordHashService;
+    
+    public UsersController(IMapper mapper, IUserRepository userRepository, IPasswordHashService passwordHashService)
     {
         _mapper = mapper;
+        _userRepository = userRepository;
+        _passwordHashService = passwordHashService;
     }
 
     /// <summary>
@@ -154,7 +160,24 @@ public class UsersController : ControllerBase
     [HttpPost]        
     public virtual ActionResult<UserResponseDto> PostUsers([FromBody][Required] UserRequestDto userRequestDto)
     {
-        return Ok(new UserResponseDto());
+        var hashSaltPair = _passwordHashService.EncodePassword(userRequestDto.Password);
+        
+        var user = _userRepository.Add(new User
+        { 
+            Email = userRequestDto.Email,
+            Login = userRequestDto.Login,
+            PasswordHash = hashSaltPair.EncodedPassword,
+            Salt = hashSaltPair.Salt
+        }).Result;
+        
+        return Ok(new UserResponseDto
+        {
+            Id = user.Id,
+            Email = user.Email,
+            Login = user.Login,
+            PasswordHash = user.PasswordHash,
+            Salt = user.Salt
+        });
     }
 
     /// <summary>
