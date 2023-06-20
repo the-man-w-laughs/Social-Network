@@ -11,7 +11,7 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
 
     protected Repository(SocialNetworkContext socialNetworkContext) => SocialNetworkContext = socialNetworkContext;
 
-    public virtual async Task<List<TEntity>> Select(Expression<Func<TEntity, bool>>? whereFilter = null)
+    public virtual async Task<List<TEntity>> SelectAsync(Expression<Func<TEntity, bool>>? whereFilter = null)
     {
         var resultSet = SocialNetworkContext.Set<TEntity>();
         return await (whereFilter == null 
@@ -19,21 +19,21 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
             : resultSet.Where(whereFilter).ToListAsync());
     }
 
-    public virtual async Task<TEntity> Add(TEntity entity)
+    public virtual async Task<TEntity> AddAsync(TEntity entity)
     {
         await SocialNetworkContext.AddAsync(entity);
         await SocialNetworkContext.SaveChangesAsync();
         return entity;
     }
 
-    public virtual async Task<TEntity> Update(TEntity entity)
+    public virtual async Task<TEntity> UpdateAsync(TEntity entity)
     {
         var entityEntry = SocialNetworkContext.Update(entity);
         await SocialNetworkContext.SaveChangesAsync();
         return entityEntry.Entity;
     }
 
-    public virtual async Task<TEntity> Delete(TEntity entity)
+    public virtual async Task<TEntity> DeleteAsync(TEntity entity)
     {
         var entityEntry = SocialNetworkContext.Remove(entity);
         await SocialNetworkContext.SaveChangesAsync();
