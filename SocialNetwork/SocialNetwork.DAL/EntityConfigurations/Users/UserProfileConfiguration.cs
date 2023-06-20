@@ -18,9 +18,6 @@ public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
             .HasColumnName("id")
             .ValueGeneratedOnAdd()
             .IsRequired();
-        builder.Property(e => e.UserEmail)
-            .HasColumnName("user_email")
-            .HasMaxLength(Constants.EmailMaxLength);
         builder.Property(e => e.UserName)
             .HasColumnName("user_name")
             .HasMaxLength(Constants.UserNameMaxLength);
