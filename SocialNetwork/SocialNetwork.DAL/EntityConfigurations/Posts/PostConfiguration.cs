@@ -20,7 +20,7 @@ public class PostConfiguration : IEntityTypeConfiguration<Post>
             .HasColumnType("text")
             .HasMaxLength(Constants.PostContentMaxLength);
         builder.Property(e => e.CreatedAt).HasColumnName("created_at").IsRequired()
-            .HasColumnType("datetime");
+            .HasColumnType("datetime").HasDefaultValueSql("CURRENT_TIMESTAMP");
         builder.Property(e => e.UpdatedAt).HasColumnName("updated_at");
 
         builder.Property(e => e.RepostId).HasColumnName("repost_id");

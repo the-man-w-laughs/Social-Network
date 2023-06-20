@@ -21,7 +21,7 @@ public class CommentConfiguration : IEntityTypeConfiguration<Comment>
         builder.Property(e => e.Content).HasColumnName("content")
             .HasColumnType("text");
         builder.Property(e => e.CreatedAt).HasColumnName("created_at").IsRequired()
-            .HasColumnType("datetime");
+            .HasColumnType("datetime").HasDefaultValueSql("CURRENT_TIMESTAMP");
         builder.Property(e => e.UpdatedAt).HasColumnName("updated_at")
             .HasColumnType("datetime");
 

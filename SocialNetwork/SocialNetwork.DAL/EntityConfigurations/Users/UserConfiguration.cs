@@ -19,7 +19,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasMaxLength(Constants.UserLoginMaxLength);
         builder.Property(user  => user.Email).HasColumnName("email").IsRequired()
             .HasMaxLength(Constants.UserEmailMaxLength);
-        builder.Property(user  => user.PasswordHash).HasColumnName("password").IsRequired()
+        builder.Property(user  => user.PasswordHash).HasColumnName("password_hash").IsRequired()
             .HasMaxLength(32)
             .IsFixedLength();
         builder.Property(user  => user.Salt).HasColumnName("salt").IsRequired()
@@ -28,7 +28,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(user  => user.LastActiveAt).HasColumnName("last_active_at").IsRequired()
             .HasColumnType("datetime");
         builder.Property(user  => user.CreatedAt).HasColumnName("created_at").IsRequired()
-            .HasColumnType("datetime");
+            .HasColumnType("datetime").HasDefaultValueSql("CURRENT_TIMESTAMP");
         builder.Property(user  => user.DeletedAt).HasColumnName("deleted_at")
             .HasColumnType("datetime");
         builder.Property(user  => user.DeactivatedAt).HasColumnName("deactivated_at")
