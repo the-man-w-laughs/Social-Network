@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.EntityFrameworkCore;
 using SocialNetwork.DAL.Context;
 using SocialNetwork.DAL.Contracts.Base;
@@ -13,10 +14,16 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
 
     public virtual async Task<List<TEntity>> SelectAsync(Expression<Func<TEntity, bool>>? whereFilter = null)
     {
-        var resultSet = SocialNetworkContext.Set<TEntity>();
-        return await (whereFilter == null 
-            ? resultSet.ToListAsync() 
-            : resultSet.Where(whereFilter).ToListAsync());
+        DbSet<TEntity> resultSet = SocialNetworkContext.Set<TEntity>();
+
+        if (whereFilter == null)
+        {
+            return await resultSet.ToListAsync();
+        }
+        else
+        {
+            return await resultSet.Where(whereFilter).ToListAsync();
+        }
     }
 
     public virtual async Task<TEntity> AddAsync(TEntity entity)
@@ -28,15 +35,29 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
 
     public virtual async Task<TEntity> UpdateAsync(TEntity entity)
     {
-        var entityEntry = SocialNetworkContext.Update(entity);
+        var entityQuery = await SocialNetworkContext.FindAsync<TEntity>(id);
+        if (entityQuery == null)
+        {
+            return entityQuery;
+        }
+        entity.ApplyTo(entityQuery);
         await SocialNetworkContext.SaveChangesAsync();
-        return entityEntry.Entity;
+
+        return entityQuery;
     }
 
     public virtual async Task<TEntity> DeleteAsync(TEntity entity)
     {
-        var entityEntry = SocialNetworkContext.Remove(entity);
-        await SocialNetworkContext.SaveChangesAsync();
-        return entityEntry.Entity;
+        var entity = await SocialNetworkContext.FindAsync<TEntity>(id);
+        if (entity != null)
+        {
+            var entityEntry = SocialNetworkContext.Remove(entity);
+            await SocialNetworkContext.SaveChangesAsync();
+            return entityEntry.Entity;
+        }
+        else
+        {
+            return null;
+        }
     }
 }
