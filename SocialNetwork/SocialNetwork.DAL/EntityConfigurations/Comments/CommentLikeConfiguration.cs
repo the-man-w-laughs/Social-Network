@@ -19,7 +19,7 @@ public class CommentLikeConfiguration : IEntityTypeConfiguration<CommentLike>
             .ValueGeneratedOnAdd();
 
         builder.Property(e => e.CreatedAt).HasColumnName("created_at").IsRequired()
-            .HasColumnType("datetime");
+            .HasColumnType("datetime").HasDefaultValueSql("CURRENT_TIMESTAMP");
 
         builder.Property(e => e.CommentId).HasColumnName("comment_id").IsRequired();
         builder.Property(e => e.UserId).HasColumnName("user_id").IsRequired();

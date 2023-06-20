@@ -22,9 +22,11 @@ public class MessageConfiguration : IEntityTypeConfiguration<Message>
         builder.Property(e => e.Content).HasColumnName("content")
             .HasColumnType("text").HasMaxLength(Constants.MessageTextMaxLength);
         builder.Property(e => e.CreatedAt).HasColumnName("created_at").IsRequired()
-            .HasColumnType("datetime");
-        builder.Property(e => e.UpdatedAt).HasColumnName("updated_at");
-        
+            .HasColumnType("datetime").HasDefaultValueSql("CURRENT_TIMESTAMP");
+        builder.Property(e => e.UpdatedAt).HasColumnName("updated_at")
+            .HasColumnType("datetime").HasDefaultValueSql("CURRENT_TIMESTAMP")
+            .ValueGeneratedOnUpdate();
+
         builder.Property(e => e.ChatId).HasColumnName("chat_id").IsRequired();
         builder.Property(e => e.SenderId).HasColumnName("sender_id").IsRequired();
         builder.Property(e => e.RepliedMessageId).HasColumnName("replied_message_id");

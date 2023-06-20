@@ -18,8 +18,6 @@ public class AutoMapperProfile : Profile
 {
     public AutoMapperProfile()
     {
-        // Chats
-        //ChatMediaResponseDto
         CreateMap<Chat, ChatResponseDto>();
         CreateMap<ChatMember, ChatMemberResponseDto>();
 

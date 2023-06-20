@@ -19,9 +19,10 @@ public class CommunityMemberConfiguration : IEntityTypeConfiguration<CommunityMe
             .ValueGeneratedOnAdd();
         builder.Property(e => e.TypeId).HasColumnName("community_member_type").IsRequired();
         builder.Property(e => e.CreatedAt).HasColumnName("created_at").IsRequired()
-            .HasColumnType("datetime");
+            .HasColumnType("datetime").HasDefaultValueSql("CURRENT_TIMESTAMP");
         builder.Property(e => e.UpdatedAt).HasColumnName("updated_at")
-            .HasColumnType("datetime");
+            .HasColumnType("datetime").HasDefaultValueSql("CURRENT_TIMESTAMP")
+            .ValueGeneratedOnUpdate();
 
         builder.Property(e => e.UserId).HasColumnName("user_id").IsRequired();
         builder.Property(e => e.CommunityId).HasColumnName("community_id").IsRequired();

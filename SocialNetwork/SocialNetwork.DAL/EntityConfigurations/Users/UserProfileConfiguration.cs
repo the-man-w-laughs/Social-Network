@@ -36,10 +36,10 @@ public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
         builder.Property(e => e.CreatedAt)
             .HasColumnName("created_at")
             .HasColumnType("datetime")
-            .IsRequired();
-        builder.Property(e => e.UpdatedAt)
-            .HasColumnName("updated_at")
-            .HasColumnType("datetime");
+            .IsRequired().HasDefaultValueSql("CURRENT_TIMESTAMP");
+        builder.Property(e => e.UpdatedAt).HasColumnName("updated_at")
+            .HasColumnType("datetime").HasDefaultValueSql("CURRENT_TIMESTAMP")
+            .ValueGeneratedOnUpdate();
         builder.Property(e => e.UserId)
             .HasColumnName("user_id")
             .IsRequired();
