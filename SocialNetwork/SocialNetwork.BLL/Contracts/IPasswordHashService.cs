@@ -2,11 +2,8 @@ namespace SocialNetwork.BLL.Contracts;
 
 public interface IPasswordHashService
 {
-    public struct HashSaltPair
-    {
-        public byte[] EncodedPassword;
-        public string Salt;
-    }
-    
-    HashSaltPair EncodePassword(string password);
+    public byte[] HashPassword(string password,string salt);
+
+    public bool VerifyPassword(string password, byte[] hashedPassword);
+
 }

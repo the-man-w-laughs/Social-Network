@@ -13,5 +13,7 @@ public static class BllRegistrationExtensions
         
         // TODO - register services
         services.AddScoped<IPasswordHashService, PasswordHashService>();
+        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<ISaltService, SaltService>();
     }
 }
