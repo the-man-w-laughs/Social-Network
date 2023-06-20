@@ -34,21 +34,12 @@ public class SocialNetworkContext : DbContext
     public DbSet<UserProfileMedia> UserProfileMedias { get; set; } = null!;
     public DbSet<UserProfilePost> UserProfilePosts { get; set; } = null!;
 
-    // TODO - unnecessary, if deploy the database in the cloud
-    public SocialNetworkContext()
+    public SocialNetworkContext(DbContextOptions options) : base(options)
     {
         Database.EnsureDeleted();
         Database.EnsureCreated();
     }
     
-    public SocialNetworkContext(DbContextOptions options) : base(options) {}
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        // TODO - this will be deleted after the program will work on DI. The configuration is implemented in the DalRegistrationExtensions.cs file
-        if (!optionsBuilder.IsConfigured) 
-            optionsBuilder.UseMySQL("server=localhost;database=social_network;user=root;password=root");
-    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

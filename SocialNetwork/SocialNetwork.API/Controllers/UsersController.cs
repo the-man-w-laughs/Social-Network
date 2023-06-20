@@ -153,32 +153,6 @@ public class UsersController : ControllerBase
         return Ok(new UserProfileResponseDto());
     }
 
-    /// <summary>
-    /// CreateUser
-    /// </summary>
-    /// <remarks>Creates new user using login and Password.</remarks>    
-    [HttpPost]        
-    public virtual ActionResult<UserResponseDto> PostUsers([FromBody][Required] UserRequestDto userRequestDto)
-    {
-        var hashSaltPair = _passwordHashService.EncodePassword(userRequestDto.Password);
-        
-        var user = _userRepository.Add(new User
-        { 
-            Email = userRequestDto.Email,
-            Login = userRequestDto.Login,
-            PasswordHash = hashSaltPair.EncodedPassword,
-            Salt = hashSaltPair.Salt
-        }).Result;
-        
-        return Ok(new UserResponseDto
-        {
-            Id = user.Id,
-            Email = user.Email,
-            Login = user.Login,
-            PasswordHash = user.PasswordHash,
-            Salt = user.Salt
-        });
-    }
 
     /// <summary>
     /// CreateUserPost

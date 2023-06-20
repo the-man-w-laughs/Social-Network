@@ -1,6 +1,5 @@
 using SocialNetwork.DAL;
 using SocialNetwork.BLL;
-using SocialNetwork.DAL.Context;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,8 +26,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
-using (var db = new SocialNetworkContext())
-{
-}
 
 app.Run();
+
+

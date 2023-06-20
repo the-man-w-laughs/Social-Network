@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialNetwork.BLL.DTO.Chats.Request;
 using SocialNetwork.BLL.DTO.Chats.Response;
@@ -16,9 +17,15 @@ public class ChatsController : ControllerBase
     /// </summary>
     /// <remarks>Delete chat. For chat admins.</remarks>      
     [HttpDelete]
+    [Authorize(Roles = "Admin, User")]
     [Route("{chatId}")]
     public virtual ActionResult<ChatResponseDto> DeleteChatsChatId([FromRoute][Required]uint chatId)
     {
+        // Доступно только для авторизованных пользователей
+        // проверяем существует ли чат с таким id если нет выбрасываем Bad request
+        // Если запрос кинул админ соц сети то удалеям без вопросов
+        // иначе проверяем является ли пользователь создателем чата если да то удаляем
+        // если нет выкидываем accessdenied
         return new ChatResponseDto { Id = chatId, CreatedAt = DateTime.Now, Name = "Svin" };
     }
 
@@ -27,9 +34,15 @@ public class ChatsController : ControllerBase
     /// </summary>
     /// <remarks>Delete a member from chat (for chat admins, admins).</remarks>         
     [HttpDelete]
+    [Authorize(Roles = "Admin, User")]
     [Route("{chatId}/members/{memberId}")]
     public virtual ActionResult<ChatMemberResponseDto> DeleteChatsChatIdMembersParticipantId([FromRoute][Required] uint chatId, [FromRoute][Required] uint memberId)
     {
+        // Доступно только для авторизованных пользователей
+        // проверяем существует ли чат с таким id если нет выбрасываем Bad request
+        // Если запрос кинул админ соц сети то удалеям без вопросов
+        // иначе проверяем является ли пользователь админом или создателем чата если да то удаляем
+        // если нет выкидываем accessdenied
         return new ChatMemberResponseDto();
     }
 
@@ -39,9 +52,11 @@ public class ChatsController : ControllerBase
     /// </summary>
     /// <remarks>Get all chat medias (for chat members).</remarks>    
     [HttpGet]
+    [Authorize(Roles = "Admin, User")]
     [Route("{chatId}/medias")]
     public virtual IActionResult GetChatChatIdMedias([FromRoute][Required] uint chatId, [FromQuery] uint? limit, [FromQuery] uint? nextCursor)
     {
+        // TODO ПРИДУМАТЬ УЖЕ НАКОНЕЦ ТО ЧТО ТО С MEDIA!!!!!!!!!
         return Ok($"GetAllChatMedias");
     }
 
@@ -51,9 +66,12 @@ public class ChatsController : ControllerBase
     /// </summary>
     /// <remarks>Get chat information (name, photo). For chat members.</remarks>         
     [HttpGet]
+    [Authorize(Roles = "Admin, User")]
     [Route("{chatId}")]
     public virtual IActionResult GetChatsChatId([FromRoute][Required] uint chatId)
     {
+        // TODO ПРИДУМАТЬ УЖЕ НАКОНЕЦ ТО ЧТО ТО С MEDIA для фото чата!!!!!!!!!
+
         return Ok($"GetChatInfo");
     }
 
@@ -62,9 +80,14 @@ public class ChatsController : ControllerBase
     /// </summary>
     /// <remarks>Get all chat members using pagination (for chat members).</remarks>    
     [HttpGet]
+    [Authorize(Roles = "Admin, User")]
     [Route("{chatId}/members")]
     public virtual ActionResult<List<ChatMemberResponseDto>> GetChatsChatIdMembers([FromRoute][Required] uint chatId, [FromQuery][Required()] uint? limit, [FromQuery] uint? nextCursor)
     {
+        
+        // проверяем существует ли такой chatid если нет кидаем Badrequest
+        // если запрос кинул админ соц сети то обрабатываем его проверяя параметры пагинации
+        // иначе проверяем является ли пользователь участником чата если нет accessdenied
         return new List<ChatMemberResponseDto>() { new ChatMemberResponseDto()};
     }
 
@@ -74,7 +97,7 @@ public class ChatsController : ControllerBase
     /// <remarks>Get all chat messages using pagination (for chat members). </remarks>    
     [HttpGet]
     [Route("{chatId}/messages")]
-    public virtual ActionResult<List<MessageResponseDto>> GetChatsChatIdMessages([FromRoute][Required] uint chatId, [FromQuery][Required()] uint? limit_, [FromQuery] uint? nextCursor)
+    public virtual ActionResult<List<MessageResponseDto>> GetChatsChatIdMessages([FromRoute][Required] uint chatId, [FromQuery][Required()] uint? limit, [FromQuery] uint? nextCursor)
     {
         return new List<MessageResponseDto>() { new MessageResponseDto()};
     }

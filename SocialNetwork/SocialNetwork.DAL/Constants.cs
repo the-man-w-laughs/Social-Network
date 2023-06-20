@@ -16,5 +16,7 @@ public static class Constants
     public const int UserEducationMaxLength = 40;
     public const int UserSurnameMaxLength = 40;
     public const int UserSexMaxLength = 20;
-    public const int UserNameMaxLength = 20;    
+    public const int UserNameMaxLength = 20;
+    public const int UserLoginMinLength = 3;
+    public const int UserPasswordMinLength = 6;
 }
