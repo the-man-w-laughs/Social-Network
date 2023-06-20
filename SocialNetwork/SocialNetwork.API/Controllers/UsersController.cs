@@ -138,7 +138,7 @@ public class UsersController : ControllerBase
     [HttpPatch]
     [Route("{userId}/email")]
     public virtual ActionResult<UserEmailResponseDto> PatchUsersUserIdProfile([FromRoute][Required] uint userId, [FromBody][Required] UserEmailRequestDto userLoginRequestDto)
-    {
+    {        
         return Ok(new UserEmailResponseDto());
     }
 

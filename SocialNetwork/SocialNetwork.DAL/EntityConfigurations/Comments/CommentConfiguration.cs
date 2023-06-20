@@ -23,7 +23,8 @@ public class CommentConfiguration : IEntityTypeConfiguration<Comment>
         builder.Property(e => e.CreatedAt).HasColumnName("created_at").IsRequired()
             .HasColumnType("datetime").HasDefaultValueSql("CURRENT_TIMESTAMP");
         builder.Property(e => e.UpdatedAt).HasColumnName("updated_at")
-            .HasColumnType("datetime");
+            .HasColumnType("datetime").HasDefaultValueSql("CURRENT_TIMESTAMP")
+            .ValueGeneratedOnUpdate();
 
         builder.Property(e => e.AuthorId).HasColumnName("author_id").IsRequired();
         builder.Property(e => e.PostId).HasColumnName("post_id").IsRequired();
