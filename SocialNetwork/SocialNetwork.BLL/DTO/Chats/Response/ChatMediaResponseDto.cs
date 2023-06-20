@@ -1,6 +1,6 @@
-﻿namespace SocialNetwork.BLL.DTO.ChatDto.Response;
+﻿namespace SocialNetwork.BLL.DTO.Chats.Response;
 
 public class ChatMediaResponseDto
 {
-
+    // TODO - find out what to do with 'media'
 }

@@ -1,5 +1,4 @@
-﻿using SocialNetwork.DAL.Chats;
-using SocialNetwork.DAL.Entities.Messages;
+﻿using SocialNetwork.DAL.Entities.Messages;
 using SocialNetwork.DAL.Entities.Users;
 
 namespace SocialNetwork.DAL.Entities.Chats;

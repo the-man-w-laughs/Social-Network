@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
-using SocialNetwork.BLL.DTO.CommentDto.Request;
-using SocialNetwork.BLL.DTO.CommentDto.Response;
+using SocialNetwork.BLL.DTO.Comments.Request;
+using SocialNetwork.BLL.DTO.Comments.Response;
 using SocialNetwork.BLL.DTO.Posts.Request;
 using SocialNetwork.BLL.DTO.Posts.Response;
 

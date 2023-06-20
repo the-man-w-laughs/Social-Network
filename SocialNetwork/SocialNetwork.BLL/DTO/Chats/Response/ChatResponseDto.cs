@@ -1,4 +1,4 @@
-﻿namespace SocialNetwork.BLL.DTO.ChatDto.Response;
+﻿namespace SocialNetwork.BLL.DTO.Chats.Response;
 
 public class ChatResponseDto
 {

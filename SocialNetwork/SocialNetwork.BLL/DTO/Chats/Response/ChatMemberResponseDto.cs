@@ -1,7 +1,6 @@
-﻿using SocialNetwork.DAL.Chats;
-using SocialNetwork.DAL.Entities.Chats;
+﻿using SocialNetwork.DAL.Entities.Chats;
 
-namespace SocialNetwork.BLL.DTO.ChatDto.Response;
+namespace SocialNetwork.BLL.DTO.Chats.Response;
 
 public class ChatMemberResponseDto
 {        

@@ -1,14 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using SocialNetwork.BLL.DTO;
-using SocialNetwork.BLL.DTO.ChatDto.Request;
-using SocialNetwork.BLL.DTO.ChatDto.Response;
+using SocialNetwork.BLL.DTO.Chats.Response;
 using SocialNetwork.BLL.DTO.Communities.Response;
 using SocialNetwork.BLL.DTO.Posts.Request;
 using SocialNetwork.BLL.DTO.Posts.Response;
-using SocialNetwork.BLL.DTO.Users.request;
-using SocialNetwork.BLL.DTO.Users.response;
+using SocialNetwork.BLL.DTO.Users.Request;
+using SocialNetwork.BLL.DTO.Users.Response;
 using SocialNetwork.DAL.Entities.Users;
 
 namespace SocialNetwork.API.Controllers;

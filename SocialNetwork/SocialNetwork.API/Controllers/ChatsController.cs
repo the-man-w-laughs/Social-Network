@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
-using SocialNetwork.BLL.DTO.ChatDto.Request;
-using SocialNetwork.BLL.DTO.ChatDto.Response;
+using SocialNetwork.BLL.DTO.Chats.Request;
+using SocialNetwork.BLL.DTO.Chats.Response;
 using SocialNetwork.BLL.DTO.Messages.Request;
 using SocialNetwork.BLL.DTO.Messages.Response;
 
