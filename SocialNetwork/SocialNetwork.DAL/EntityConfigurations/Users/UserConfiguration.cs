@@ -10,39 +10,39 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
     {
         builder.ToTable("users");
         
-        builder.HasKey(e => e.Id).HasName("PRIMARY");
+        builder.HasKey(user => user.Id).HasName("PRIMARY");
         
-        builder.Property(e => e.Id).HasColumnName("id").IsRequired()
+        builder.Property(user  => user.Id).HasColumnName("id").IsRequired()
             .IsRequired()
             .ValueGeneratedOnAdd();
-        builder.Property(e => e.Login).HasColumnName("login").IsRequired()
+        builder.Property(user  => user.Login).HasColumnName("login").IsRequired()
             .HasMaxLength(Constants.UserLoginMaxLength);
-        builder.Property(e => e.Email).HasColumnName("email").IsRequired()
+        builder.Property(user  => user.Email).HasColumnName("email").IsRequired()
             .HasMaxLength(Constants.UserEmailMaxLength);
-        builder.Property(e => e.PasswordHash).HasColumnName("Password").IsRequired()
+        builder.Property(user  => user.PasswordHash).HasColumnName("password").IsRequired()
             .HasMaxLength(32)
             .IsFixedLength();
-        builder.Property(e => e.Salt).HasColumnName("salt").IsRequired()
+        builder.Property(user  => user.Salt).HasColumnName("salt").IsRequired()
             .HasMaxLength(20);
-        builder.Property(e => e.TypeId).HasColumnName("type_id").IsRequired();
-        builder.Property(e => e.LastActiveAt).HasColumnName("last_active_at").IsRequired()
+        builder.Property(user  => user.TypeId).HasColumnName("type_id").IsRequired();
+        builder.Property(user  => user.LastActiveAt).HasColumnName("last_active_at").IsRequired()
             .HasColumnType("datetime");
-        builder.Property(e => e.CreatedAt).HasColumnName("created_at").IsRequired()
+        builder.Property(user  => user.CreatedAt).HasColumnName("created_at").IsRequired()
             .HasColumnType("datetime");
-        builder.Property(e => e.DeletedAt).HasColumnName("deleted_at")
+        builder.Property(user  => user.DeletedAt).HasColumnName("deleted_at")
             .HasColumnType("datetime");
-        builder.Property(e => e.DeactivatedAt).HasColumnName("deactivated_at")
+        builder.Property(user  => user.DeactivatedAt).HasColumnName("deactivated_at")
             .HasColumnType("datetime");
-        builder.Property(e => e.UserTypeUpdatedAt).HasColumnName("user_type_updated_at")
+        builder.Property(user  => user.UserTypeUpdatedAt).HasColumnName("user_type_updated_at")
             .HasColumnType("datetime");
-        builder.Property(e => e.LoginUpdatedAt).HasColumnName("login_updated_at")
+        builder.Property(user  => user.LoginUpdatedAt).HasColumnName("login_updated_at")
             .HasColumnType("datetime");
-        builder.Property(e => e.EmailUpdatedAt).HasColumnName("email_updated_at")
+        builder.Property(user  => user.EmailUpdatedAt).HasColumnName("email_updated_at")
             .HasColumnType("datetime");
-        builder.Property(e => e.PasswordUpdatedAt).HasColumnName("Password_updated_at")
+        builder.Property(user  => user.PasswordUpdatedAt).HasColumnName("Password_updated_at")
             .HasColumnType("datetime");
-        builder.Property(e => e.IsDeactivated).HasColumnName("is_deactivated");
-        builder.Property(e => e.IsDeleted).HasColumnName("is_deleted");
+        builder.Property(user  => user.IsDeactivated).HasColumnName("is_deactivated");
+        builder.Property(user  => user.IsDeleted).HasColumnName("is_deleted");
         
     }
 }
