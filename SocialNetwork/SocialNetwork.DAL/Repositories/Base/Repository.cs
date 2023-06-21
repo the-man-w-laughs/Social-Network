@@ -14,7 +14,7 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
 
     public virtual async Task<List<TEntity>> SelectAsync(Expression<Func<TEntity, bool>>? whereFilter = null)
     {
-        DbSet<TEntity> resultSet = SocialNetworkContext.Set<TEntity>();
+        var resultSet = SocialNetworkContext.Set<TEntity>();
 
         if (whereFilter == null)
         {
