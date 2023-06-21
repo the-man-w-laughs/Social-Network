@@ -1,8 +1,5 @@
-using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore;
 using SocialNetwork.BLL.Contracts;
-using SocialNetwork.DAL.Context;
-using SocialNetwork.DAL.Contracts;
+using SocialNetwork.DAL.Contracts.Chats;
 using SocialNetwork.DAL.Entities.Chats;
 using SocialNetwork.DAL.Entities.Messages;
 
@@ -19,7 +16,7 @@ public class ChatService : IChatService
 
     public async Task<Chat?> GetChatById(uint chatId)
     {
-        var chats = await _chatRepository.SelectAsync(c => c.Id == chatId);
+        var chats = await _chatRepository.GetAllAsync(c => c.Id == chatId);
         return chats.FirstOrDefault();
     }
 
@@ -52,7 +49,7 @@ public class ChatService : IChatService
 
     public async Task<List<ChatMember>> GetAllChatMembers(uint chatId, int limit, int currCursor)
     {
-        var chat = (await _chatRepository.SelectAsync(c => c.Id == chatId)).FirstOrDefault();
+        var chat = (await _chatRepository.GetAllAsync(c => c.Id == chatId)).FirstOrDefault();
         return chat!.ChatMembers
             .OrderBy(cm=> cm.Id)
             .Where(p=>p.Id>currCursor)

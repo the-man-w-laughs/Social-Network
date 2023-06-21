@@ -1,4 +1,3 @@
-using System.Text;
 using SocialNetwork.BLL.Contracts;
 using BCryptNet = BCrypt.Net.BCrypt;
 

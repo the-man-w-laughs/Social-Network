@@ -2,17 +2,14 @@ using System.ComponentModel.DataAnnotations;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SocialNetwork.BLL.Contracts;
-using SocialNetwork.BLL.DTO.Chats.Request;
 using SocialNetwork.BLL.DTO.Chats.Response;
 using SocialNetwork.BLL.DTO.Communities.Response;
 using SocialNetwork.BLL.DTO.Posts.Request;
 using SocialNetwork.BLL.DTO.Posts.Response;
 using SocialNetwork.BLL.DTO.Users.Request;
 using SocialNetwork.BLL.DTO.Users.Response;
-using SocialNetwork.DAL.Context;
-using SocialNetwork.DAL.Contracts;
+using SocialNetwork.DAL.Contracts.Users;
 using SocialNetwork.DAL.Entities.Users;
-using SocialNetwork.DAL.Repositories;
 
 namespace SocialNetwork.API.Controllers;
 
@@ -22,13 +19,11 @@ public class UsersController : ControllerBase
 {
     private readonly IMapper _mapper;
     private readonly IUserRepository _userRepository;
-    private readonly IPasswordHashService _passwordHashService;
     
-    public UsersController(IMapper mapper, IUserRepository userRepository, IPasswordHashService passwordHashService)
+    public UsersController(IMapper mapper, IUserRepository userRepository)
     {
         _mapper = mapper;
         _userRepository = userRepository;
-        _passwordHashService = passwordHashService;
     }
 
     /// <summary>
@@ -36,13 +31,14 @@ public class UsersController : ControllerBase
     /// </summary>
     /// <remarks>Returns all users using pagination.</remarks>
     [HttpGet]        
-    public virtual ActionResult<List<UserProfileResponseDto>> GetUsers([FromQuery][Required()]uint? limit, [FromQuery] uint? currCursor)
+    public virtual ActionResult<List<UserProfileResponseDto>> GetUsers(
+        [FromQuery, Required] uint limit,
+        [FromQuery, Required] uint currCursor)
     {
-        
         var users = new List<UserProfile>
         {
-            new (){ UserSex = "helicopter", UserName = "Zhanna" },
-            new (){UserSex = "Mig - 29", UserName = "Palina"},
+            new() { UserSex = "helicopter", UserName = "Zhanna" },
+            new() { UserSex = "Mig - 29", UserName = "Palina" },
         };
         return Ok(users.Select(user => _mapper.Map<UserProfileResponseDto>(user)));        
     }
@@ -53,7 +49,9 @@ public class UsersController : ControllerBase
     /// <remarks>Get all users chats using pagination (for account owner).</remarks>    
     [HttpGet]
     [Route("{userId}/chats")]        
-    public virtual ActionResult<List<ChatResponseDto>> GetUsersUserIdChats([FromQuery][Required()] uint? limit, [FromQuery] uint? nextCursor)
+    public virtual ActionResult<List<ChatResponseDto>> GetUsersUserIdChats(
+        [FromQuery, Required] uint limit,
+        [FromQuery, Required] uint nextCursor)
     {
         return Ok(new List<ChatResponseDto>() { new ChatResponseDto()});
     }
@@ -64,7 +62,10 @@ public class UsersController : ControllerBase
     /// <remarks>Get user's communities using pagination.</remarks>    
     [HttpGet]
     [Route("{userId}/communities")]
-    public virtual ActionResult<List<CommunityResponseDto>> GetUsersUserIdCommunities([FromRoute][Required] uint userId, [FromQuery][Required()] uint? limit, [FromQuery] uint? nextCursor)
+    public virtual ActionResult<List<CommunityResponseDto>> GetUsersUserIdCommunities(
+        [FromRoute, Required] uint userId,
+        [FromQuery, Required] uint limit,
+        [FromQuery, Required] uint nextCursor)
     {
         return Ok(new List<CommunityResponseDto>(){ new CommunityResponseDto()});
     }
@@ -75,7 +76,10 @@ public class UsersController : ControllerBase
     /// <remarks>Get all user's friends using pagination.</remarks>    
     [HttpGet]
     [Route("{userId}/friends")]  
-    public virtual ActionResult<List<UserProfileResponseDto>> GetUsersUserIdFriends([FromRoute][Required] uint userId, [FromQuery][Required()] uint? limit, [FromQuery] uint? nextCursor)
+    public virtual ActionResult<List<UserProfileResponseDto>> GetUsersUserIdFriends(
+        [FromRoute, Required] uint userId,
+        [FromQuery, Required] uint limit,
+        [FromQuery, Required] uint nextCursor)
     {
         return Ok(new List<UserProfileResponseDto>() { new UserProfileResponseDto() });
     }
@@ -86,7 +90,10 @@ public class UsersController : ControllerBase
     /// <remarks>Get all user's posts using pagination.</remarks>    
     [HttpGet]
     [Route("{userId}/posts")]
-    public virtual ActionResult<List<PostResponseDto>> GetUsersUserIdPosts([FromRoute][Required] uint userId, [FromQuery]uint? limit, [FromQuery]uint? currCursor)
+    public virtual ActionResult<List<PostResponseDto>> GetUsersUserIdPosts(
+        [FromRoute, Required] uint userId,
+        [FromQuery, Required] uint limit,
+        [FromQuery, Required] uint currCursor)
     {
         return Ok(new List<PostResponseDto>() { new PostResponseDto()});
     }
@@ -97,7 +104,7 @@ public class UsersController : ControllerBase
     /// <remarks>Get user's profile.</remarks>           
     [HttpGet]
     [Route("{userId}/profile")]
-    public virtual ActionResult<UserProfileResponseDto> GetUsersUserIdProfile([FromRoute][Required]uint userId)
+    public virtual ActionResult<UserProfileResponseDto> GetUsersUserIdProfile([FromRoute, Required] uint userId)
     {
         return Ok(new UserProfileResponseDto());
     }
@@ -108,7 +115,9 @@ public class UsersController : ControllerBase
     /// <remarks>Makes user's account deactivated (for account owner or admin).</remarks>    
     [HttpPut]
     [Route("{userId}/activity")]
-    public virtual ActionResult<UserActivityResponseDto> PutUsersUserId([FromRoute][Required]uint userId, [FromBody][Required] UserActivityRequestDto userActivityRequestDto)
+    public virtual ActionResult<UserActivityResponseDto> PutUsersUserId(
+        [FromRoute, Required] uint userId,
+        [FromBody, Required] UserActivityRequestDto userActivityRequestDto)
     {
         return Ok(new UserActivityResponseDto());
     }
@@ -119,9 +128,11 @@ public class UsersController : ControllerBase
     /// <remarks>Change Login.</remarks>        
     [HttpPut]
     [Route("{userId}/login")]
-    public virtual async Task<ActionResult<UserLoginResponseDto>> PutUsersUserIdLogin([FromRoute][Required] uint userId, [FromBody][Required] UserChangeLoginRequestDto userChangeLoginRequestDto)
+    public virtual async Task<ActionResult<UserLoginResponseDto>> PutUsersUserIdLogin(
+        [FromRoute, Required] uint userId,
+        [FromBody, Required] UserChangeLoginRequestDto userChangeLoginRequestDto)
     {
-        var users = await _userRepository.SelectAsync((user) => user.Id == userId);
+        var users = await _userRepository.GetAllAsync((user) => user.Id == userId);
         if (users.Count == 0)
         {
             return NotFound();
@@ -143,7 +154,9 @@ public class UsersController : ControllerBase
     /// <remarks>Change Password.</remarks>        
     [HttpPut]
     [Route("{userId}/password")]
-    public virtual ActionResult<UserPasswordResponseDto> PutUsersUserIdPassword([FromRoute][Required] uint userId, [FromBody][Required] UserChangeLoginRequestDto userChangeLoginRequestDto)
+    public virtual ActionResult<UserPasswordResponseDto> PutUsersUserIdPassword(
+        [FromRoute, Required] uint userId,
+        [FromBody, Required] UserChangeLoginRequestDto userChangeLoginRequestDto)
     {
         return Ok(new UserPasswordResponseDto());
     }
@@ -154,7 +167,9 @@ public class UsersController : ControllerBase
     /// <remarks>Change user email.</remarks>        
     [HttpPut]
     [Route("{userId}/email")]
-    public virtual ActionResult<UserEmailResponseDto> PutUsersUserIdProfile([FromRoute][Required] uint userId, [FromBody][Required] UserEmailRequestDto userLoginRequestDto)
+    public virtual ActionResult<UserEmailResponseDto> PutUsersUserIdProfile(
+        [FromRoute, Required] uint userId,
+        [FromBody, Required] UserEmailRequestDto userLoginRequestDto)
     {        
         return Ok(new UserEmailResponseDto());
     }
@@ -165,7 +180,9 @@ public class UsersController : ControllerBase
     /// <remarks>Change user profile(status, sex).</remarks>        
     [HttpPut]
     [Route("{userId}/profile")]
-    public virtual ActionResult<UserProfileResponseDto> PutUsersUserIdProfile([FromRoute][Required]uint userId, [FromBody][Required] UserProfileRequestDto userLoginRequestDto)
+    public virtual ActionResult<UserProfileResponseDto> PutUsersUserIdProfile(
+        [FromRoute, Required] uint userId,
+        [FromBody, Required] UserProfileRequestDto userLoginRequestDto)
     {
         return Ok(new UserProfileResponseDto());
     }
@@ -177,7 +194,9 @@ public class UsersController : ControllerBase
     /// <remarks>Create user's post.</remarks>    
     [HttpPost]
     [Route("{userId}/posts")]
-    public virtual ActionResult<PostResponseDto> PostUsersUserIdPosts([FromRoute][Required]uint userId, [FromBody][Required] PostRequestDto postRequestDto)
+    public virtual ActionResult<PostResponseDto> PostUsersUserIdPosts(
+        [FromRoute, Required] uint userId,
+        [FromBody, Required] PostRequestDto postRequestDto)
     {
         return Ok(new PostResponseDto());
     }

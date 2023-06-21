@@ -1,5 +1,5 @@
 using SocialNetwork.BLL.Contracts;
-using SocialNetwork.DAL.Contracts;
+using SocialNetwork.DAL.Contracts.Users;
 using SocialNetwork.DAL.Entities.Users;
 
 namespace SocialNetwork.BLL.Services;

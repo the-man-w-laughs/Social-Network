@@ -11,7 +11,6 @@ namespace SocialNetwork.API.Controllers;
 [Route("[controller]")]
 public class PostsController : ControllerBase
 {
-
     /// <summary>
     /// Repost
     /// </summary>
@@ -19,7 +18,9 @@ public class PostsController : ControllerBase
     /// <param name="postId"></param>        
     [HttpPost]
     [Route("{postId}")]
-    public virtual ActionResult<PostResponseDto> PostPostsPostId([FromRoute][Required] uint postId, [FromBody][Required] PostRequestDto postRequestDto)
+    public virtual ActionResult<PostResponseDto> PostPostsPostId(
+        [FromRoute, Required] uint postId,
+        [FromBody, Required] PostRequestDto postRequestDto)
     {
         return Ok(new PostResponseDto());
     }
@@ -31,7 +32,9 @@ public class PostsController : ControllerBase
     /// <param name="postId"></param>        
     [HttpPut]
     [Route("{postId}")]       
-    public virtual ActionResult<PostResponseDto> PutPostsPostId([FromRoute][Required]uint postId, [FromBody][Required] PostRequestDto postRequestDto)
+    public virtual ActionResult<PostResponseDto> PutPostsPostId(
+        [FromRoute, Required]uint postId,
+        [FromBody, Required] PostRequestDto postRequestDto)
     {
         return Ok(new PostResponseDto());
     }
@@ -42,7 +45,7 @@ public class PostsController : ControllerBase
     /// <remarks>Delete post.</remarks>         
     [HttpDelete]
     [Route("{postId}")]
-    public virtual ActionResult<PostResponseDto> DeletePostsPostId([FromRoute][Required] uint postId)
+    public virtual ActionResult<PostResponseDto> DeletePostsPostId([FromRoute, Required] uint postId)
     {
         return Ok(new PostResponseDto());
     }
@@ -53,7 +56,7 @@ public class PostsController : ControllerBase
     /// <remarks>Like post.</remarks>       
     [HttpPost]
     [Route("{postId}/likes")]
-    public virtual ActionResult<PostLikeResponse> PostPostsPostIdLikes([FromRoute][Required] uint postId)
+    public virtual ActionResult<PostLikeResponse> PostPostsPostIdLikes([FromRoute, Required] uint postId)
     {
         return Ok(new PostLikeResponse());
     }
@@ -64,7 +67,10 @@ public class PostsController : ControllerBase
     /// <remarks>Get all post likes using pagination.</remarks>    
     [HttpGet]
     [Route("{postId}/likes")]
-    public virtual ActionResult<List<PostLikeResponse>> GetPostsPostIdLikes([FromRoute][Required] string postId, [FromQuery] uint? limit, [FromQuery] uint? currCursor)
+    public virtual ActionResult<List<PostLikeResponse>> GetPostsPostIdLikes(
+        [FromRoute, Required] string postId,
+        [FromQuery, Required] uint limit,
+        [FromQuery, Required] uint currCursor)
     {
         return Ok(new List<PostLikeResponse>() { new PostLikeResponse() });
     }
@@ -86,7 +92,9 @@ public class PostsController : ControllerBase
     /// <remarks>Comment post.</remarks>          
     [HttpPost]
     [Route("{postId}/comments")]
-    public virtual ActionResult<CommentResponseDto> PostPostsPostIdComments([FromRoute][Required] uint postId, [FromBody][Required] CommentRequestDto commentRequestDto)
+    public virtual ActionResult<CommentResponseDto> PostPostsPostIdComments(
+        [FromRoute, Required] uint postId,
+        [FromBody, Required] CommentRequestDto commentRequestDto)
     {
         return Ok(new CommentResponseDto());
     }
@@ -97,7 +105,10 @@ public class PostsController : ControllerBase
     /// <remarks>Get all post comments using pagination.</remarks>    
     [HttpGet]
     [Route("{postId}/comments")]
-    public virtual ActionResult<List<CommentResponseDto>> GetPostsPostIdComments([FromRoute][Required] uint postId, [FromQuery] uint? limit, [FromQuery] uint? currCursor)
+    public virtual ActionResult<List<CommentResponseDto>> GetPostsPostIdComments(
+        [FromRoute, Required] uint postId,
+        [FromQuery, Required] uint limit,
+        [FromQuery, Required] uint currCursor)
     {
         return Ok(new List<CommentResponseDto>() { new CommentResponseDto() });
     }

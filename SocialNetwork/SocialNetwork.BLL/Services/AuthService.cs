@@ -1,6 +1,6 @@
 using SocialNetwork.BLL.Contracts;
 using SocialNetwork.DAL;
-using SocialNetwork.DAL.Contracts;
+using SocialNetwork.DAL.Contracts.Users;
 using SocialNetwork.DAL.Entities.Users;
 
 namespace SocialNetwork.BLL.Services;
@@ -16,7 +16,7 @@ public class AuthService : IAuthService
 
     public async Task<bool> IsLoginAlreadyExists(string login)
     {
-        var users = await _userRepository.SelectAsync(u => u.Login == login);
+        var users = await _userRepository.GetAllAsync(u => u.Login == login);
         return users.Any();
     }
 
@@ -28,7 +28,7 @@ public class AuthService : IAuthService
 
     public async Task<User?> GetUserByLogin(string login)
     {
-        var users = await  _userRepository.SelectAsync(u=> u.Login == login);
+        var users = await  _userRepository.GetAllAsync(u=> u.Login == login);
         return users.FirstOrDefault();
     }
 

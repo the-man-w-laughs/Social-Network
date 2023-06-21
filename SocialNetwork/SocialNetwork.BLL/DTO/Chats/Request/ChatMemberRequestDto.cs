@@ -1,6 +1,4 @@
-﻿using SocialNetwork.DAL.Entities.Chats;
-
-namespace SocialNetwork.BLL.DTO.Chats.Request;
+﻿namespace SocialNetwork.BLL.DTO.Chats.Request;
 
 public class ChatMemberRequestDto
 {
