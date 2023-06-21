@@ -1,24 +1,14 @@
 using System.Text;
 using SocialNetwork.BLL.Contracts;
+using BCryptNet = BCrypt.Net.BCrypt;
 
 namespace SocialNetwork.BLL.Services;
 
 public class SaltService : ISaltService
 {
+    private const int SaltWorkFactor = 8;
     public string GenerateSalt()
     {
-        const string allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-        const int saltLength = 20;
-
-        var random = new Random();
-        var salt = new StringBuilder();
-
-        for (var i = 0; i < saltLength; i++)
-        {
-            var randomIndex = random.Next(allowedChars.Length);
-            salt.Append(allowedChars[randomIndex]);
-        }
-
-        return salt.ToString();
+        return BCryptNet.GenerateSalt(SaltWorkFactor)[..20];
     }
 }

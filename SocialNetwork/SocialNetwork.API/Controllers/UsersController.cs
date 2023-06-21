@@ -35,6 +35,7 @@ public class UsersController : ControllerBase
     [HttpGet]        
     public virtual ActionResult<List<UserProfileResponseDto>> GetUsers([FromQuery][Required()]uint? limit, [FromQuery] uint? currCursor)
     {
+        
         var users = new List<UserProfile>
         {
             new (){ UserSex = "helicopter", UserName = "Zhanna" },
@@ -115,7 +116,7 @@ public class UsersController : ControllerBase
     /// <remarks>Change Login.</remarks>        
     [HttpPatch]
     [Route("{userId}/login")]
-    public virtual ActionResult<UserLoginResponseDto> PatchUsersUserIdLogin([FromRoute][Required]uint userId, [FromBody][Required] UserLoginRequestDto userLoginRequestDto)
+    public virtual ActionResult<UserLoginResponseDto> PatchUsersUserIdLogin([FromRoute][Required]uint userId, [FromBody][Required] UserChangeLoginRequestDto userChangeLoginRequestDto)
     {
         return Ok(new UserLoginResponseDto());
     }
@@ -126,7 +127,7 @@ public class UsersController : ControllerBase
     /// <remarks>Change Password.</remarks>        
     [HttpPatch]
     [Route("{userId}/password")]
-    public virtual ActionResult<UserPasswordResponseDto> PatchUsersUserIdPassword([FromRoute][Required] uint userId, [FromBody][Required] UserLoginRequestDto userLoginRequestDto)
+    public virtual ActionResult<UserPasswordResponseDto> PatchUsersUserIdPassword([FromRoute][Required] uint userId, [FromBody][Required] UserChangeLoginRequestDto userChangeLoginRequestDto)
     {
         return Ok(new UserPasswordResponseDto());
     }
