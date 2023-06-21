@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.EntityFrameworkCore;
 using SocialNetwork.DAL.Context;
 using SocialNetwork.DAL.Contracts.Base;
@@ -11,32 +12,38 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
 
     protected Repository(SocialNetworkContext socialNetworkContext) => SocialNetworkContext = socialNetworkContext;
 
-    public virtual async Task<List<TEntity>> Select(Expression<Func<TEntity, bool>>? whereFilter = null)
+    public virtual async Task<List<TEntity>> SelectAsync(Expression<Func<TEntity, bool>>? whereFilter = null)
     {
-        var resultSet = SocialNetworkContext.Set<TEntity>();
-        return await (whereFilter == null 
-            ? resultSet.ToListAsync() 
-            : resultSet.Where(whereFilter).ToListAsync());
+        DbSet<TEntity> resultSet = SocialNetworkContext.Set<TEntity>();
+
+        if (whereFilter == null)
+        {
+            return await resultSet.ToListAsync();
+        }
+        else
+        {
+            return await resultSet.Where(whereFilter).ToListAsync();
+        }
     }
 
-    public virtual async Task<TEntity> Add(TEntity entity)
+    public async Task<TEntity> AddAsync(TEntity entity)
     {
         await SocialNetworkContext.AddAsync(entity);
-        await SocialNetworkContext.SaveChangesAsync();
         return entity;
     }
 
-    public virtual async Task<TEntity> Update(TEntity entity)
+    public virtual void Update(TEntity entity)
     {
-        var entityEntry = SocialNetworkContext.Update(entity);
-        await SocialNetworkContext.SaveChangesAsync();
-        return entityEntry.Entity;
+        SocialNetworkContext.Entry(entity).State = EntityState.Modified;        
     }
 
-    public virtual async Task<TEntity> Delete(TEntity entity)
+    public virtual void Delete(TEntity entity)
     {
-        var entityEntry = SocialNetworkContext.Remove(entity);
+        SocialNetworkContext.Set<TEntity>().Remove(entity);
+    }
+
+    public virtual async Task SaveAsync()
+    {
         await SocialNetworkContext.SaveChangesAsync();
-        return entityEntry.Entity;
     }
 }

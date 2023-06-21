@@ -20,8 +20,7 @@ public class CommunityConfiguration : IEntityTypeConfiguration<Community>
             .HasColumnType("text");
         builder.Property(e => e.IsPrivate).HasColumnName("is_private").IsRequired();
         builder.Property(e => e.CreatedAt).HasColumnName("created_at").IsRequired()
-            .HasColumnType("datetime");
-        builder.Property(e => e.UpdatedAt).HasColumnName("updated_at")
-            .HasColumnType("datetime");
+            .HasColumnType("datetime").HasDefaultValueSql("CURRENT_TIMESTAMP");
+        builder.Property(e => e.UpdatedAt).HasColumnName("updated_at").HasColumnType("datetime");
     }
 }

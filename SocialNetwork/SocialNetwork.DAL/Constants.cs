@@ -1,9 +1,7 @@
 ﻿namespace SocialNetwork.DAL;
 
 public static class Constants
-{
-    public static readonly Version MySqlServerVersion = new(8, 0, 32);
-    
+{        
     public const int ChatNameMaxLength = 45;
     public const int CommunityNameMaxLength = 45;
     public const int MediaFileNameMaxLength = 255;

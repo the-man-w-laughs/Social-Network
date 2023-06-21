@@ -20,7 +20,7 @@ public class UserFollowerConfiguration : IEntityTypeConfiguration<UserFollower>
             .IsRequired();
         builder.Property(e => e.CreatedAt).HasColumnName("created_at")
             .HasColumnType("datetime")
-            .IsRequired();
+            .IsRequired().HasDefaultValueSql("CURRENT_TIMESTAMP");
         builder.Property(e => e.SourceId).HasColumnName("source_id")
             .IsRequired();
         builder.Property(e => e.TargetId).HasColumnName("target_id")

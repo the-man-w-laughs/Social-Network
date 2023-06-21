@@ -1,15 +1,19 @@
 using System.ComponentModel.DataAnnotations;
 using AutoMapper;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using SocialNetwork.BLL.Contracts;
+using SocialNetwork.BLL.DTO.Chats.Request;
 using SocialNetwork.BLL.DTO.Chats.Response;
 using SocialNetwork.BLL.DTO.Communities.Response;
 using SocialNetwork.BLL.DTO.Posts.Request;
 using SocialNetwork.BLL.DTO.Posts.Response;
 using SocialNetwork.BLL.DTO.Users.Request;
 using SocialNetwork.BLL.DTO.Users.Response;
+using SocialNetwork.DAL.Context;
 using SocialNetwork.DAL.Contracts;
 using SocialNetwork.DAL.Entities.Users;
+using SocialNetwork.DAL.Repositories;
 
 namespace SocialNetwork.API.Controllers;
 
@@ -122,6 +126,30 @@ public class UsersController : ControllerBase
     }
 
     /// <summary>
+    /// ChangeUserLogin
+    /// </summary>
+    /// <remarks>Change Login.</remarks>        
+    [HttpPut]
+    [Route("{userId}/login")]
+    public virtual async Task<ActionResult<UserLoginResponseDto>> PutUsersUserIdLogin([FromRoute][Required] uint userId, [FromBody][Required] UserChangeLoginRequestDto userChangeLoginRequestDto)
+    {
+        var users = await _userRepository.SelectAsync((user) => user.Id == userId);
+        if (users.Count == 0)
+        {
+            return NotFound();
+        }
+
+        var existingUser = users.First();
+        _mapper.Map(userChangeLoginRequestDto, existingUser);
+
+        _userRepository.Update(existingUser);
+
+        await _userRepository.SaveAsync();
+
+        return Ok(_mapper.Map<UserLoginResponseDto>(existingUser));
+    }
+
+    /// <summary>
     /// ChangeUserPassword
     /// </summary>
     /// <remarks>Change Password.</remarks>        
@@ -139,7 +167,7 @@ public class UsersController : ControllerBase
     [HttpPatch]
     [Route("{userId}/email")]
     public virtual ActionResult<UserEmailResponseDto> PatchUsersUserIdProfile([FromRoute][Required] uint userId, [FromBody][Required] UserEmailRequestDto userLoginRequestDto)
-    {
+    {        
         return Ok(new UserEmailResponseDto());
     }
 

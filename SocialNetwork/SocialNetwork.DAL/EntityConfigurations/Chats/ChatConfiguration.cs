@@ -15,7 +15,10 @@ public class ChatConfiguration : IEntityTypeConfiguration<Chat>
         builder.HasIndex(e => e.Id, "chat_id_UNIQUE").IsUnique();
 
         builder.Property(e => e.Id).HasColumnName("id").IsRequired();
-        builder.Property(e => e.CreatedAt).HasColumnName("created_at").IsRequired();
+        builder.Property(e => e.CreatedAt).HasColumnName("created_at").IsRequired()
+            .HasColumnType("datetime").HasDefaultValueSql("CURRENT_TIMESTAMP");
+        builder.Property(e => e.UpdatedAt).HasColumnName("updated_at")
+            .HasColumnType("datetime");
         builder.Property(e => e.Name).HasColumnName("name").IsRequired()
             .HasMaxLength(Constants.ChatNameMaxLength);
     }

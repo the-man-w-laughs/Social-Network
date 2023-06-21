@@ -1,5 +1,7 @@
+using Microsoft.EntityFrameworkCore;
 using SocialNetwork.DAL.Context;
 using SocialNetwork.DAL.Contracts;
+using SocialNetwork.DAL.Entities.Medias;
 using SocialNetwork.DAL.Entities.Messages;
 using SocialNetwork.DAL.Repositories.Base;
 
