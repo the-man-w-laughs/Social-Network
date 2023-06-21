@@ -26,38 +26,24 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
         }
     }
 
-    public virtual async Task<TEntity> AddAsync(TEntity entity)
+    public async Task<TEntity> AddAsync(TEntity entity)
     {
         await SocialNetworkContext.AddAsync(entity);
-        await SocialNetworkContext.SaveChangesAsync();
         return entity;
     }
 
-    public virtual async Task<TEntity> UpdateAsync(TEntity entity)
+    public virtual void Update(TEntity entity)
     {
-        var entityQuery = await SocialNetworkContext.FindAsync<TEntity>(id);
-        if (entityQuery == null)
-        {
-            return entityQuery;
-        }
-        entity.ApplyTo(entityQuery);
-        await SocialNetworkContext.SaveChangesAsync();
-
-        return entityQuery;
+        SocialNetworkContext.Entry(entity).State = EntityState.Modified;        
     }
 
-    public virtual async Task<TEntity> DeleteAsync(TEntity entity)
+    public virtual void Delete(TEntity entity)
     {
-        var entity = await SocialNetworkContext.FindAsync<TEntity>(id);
-        if (entity != null)
-        {
-            var entityEntry = SocialNetworkContext.Remove(entity);
-            await SocialNetworkContext.SaveChangesAsync();
-            return entityEntry.Entity;
-        }
-        else
-        {
-            return null;
-        }
+        SocialNetworkContext.Set<TEntity>().Remove(entity);
+    }
+
+    public virtual async Task SaveAsync()
+    {
+        await SocialNetworkContext.SaveChangesAsync();
     }
 }

@@ -36,8 +36,8 @@ public class SocialNetworkContext : DbContext
 
     public SocialNetworkContext(DbContextOptions options) : base(options)
     {
-        Database.EnsureDeleted();
-        Database.EnsureCreated();
+        //Database.EnsureDeleted();
+        //Database.EnsureCreated();
     }
     
 
@@ -47,33 +47,5 @@ public class SocialNetworkContext : DbContext
         MySqlModelBuilder.HasCharSet(modelBuilder, "utf8mb3");
 
         modelBuilder.ApplyConfigurationsFromAssembly(System.Reflection.Assembly.GetExecutingAssembly());
-    }
-
-    public override int SaveChanges()
-    {
-        var modifiedEntries = ChangeTracker.Entries<User>()
-            .Where(e => e.State == EntityState.Modified);
-
-        foreach (var entry in modifiedEntries)
-        {
-            var user = entry.Entity;
-            var original = entry.OriginalValues;
-
-            if (entry.Property(u => u.PasswordHash).IsModified)
-            {
-                user.PasswordUpdatedAt = DateTime.UtcNow;
-            }
-
-            if (entry.Property(u => u.Login).IsModified)
-            {
-                user.LoginUpdatedAt = DateTime.UtcNow;
-            }
-
-            if (entry.Property(u => u.Email).IsModified)
-            {
-                user.EmailUpdatedAt = DateTime.UtcNow;
-            }
-        }
-        return base.SaveChanges();
     }
 }

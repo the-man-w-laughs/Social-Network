@@ -1,13 +1,16 @@
 using System.ComponentModel.DataAnnotations;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using SocialNetwork.BLL.Contracts;
 using SocialNetwork.BLL.DTO.Chats.Request;
 using SocialNetwork.BLL.DTO.Chats.Response;
 using SocialNetwork.BLL.DTO.Messages.Request;
 using SocialNetwork.BLL.DTO.Messages.Response;
+using SocialNetwork.BLL.Services;
 using SocialNetwork.DAL.Contracts;
+using SocialNetwork.DAL.Entities.Chats;
 
 namespace SocialNetwork.API.Controllers;
 
@@ -121,14 +124,33 @@ public class ChatsController : ControllerBase
     /// <remarks>Change chat information (name, photo). For chat admins.</remarks>        
     [HttpPatch]
     [Route("{chatId}")]
-    public async virtual Task<ActionResult<ChatResponseDto>> PatchChatsChatId([FromRoute][Required] uint chatId, [FromBody][Required] ChatRequestDto chatRequestDto)
+    public async virtual Task<ActionResult<ChatResponseDto>> PatchChatsChatId([FromRoute][Required] uint chatId, [FromBody][Required] JsonPatchDocument chatRequestDto)
     {
-        var updatedEntity = await _chatRepository.UpdateAsync(chatId, chatRequestDto);
-        if (updatedEntity == null)
+        return Ok();
+    }
+
+    /// <summary>
+    /// ChangeChatInfo
+    /// </summary>
+    /// <remarks>Change chat information (name, photo). For chat admins.</remarks>        
+    [HttpPut]
+    [Route("{chatId}")]
+    public async virtual Task<ActionResult<ChatResponseDto>> PutChatsChatId([FromRoute][Required] uint chatId, [FromBody][Required] ChatRequestDto chatRequestDto)
+    {
+        var chats = await _chatRepository.SelectAsync((chat) => chat.Id == chatId);
+        if (chats.Count == 0)
         {
             return NotFound();
         }
-        return Ok(updatedEntity);
+
+        var existingChat = chats.First();
+        _mapper.Map(chatRequestDto, existingChat);
+
+        _chatRepository.Update(existingChat);
+
+        await _chatRepository.SaveAsync();
+
+        return Ok(_mapper.Map<ChatResponseDto>(existingChat));
     }
 
     /// <summary>
@@ -137,9 +159,9 @@ public class ChatsController : ControllerBase
     /// <remarks>Updates information about chat member (for chat admins, admins).</remarks>    
     [HttpPatch]
     [Route("{chatId}/members/{memberId}")]
-    public virtual ActionResult<ChatMemberResponseDto> PatchChatsChatIdMembersMemberId([FromRoute][Required] uint chatId, [FromRoute][Required] uint memberId, [FromBody][Required] ChatMemberRequestDto changeChatMemberStatusDto)
+    public async virtual Task<ActionResult<ChatMemberResponseDto>> PatchChatsChatIdMembersMemberId([FromRoute][Required] uint chatId, [FromRoute][Required] uint memberId, [FromBody][Required] ChatRequestDto chatMemberStatusDto)
     {
-        return new ChatMemberResponseDto();
+        return Ok();
     }
 
     /// <summary>
@@ -147,9 +169,11 @@ public class ChatsController : ControllerBase
     /// </summary>
     /// <remarks>Create new chat</remarks>        
     [HttpPost]
-    public virtual ActionResult<ChatResponseDto> PostChats([FromBody][Required] ChatRequestDto deleteChatDto)
+    public async virtual Task<ActionResult<ChatResponseDto>> PostChats([FromBody][Required] ChatRequestDto chatRequestDto)
     {
-        return new ChatResponseDto();
+        var newChat = await _chatRepository.AddAsync(_mapper.Map<Chat>(chatRequestDto));
+        await _chatRepository.SaveAsync();
+        return Ok(_mapper.Map<ChatResponseDto>(newChat));
     }
 
     /// <summary>

@@ -1,4 +1,5 @@
 using AutoMapper;
+using SocialNetwork.BLL.DTO.Chats.Request;
 using SocialNetwork.BLL.DTO.Chats.Response;
 using SocialNetwork.BLL.DTO.Comments.Response;
 using SocialNetwork.BLL.DTO.Communities.Response;
@@ -18,8 +19,11 @@ public class AutoMapperProfile : Profile
 {
     public AutoMapperProfile()
     {
+        // Chats
         CreateMap<Chat, ChatResponseDto>();
         CreateMap<ChatMember, ChatMemberResponseDto>();
+
+        CreateMap<ChatRequestDto, Chat>();
 
         // Comments
         CreateMap<CommentLike, CommentLikeResponseDto>();

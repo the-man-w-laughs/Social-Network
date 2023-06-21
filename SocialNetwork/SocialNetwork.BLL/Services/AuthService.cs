@@ -23,7 +23,7 @@ public class AuthService : IAuthService
 
     public async Task<User> AddUser(User newUser)
     {
-        return await _userRepository.AddAsync(newUser);
+        return await _userRepository.AddAsync(newUser);        
     }
 
     public bool IsLoginValid(string login)

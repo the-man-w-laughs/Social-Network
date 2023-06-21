@@ -23,9 +23,7 @@ public class UserFriendConfiguration : IEntityTypeConfiguration<UserFriend>
             .HasColumnName("created_at")
             .HasColumnType("datetime")
             .IsRequired().HasDefaultValueSql("CURRENT_TIMESTAMP");
-        builder.Property(e => e.UpdatedAt).HasColumnName("updated_at")
-            .HasColumnType("datetime").HasDefaultValueSql("CURRENT_TIMESTAMP")
-            .ValueGeneratedOnUpdate();
+        builder.Property(e => e.UpdatedAt).HasColumnName("updated_at").HasColumnType("datetime");
         builder.Property(e => e.FriendshipTypeId)
             .HasColumnName("friendship_type")
             .IsRequired();

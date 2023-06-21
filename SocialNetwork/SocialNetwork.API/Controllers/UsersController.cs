@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using AutoMapper;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using SocialNetwork.BLL.Contracts;
 using SocialNetwork.BLL.DTO.Chats.Response;
@@ -8,8 +9,10 @@ using SocialNetwork.BLL.DTO.Posts.Request;
 using SocialNetwork.BLL.DTO.Posts.Response;
 using SocialNetwork.BLL.DTO.Users.Request;
 using SocialNetwork.BLL.DTO.Users.Response;
+using SocialNetwork.DAL.Context;
 using SocialNetwork.DAL.Contracts;
 using SocialNetwork.DAL.Entities.Users;
+using SocialNetwork.DAL.Repositories;
 
 namespace SocialNetwork.API.Controllers;
 
@@ -115,9 +118,9 @@ public class UsersController : ControllerBase
     /// <remarks>Change Login.</remarks>        
     [HttpPatch]
     [Route("{userId}/login")]
-    public virtual ActionResult<UserLoginResponseDto> PatchUsersUserIdLogin([FromRoute][Required]uint userId, [FromBody][Required] UserLoginRequestDto userLoginRequestDto)
-    {
-        return Ok(new UserLoginResponseDto());
+    public async virtual Task<ActionResult<UserLoginResponseDto>> PatchUsersUserIdLogin([FromRoute][Required]uint userId, [FromBody][Required] UserLoginRequestDto userLoginRequestDto)
+    { 
+        return Ok();
     }
 
     /// <summary>

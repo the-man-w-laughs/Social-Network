@@ -21,8 +21,7 @@ public class ChatMemberConfiguration : IEntityTypeConfiguration<ChatMember>
         builder.Property(e => e.CreatedAt).HasColumnName("created_at").IsRequired()
             .HasColumnType("datetime").HasDefaultValueSql("CURRENT_TIMESTAMP");
         builder.Property(e => e.UpdatedAt).HasColumnName("updated_at")
-            .HasColumnType("datetime").HasDefaultValueSql("CURRENT_TIMESTAMP")
-            .ValueGeneratedOnUpdate();
+            .HasColumnType("datetime");
 
         builder.Property(e => e.UserId).HasColumnName("user_id");
         builder.Property(e => e.ChatId).HasColumnName("chat_id");

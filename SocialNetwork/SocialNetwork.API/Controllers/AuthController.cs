@@ -64,12 +64,12 @@ public sealed class AuthController : ControllerBase
 
         var salt = _saltService.GenerateSalt();
 
-        var hashedPassword = _passwordHashService.;
+        //var hashedPassword = _passwordHashService.;
 
         var newUser = new User
         {
             Login = userSignUpRequestDto.Login,
-            PasswordHash = hashedPassword,
+          //  PasswordHash = hashedPassword,
             Email = userSignUpRequestDto.Email
         };
 
