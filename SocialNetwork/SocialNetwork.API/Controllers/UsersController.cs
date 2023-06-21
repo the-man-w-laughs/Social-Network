@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using AutoMapper;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using SocialNetwork.BLL.Contracts;
 using SocialNetwork.BLL.DTO.Chats.Request;
@@ -107,22 +106,11 @@ public class UsersController : ControllerBase
     /// ChangeUserActivityFields
     /// </summary>
     /// <remarks>Makes user's account deactivated (for account owner or admin).</remarks>    
-    [HttpPatch]
+    [HttpPut]
     [Route("{userId}/activity")]
-    public virtual ActionResult<UserActivityResponseDto> PatchUsersUserId([FromRoute][Required]uint userId, [FromBody][Required] UserActivityRequestDto userActivityRequestDto)
+    public virtual ActionResult<UserActivityResponseDto> PutUsersUserId([FromRoute][Required]uint userId, [FromBody][Required] UserActivityRequestDto userActivityRequestDto)
     {
         return Ok(new UserActivityResponseDto());
-    }
-
-    /// <summary>
-    /// ChangeUserLogin
-    /// </summary>
-    /// <remarks>Change Login.</remarks>        
-    [HttpPatch]
-    [Route("{userId}/login")]
-    public virtual ActionResult<UserLoginResponseDto> PatchUsersUserIdLogin([FromRoute][Required]uint userId, [FromBody][Required] UserChangeLoginRequestDto userChangeLoginRequestDto)
-    {
-        return Ok(new UserLoginResponseDto());
     }
 
     /// <summary>
@@ -153,9 +141,9 @@ public class UsersController : ControllerBase
     /// ChangeUserPassword
     /// </summary>
     /// <remarks>Change Password.</remarks>        
-    [HttpPatch]
+    [HttpPut]
     [Route("{userId}/password")]
-    public virtual ActionResult<UserPasswordResponseDto> PatchUsersUserIdPassword([FromRoute][Required] uint userId, [FromBody][Required] UserChangeLoginRequestDto userChangeLoginRequestDto)
+    public virtual ActionResult<UserPasswordResponseDto> PutUsersUserIdPassword([FromRoute][Required] uint userId, [FromBody][Required] UserChangeLoginRequestDto userChangeLoginRequestDto)
     {
         return Ok(new UserPasswordResponseDto());
     }
@@ -164,9 +152,9 @@ public class UsersController : ControllerBase
     /// ChangeUserEmail
     /// </summary>
     /// <remarks>Change user email.</remarks>        
-    [HttpPatch]
+    [HttpPut]
     [Route("{userId}/email")]
-    public virtual ActionResult<UserEmailResponseDto> PatchUsersUserIdProfile([FromRoute][Required] uint userId, [FromBody][Required] UserEmailRequestDto userLoginRequestDto)
+    public virtual ActionResult<UserEmailResponseDto> PutUsersUserIdProfile([FromRoute][Required] uint userId, [FromBody][Required] UserEmailRequestDto userLoginRequestDto)
     {        
         return Ok(new UserEmailResponseDto());
     }
@@ -175,9 +163,9 @@ public class UsersController : ControllerBase
     /// ChangeUserProfile
     /// </summary>
     /// <remarks>Change user profile(status, sex).</remarks>        
-    [HttpPatch]
+    [HttpPut]
     [Route("{userId}/profile")]
-    public virtual ActionResult<UserProfileResponseDto> PatchUsersUserIdProfile([FromRoute][Required]uint userId, [FromBody][Required] UserProfileRequestDto userLoginRequestDto)
+    public virtual ActionResult<UserProfileResponseDto> PutUsersUserIdProfile([FromRoute][Required]uint userId, [FromBody][Required] UserProfileRequestDto userLoginRequestDto)
     {
         return Ok(new UserProfileResponseDto());
     }

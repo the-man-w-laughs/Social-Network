@@ -10,16 +10,16 @@ namespace SocialNetwork.API.Controllers;
 [ApiController]
 [Route("[controller]")]    
 public class CommunitiesController : ControllerBase
-{ 
+{
+
     /// <summary>
-    /// DeleteCommunity
+    /// CreateCommunity
     /// </summary>
-    /// <remarks>Delete community (for community admins, admins).</remarks>          
-    [HttpDelete]
-    [Route("{communityId}")]
-    public virtual ActionResult<CommunityResponseDto> DeleteCommunitiesCommunityId([FromRoute][Required] uint communityId)
+    /// <remarks>Create community.</remarks>        
+    [HttpPost]
+    public virtual ActionResult<CommunityResponseDto> PostCommunities([FromBody][Required] CommunityRequestDto communityRequestDto)
     {
-        return new CommunityResponseDto();
+        return Ok(new CommunityResponseDto());
     }
 
     /// <summary>
@@ -33,6 +33,39 @@ public class CommunitiesController : ControllerBase
     }
 
     /// <summary>
+    /// ChangeCommunityInfo
+    /// </summary>
+    /// <remarks>Change community info (for community admins, admins).</remarks>        
+    [HttpPut]
+    [Route("{communityId}")]
+    public virtual ActionResult<CommunityResponseDto> PutCommunitiesCommunityId([FromRoute][Required] uint communityId, [FromBody][Required] CommunityRequestDto communityRequestDto)
+    {
+        return Ok(new CommunityResponseDto());
+    }
+
+    /// <summary>
+    /// DeleteCommunity
+    /// </summary>
+    /// <remarks>Delete community (for community admins, admins).</remarks>          
+    [HttpDelete]
+    [Route("{communityId}")]
+    public virtual ActionResult<CommunityResponseDto> DeleteCommunitiesCommunityId([FromRoute][Required] uint communityId)
+    {
+        return new CommunityResponseDto();
+    }
+
+    /// <summary>
+    /// CreateCommunityPost
+    /// </summary>
+    /// <remarks>Create community post (depending on isPrivate field it could be available for community members or for everybody).</remarks>         
+    [HttpPost]
+    [Route("{communityId}/posts")]
+    public virtual ActionResult<PostResponseDto> PostCommunitiesCommunityIdPosts([FromRoute][Required] uint communityId, [FromBody][Required] PostRequestDto communityRequestDto)
+    {
+        return Ok(new PostResponseDto());
+    }
+
+    /// <summary>
     /// GetAllCommunityPosts
     /// </summary>
     /// <remarks>Get all community posts using pagination.</remarks>    
@@ -41,37 +74,5 @@ public class CommunitiesController : ControllerBase
     public virtual ActionResult<List<CommunityPostResponseDto>> GetCommunitiesPosts([FromRoute][Required] uint communityId, [FromQuery] uint? limit, [FromQuery] uint? currCursor)
     {
         return new List<CommunityPostResponseDto>() { new CommunityPostResponseDto() };
-    }
-
-    /// <summary>
-    /// ChangeCommunityInfo
-    /// </summary>
-    /// <remarks>Change community info (for community admins, admins).</remarks>        
-    [HttpPatch]
-    [Route("{communityId}")]
-    public virtual ActionResult<CommunityResponseDto> PatchCommunitiesCommunityId([FromRoute][Required] uint communityId, [FromBody][Required] CommunityRequestDto communityRequestDto)
-    {
-        return Ok(new CommunityResponseDto());
-    }
-
-    /// <summary>
-    /// CreateCommunity
-    /// </summary>
-    /// <remarks>Create community.</remarks>        
-    [HttpPost]        
-    public virtual ActionResult<CommunityResponseDto> PostCommunities([FromBody][Required] CommunityRequestDto communityRequestDto)
-    {
-        return Ok(new CommunityResponseDto());
-    }
-
-    /// <summary>
-    /// CreateCommunityPost
-    /// </summary>
-    /// <remarks>Create community post (depending on isPrivate field it could be available for community members or for everybody).</remarks>         
-    [HttpPost]
-    [Route("{communityId}/posts")]        
-    public virtual ActionResult<PostResponseDto> PostCommunitiesCommunityIdPosts([FromRoute][Required] uint communityId, [FromBody][Required] PostRequestDto communityRequestDto)
-    {
-        return Ok(new PostResponseDto());
     }
 }

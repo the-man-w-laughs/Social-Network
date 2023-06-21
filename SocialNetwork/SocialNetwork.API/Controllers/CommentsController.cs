@@ -9,8 +9,28 @@ namespace SocialNetwork.API.Controllers;
 [Route("[controller]")]
 public class ControllersController : ControllerBase
 {
-    
-    
+    /// <summary>
+    /// ReplyComment
+    /// </summary>
+    /// <remarks>Reply comment (for comment owner).</remarks>          
+    [HttpPost]
+    [Route("{commentId}")]
+    public virtual ActionResult<CommentResponseDto> PostCommentsCommentId([FromRoute][Required] uint postId, [FromRoute][Required] uint commentId, [FromBody][Required] CommentRequestDto commentRequestDto)
+    {
+        return new CommentResponseDto();
+    }
+
+    /// <summary>
+    /// ChangePostComment
+    /// </summary>
+    /// <remarks>Change post comment (for comment owner).</remarks>          
+    [HttpPut]
+    [Route("{commentId}")]
+    public virtual ActionResult<CommentResponseDto> PutCommentsCommentId([FromRoute][Required] uint postId, [FromRoute][Required] uint commentId, [FromBody][Required] CommentRequestDto commentRequestDto)
+    {
+        return new CommentResponseDto();
+    }
+
     /// <summary>
     /// DeletePostComment
     /// </summary>
@@ -20,28 +40,6 @@ public class ControllersController : ControllerBase
     public virtual ActionResult<CommentResponseDto> DeleteCommentsCommentId([FromRoute][Required] uint commentId)
     {
         return new CommentResponseDto();
-    }
-
-    /// <summary>
-    /// UnlikePostComment
-    /// </summary>
-    /// <remarks>Unlike post comment (for comment owner).</remarks>                 
-    [HttpDelete]
-    [Route("{commentId}/likes")]
-    public virtual ActionResult<CommentLikeResponseDto> DeleteComments([FromRoute][Required] uint commentId)
-    {
-        return new CommentLikeResponseDto();
-    }
-    
-    /// <summary>
-    /// GetAllPostCommentLikes
-    /// </summary>
-    /// <remarks>Get all post comment likes using pagination.</remarks>            
-    [HttpGet]
-    [Route("{commentId}/likes")]
-    public virtual ActionResult<List<CommentLikeResponseDto>> GetCommentsCommentIdLikes([FromRoute][Required] uint commentId, [FromQuery] uint? limit, [FromQuery] uint? currCursor)
-    {
-        return new List<CommentLikeResponseDto>() { new CommentLikeResponseDto()};
     }
 
     /// <summary>
@@ -56,24 +54,24 @@ public class ControllersController : ControllerBase
     }
 
     /// <summary>
-    /// ChangePostComment
+    /// GetAllPostCommentLikes
     /// </summary>
-    /// <remarks>Change post comment (for comment owner).</remarks>          
-    [HttpPatch]
-    [Route("{commentId}")]
-    public virtual ActionResult<CommentResponseDto> PatchCommentsCommentId([FromRoute][Required] uint postId, [FromRoute][Required] uint commentId, [FromBody][Required] CommentRequestDto commentRequestDto)
+    /// <remarks>Get all post comment likes using pagination.</remarks>            
+    [HttpGet]
+    [Route("{commentId}/likes")]
+    public virtual ActionResult<List<CommentLikeResponseDto>> GetCommentsCommentIdLikes([FromRoute][Required] uint commentId, [FromQuery] uint? limit, [FromQuery] uint? currCursor)
     {
-        return new CommentResponseDto();
+        return new List<CommentLikeResponseDto>() { new CommentLikeResponseDto() };
     }
 
     /// <summary>
-    /// ReplyComment
+    /// UnlikePostComment
     /// </summary>
-    /// <remarks>Reply comment (for comment owner).</remarks>          
-    [HttpPost]
-    [Route("{commentId}")]
-    public virtual ActionResult<CommentResponseDto> PostCommentsCommentId([FromRoute][Required] uint postId, [FromRoute][Required] uint commentId, [FromBody][Required] CommentRequestDto commentRequestDto)
+    /// <remarks>Unlike post comment (for comment owner).</remarks>                 
+    [HttpDelete]
+    [Route("{commentId}/likes")]
+    public virtual ActionResult<CommentLikeResponseDto> DeleteComments([FromRoute][Required] uint commentId)
     {
-        return new CommentResponseDto();
+        return new CommentLikeResponseDto();
     }
 }

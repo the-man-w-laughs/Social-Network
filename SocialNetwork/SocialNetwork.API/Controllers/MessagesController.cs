@@ -9,13 +9,60 @@ namespace SocialNetwork.API.Controllers;
 [Route("[controller]")]
 public class MessagesController : ControllerBase
 {
+
     /// <summary>
-    /// UnlikeMessage
+    /// ReplyMessage
     /// </summary>
-    /// <remarks>Unlike chat message (for like owner).</remarks>    
+    /// <remarks>Reply chat message (for chat members).</remarks>          
+    [HttpPost]
+    [Route("{messageId}")]
+    public virtual ActionResult<MessageResponseDto> PostMessagesMessageId([FromRoute][Required] uint messageId, [FromBody][Required] MessageRequestDto messageRequestDto)
+    {
+        return Ok(new MessageResponseDto());
+    }
+
+    // TODO: aggregate message info
+    /// <summary>
+    /// GetChatMessageInfo
+    /// </summary>
+    /// <remarks>Get information about chat message.</remarks>            
+    [HttpGet]
+    [Route("{messageId}")]
+    public virtual IActionResult GetMessagesMessageId([FromRoute][Required] uint messageId)
+    {
+        return Ok("GetChatMessageInfo");
+    }
+
+
+    /// <summary>
+    /// ChangeMessage
+    /// </summary>
+    /// <remarks>Change chat message (for message senders, chat admins, admins).</remarks>          
+    [HttpPut]
+    [Route("{messageId}")]
+    public virtual ActionResult<MessageResponseDto> PutMessagesMessageId([FromRoute][Required] uint messageId, [FromBody][Required] MessageRequestDto messageRequestDto)
+    {
+        return Ok(new MessageResponseDto());
+    }
+
+    /// <summary>
+    /// DeleteChatMessage
+    /// </summary>
+    /// <remarks>Delete chat message (for message senders, chat admins, admins).</remarks>                   
     [HttpDelete]
+    [Route("{messageId}")]
+    public virtual ActionResult<MessageResponseDto> DeleteMessagesMessageId([FromRoute][Required] uint messageId)
+    {
+        return Ok(new MessageResponseDto());
+    }
+
+    /// <summary>
+    /// LikeMessage
+    /// </summary>
+    /// <remarks>Like chat message (for chat members).</remarks>        
+    [HttpPost]
     [Route("{messageId}/likes")]
-    public virtual ActionResult<MessageLikeResponseDto> DeleteMessagesMessageIdLikes([FromRoute][Required] uint messageId)
+    public virtual ActionResult<MessageLikeResponseDto> PostMessagesMessageIdLikes([FromRoute][Required] uint messageId)
     {
         return Ok(new MessageLikeResponseDto());
     }
@@ -32,58 +79,13 @@ public class MessagesController : ControllerBase
     }
 
     /// <summary>
-    /// LikeMessage
+    /// UnlikeMessage
     /// </summary>
-    /// <remarks>Like chat message (for chat members).</remarks>        
-    [HttpPost]
+    /// <remarks>Unlike chat message (for like owner).</remarks>    
+    [HttpDelete]
     [Route("{messageId}/likes")]
-    public virtual ActionResult<MessageLikeResponseDto> PostMessagesMessageIdLikes([FromRoute][Required] uint messageId)
+    public virtual ActionResult<MessageLikeResponseDto> DeleteMessagesMessageIdLikes([FromRoute][Required] uint messageId)
     {
         return Ok(new MessageLikeResponseDto());
-    }
-
-    /// <summary>
-    /// ChangeMessage
-    /// </summary>
-    /// <remarks>Change chat message (for message senders, chat admins, admins).</remarks>          
-    [HttpPatch]
-    [Route("{messageId}")]
-    public virtual ActionResult<MessageResponseDto> PatchMessagesMessageId([FromRoute][Required] uint messageId, [FromBody][Required] MessageRequestDto messageRequestDto)
-    {
-        return Ok(new MessageResponseDto());
-    }
-
-    /// <summary>
-    /// ReplyMessage
-    /// </summary>
-    /// <remarks>Reply chat message (for chat members).</remarks>          
-    [HttpPost]
-    [Route("{messageId}")]
-    public virtual ActionResult<MessageResponseDto> PostMessagesMessageId([FromRoute][Required] uint messageId, [FromBody][Required] MessageRequestDto messageRequestDto)
-    {
-        return Ok(new MessageResponseDto());
-    }
-
-    /// <summary>
-    /// DeleteChatMessage
-    /// </summary>
-    /// <remarks>Delete chat message (for message senders, chat admins, admins).</remarks>                   
-    [HttpDelete]
-    [Route("{messageId}")]
-    public virtual ActionResult<MessageResponseDto> DeleteMessagesMessageId([FromRoute][Required] uint messageId)
-    {
-        return Ok(new MessageResponseDto());
-    }
-
-    // TODO: aggregate message info
-    /// <summary>
-    /// GetChatMessageInfo
-    /// </summary>
-    /// <remarks>Get information about chat message.</remarks>            
-    [HttpGet]
-    [Route("{messageId}")]
-    public virtual IActionResult GetMessagesMessageId([FromRoute][Required] uint messageId)
-    {
-        return Ok("GetChatMessageInfo");
     }
 }
