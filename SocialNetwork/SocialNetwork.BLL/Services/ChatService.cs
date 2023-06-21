@@ -72,7 +72,9 @@ public class ChatService : IChatService
 
     public async Task<Chat> AddChat(Chat newChat)
     {
-        return await _chatRepository.AddAsync(newChat);
+        var chat = await _chatRepository.AddAsync(newChat);
+        await _chatRepository.SaveAsync();
+        return chat;
     }
 
     public async Task<ChatMember> AddChatMember(ChatMember chatMember)

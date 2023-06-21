@@ -45,6 +45,7 @@ public class ChatRepository : Repository<Chat>, IChatRepository
     public async Task<ChatMember> AddChatMember(ChatMember chatMember)
     {
         await SocialNetworkContext.ChatMembers.AddAsync(chatMember);
+        await SocialNetworkContext.SaveChangesAsync();
         return chatMember;
     }
 

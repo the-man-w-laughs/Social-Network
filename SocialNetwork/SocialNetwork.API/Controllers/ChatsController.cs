@@ -165,7 +165,7 @@ public class ChatsController : ControllerBase
         if (userRole == UserType.User.ToString())
         {
             var chatOwner = await _chatService.GetChatOwnerByChatId(chatId);
-            var isUserChatOwner = chatOwner.User.Id == userId;
+            var isUserChatOwner = chatOwner.UserId == userId;
             if (!isUserChatOwner)
             {
                 return Forbid("You are not chat Owner");

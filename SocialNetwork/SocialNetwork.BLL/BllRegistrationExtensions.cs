@@ -14,5 +14,7 @@ public static class BllRegistrationExtensions
         services.AddScoped<IPasswordHashService, PasswordHashService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ISaltService, SaltService>();
+        services.AddScoped<IChatService,ChatService>();
+        services.AddScoped<IUserService, UserService>();
     }
 }
