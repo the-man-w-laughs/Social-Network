@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using SocialNetwork.DAL.Context;
 using SocialNetwork.DAL.Contracts;
 using SocialNetwork.DAL.Entities.Chats;
+using SocialNetwork.DAL.Entities.Messages;
 using SocialNetwork.DAL.Repositories.Base;
 
 namespace SocialNetwork.DAL.Repositories;
@@ -34,5 +35,10 @@ public class ChatRepository : Repository<Chat>, IChatRepository
         var deletedChatMember = await GetChatMember(chatId, userId);
         if (deletedChatMember != null) SocialNetworkContext.ChatMembers.Remove(deletedChatMember);
         return deletedChatMember;
+    }
+
+    public async Task<List<Message>> GetAllMessages(uint chatId)
+    {
+        return await SocialNetworkContext.Messages.Where(m=> m.ChatId == chatId).ToListAsync();
     }
 }

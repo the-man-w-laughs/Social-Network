@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SocialNetwork.BLL.Contracts;
 using SocialNetwork.DAL.Contracts;
 using SocialNetwork.DAL.Entities.Chats;
+using SocialNetwork.DAL.Entities.Messages;
 
 namespace SocialNetwork.BLL.Services;
 
@@ -54,6 +55,25 @@ public class ChatService : IChatService
         return chat!.ChatMembers
             .OrderBy(cm=> cm.Id)
             .Where(p=>p.Id>currCursor)
+            .Take(limit)
+            .ToList();
+    }
+
+    public Task<Chat> AddChat(Chat newChat)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<ChatMember> AddChatMember(ChatMember chatOwner)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<List<Message>> GetAllChatMessages(uint chatId, int limit, uint? nextCursor)
+    {
+        var messages = await _chatRepository.GetAllMessages(chatId);
+        return messages.OrderBy(m => m.Id)
+            .Where(p => p.Id > nextCursor)
             .Take(limit)
             .ToList();
     }
