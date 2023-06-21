@@ -112,8 +112,10 @@ public sealed class AuthController : ControllerBase
         }
 
         var hashedPassword = user!.PasswordHash;
+
+        var salt = user.Salt;
         
-        var isPasswordCorrect = _passwordHashService.VerifyPassword(userLoginRequestDto.Password, hashedPassword);
+        var isPasswordCorrect = _passwordHashService.VerifyPassword(userLoginRequestDto.Password, salt, hashedPassword);
 
         if (!isPasswordCorrect)
         {

@@ -35,6 +35,7 @@ public class UsersController : ControllerBase
     [HttpGet]        
     public virtual ActionResult<List<UserProfileResponseDto>> GetUsers([FromQuery][Required()]uint? limit, [FromQuery] uint? currCursor)
     {
+        
         var users = new List<UserProfile>
         {
             new (){ UserSex = "helicopter", UserName = "Zhanna" },

@@ -15,19 +15,20 @@ public class PasswordHashService : IPasswordHashService
         var pepperedPassword = password + Pepper;
         var argon2 = new Argon2id(Encoding.UTF8.GetBytes(pepperedPassword));
         argon2.Salt = Encoding.UTF8.GetBytes(salt);
-        argon2.DegreeOfParallelism = 8; // Adjust as needed
-        argon2.MemorySize = 65536; // Adjust as needed
-        argon2.Iterations = 4; // Adjust as needed
-
-        return argon2.GetBytes(32); // 32 bytes = 256 bits
+        argon2.DegreeOfParallelism = 8; 
+        argon2.MemorySize = 65536; 
+        argon2.Iterations = 4; 
+        return argon2.GetBytes(32); 
     }
 
-    public bool VerifyPassword(string password, byte[] hashedPassword)
+    public bool VerifyPassword(string password,string salt, byte[] hashedPassword)
     {
-        var pepperedPassword = password + Pepper;
-        var argon2 = new Argon2id(Encoding.UTF8.GetBytes(pepperedPassword));
-
-        return true;
-        //return argon2.Verify(hashedPassword);
+        var argon2 = new Argon2id(Encoding.UTF8.GetBytes(password + Pepper));
+        argon2.Salt = Encoding.UTF8.GetBytes(salt);
+        argon2.DegreeOfParallelism = 8; 
+        argon2.MemorySize = 65536; 
+        argon2.Iterations = 4; 
+        var newHash = argon2.GetBytes(hashedPassword.Length);
+        return hashedPassword.SequenceEqual(newHash);
     }
 }
