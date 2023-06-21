@@ -11,7 +11,8 @@ public static class BllRegistrationExtensions
     {
         services.AddAutoMapper(typeof(AutoMapperProfile));
         
-        // TODO - register services
-        services.AddScoped<IPasswordHashService, PasswordHashService>();       
+        services.AddScoped<IPasswordHashService, PasswordHashService>();
+        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<ISaltService, SaltService>();
     }
 }

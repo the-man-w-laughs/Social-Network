@@ -118,9 +118,9 @@ public class UsersController : ControllerBase
     /// <remarks>Change Login.</remarks>        
     [HttpPatch]
     [Route("{userId}/login")]
-    public async virtual Task<ActionResult<UserLoginResponseDto>> PatchUsersUserIdLogin([FromRoute][Required]uint userId, [FromBody][Required] UserLoginRequestDto userLoginRequestDto)
-    { 
-        return Ok();
+    public virtual ActionResult<UserLoginResponseDto> PatchUsersUserIdLogin([FromRoute][Required]uint userId, [FromBody][Required] UserChangeLoginRequestDto userChangeLoginRequestDto)
+    {
+        return Ok(new UserLoginResponseDto());
     }
 
     /// <summary>
@@ -129,7 +129,7 @@ public class UsersController : ControllerBase
     /// <remarks>Change Password.</remarks>        
     [HttpPatch]
     [Route("{userId}/password")]
-    public virtual ActionResult<UserPasswordResponseDto> PatchUsersUserIdPassword([FromRoute][Required] uint userId, [FromBody][Required] UserLoginRequestDto userLoginRequestDto)
+    public virtual ActionResult<UserPasswordResponseDto> PatchUsersUserIdPassword([FromRoute][Required] uint userId, [FromBody][Required] UserChangeLoginRequestDto userChangeLoginRequestDto)
     {
         return Ok(new UserPasswordResponseDto());
     }

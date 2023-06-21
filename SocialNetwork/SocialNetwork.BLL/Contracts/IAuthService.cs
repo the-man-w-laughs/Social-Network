@@ -8,6 +8,8 @@ public interface IAuthService
 
     public Task<User> AddUser(User newUser);
 
+    public Task<User?> GetUserByLogin(string login);
+
     public bool IsLoginValid(string login);
 
     public bool IsPasswordValid(string password);

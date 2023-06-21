@@ -1,16 +1,15 @@
-using System.Text.RegularExpressions;
 using SocialNetwork.BLL.Contracts;
 using SocialNetwork.DAL;
+using SocialNetwork.DAL.Contracts;
 using SocialNetwork.DAL.Entities.Users;
-using SocialNetwork.DAL.Repositories;
 
 namespace SocialNetwork.BLL.Services;
 
 public class AuthService : IAuthService
 {
-    private readonly UserRepository _userRepository;
+    private readonly IUserRepository _userRepository;
 
-    public AuthService(UserRepository userRepository)
+    public AuthService(IUserRepository userRepository)
     {
         _userRepository = userRepository;
     }
@@ -24,6 +23,12 @@ public class AuthService : IAuthService
     public async Task<User> AddUser(User newUser)
     {
         return await _userRepository.AddAsync(newUser);        
+    }
+
+    public async Task<User?> GetUserByLogin(string login)
+    {
+        var users = await  _userRepository.Select(u=> u.Login == login);
+        return users.FirstOrDefault();
     }
 
     public bool IsLoginValid(string login)
