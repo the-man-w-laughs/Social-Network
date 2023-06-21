@@ -1,6 +1,7 @@
 ﻿using SocialNetwork.DAL.Entities.Chats;
 using SocialNetwork.DAL.Entities.Comments;
 using SocialNetwork.DAL.Entities.Communities;
+using SocialNetwork.DAL.Entities.Medias;
 using SocialNetwork.DAL.Entities.Posts;
 
 namespace SocialNetwork.DAL.Entities.Users;
@@ -26,8 +27,9 @@ public partial class User
     public bool IsDeleted { get; set; }
     public DateTime? DeletedAt { get; set; }
     public bool IsDeactivated { get; set; }
-    public DateTime? DeactivatedAt { get; set; }      
+    public DateTime? DeactivatedAt { get; set; }
 
+    public virtual ICollection<UserMediaOwner> Medias { get; set; } = new List<UserMediaOwner>();
     public virtual ICollection<ChatMember> ChatMembers { get; set; } = new List<ChatMember>();
     public virtual ICollection<CommentLike> CommentLikes { get; set; } = new List<CommentLike>();
     public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
