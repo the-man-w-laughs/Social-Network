@@ -16,6 +16,7 @@ using SocialNetwork.BLL.DTO.Messages.Response;
 using SocialNetwork.BLL.Services;
 using SocialNetwork.DAL.Contracts;
 using SocialNetwork.DAL.Entities.Chats;
+using SocialNetwork.DAL.Entities.Messages;
 using SocialNetwork.DAL.Entities.Users;
 
 namespace SocialNetwork.API.Controllers;
@@ -66,7 +67,7 @@ public class ChatsController : ControllerBase
             UserId = userId
         };
 
-        var addedOwner = await _chatService.AddChatMember(chatOwner);
+        await _chatService.AddChatMember(chatOwner);
 
         return Ok(_mapper.Map<ChatResponseDto>(addedChat));
 
@@ -182,9 +183,55 @@ public class ChatsController : ControllerBase
     /// <remarks>Add new member to chat (for chat members).</remarks>        
     [HttpPost]
     [Route("{chatId}/members")]
-    public virtual ActionResult<ChatMemberResponseDto> PostChatsChatIdMembers([FromRoute][Required] uint chatId, [FromBody][Required] ChatMemberRequestDto postChatMemberDto)
+    public virtual async Task<ActionResult<ChatMemberResponseDto>> PostChatsChatIdMembers([FromRoute][Required] uint chatId, [FromBody][Required] ChatMemberRequestDto postChatMemberDto)
     {
-        return new ChatMemberResponseDto();
+        var chat = await _chatService.GetChatById(chatId);
+
+        var isChatExisted = chat != null;
+
+        if (!isChatExisted)
+        {
+            return BadRequest("Chat with request Id doesn't exist");
+        }
+
+        var isUserAuthenticated =
+            await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+        var userRole = isUserAuthenticated.Principal!.Claims
+            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultRoleClaimType)
+            ?.Value;
+
+        var userId = uint.Parse(isUserAuthenticated.Principal!.Claims
+            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultNameClaimType)
+            ?.Value!);
+
+        if (userRole == UserType.User.ToString())
+        {
+            var isUserChatMember = await _chatService.IsUserChatMember(chatId, userId);
+            if (!isUserChatMember)
+            {
+                return Forbid("User isn't chat member");
+            }
+
+            var isNewMemberAlreadyInChat = await _chatService.IsUserChatMember(chatId, postChatMemberDto.UserId);
+            if (isNewMemberAlreadyInChat)
+            {
+                return Conflict("User is already in chat");
+            }
+        }
+
+        var newChatMember = new ChatMember
+        {
+            ChatId = chatId,
+            CreatedAt = DateTime.Now,
+            TypeId = ChatMemberType.Member,
+            UserId = postChatMemberDto.UserId
+        };
+
+        var addedChatMember = await _chatService.AddChatMember(newChatMember);
+
+        return Ok(_mapper.Map<ChatMemberResponseDto>(addedChatMember));
+
     }
 
     /// <summary>
@@ -303,9 +350,48 @@ public class ChatsController : ControllerBase
     /// <remarks>Send a message to chat.</remarks>     
     [HttpPost]
     [Route("{chatId}/messages")]
-    public virtual ActionResult<MessageResponseDto> PostChatsChatIdMessages([FromRoute][Required] uint chatId, [FromBody][Required] MessageRequestDto postChatMemberDto)
+    public virtual async Task<ActionResult<MessageResponseDto>> PostChatsChatIdMessages([FromRoute][Required] uint chatId, [FromBody][Required] MessageRequestDto postChatMemberDto)
     {
-        return new MessageResponseDto();
+        var chat = await _chatService.GetChatById(chatId);
+
+        var isChatExisted = chat != null;
+
+        if (!isChatExisted)
+        {
+            return BadRequest("Chat with request Id doesn't exist");
+        }
+
+        var isUserAuthenticated =
+            await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+        var userRole = isUserAuthenticated.Principal!.Claims.
+            FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultRoleClaimType)
+            ?.Value;
+
+        var userId = uint.Parse(isUserAuthenticated.Principal!.Claims
+            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultNameClaimType)
+            ?.Value!);
+
+        if (userRole == UserType.User.ToString())
+        {
+            var isUserChatMember = await _chatService.IsUserChatMember(chatId, userId);
+            if (!isUserChatMember)
+            {
+                return Forbid("User isn't chat member");
+            }
+        }
+
+        var newMessage = new Message
+        {
+            ChatId = chatId,
+            Content = postChatMemberDto.Content,
+            CreatedAt = DateTime.Now,
+            SenderId = userId
+        };
+
+        var addedMessage = await _chatService.addMessage(newMessage);
+
+        return Ok(_mapper.Map<MessageResponseDto>(addedMessage));
     }
 
     /// <summary>
@@ -315,7 +401,7 @@ public class ChatsController : ControllerBase
     [HttpGet]
     [Authorize(Roles = "Admin, User")]
     [Route("{chatId}/messages")]
-    public virtual async Task<ActionResult<List<MessageResponseDto>>> GetChatsChatIdMessages([FromRoute][Required] uint chatId, [FromQuery][Required()] uint? limit, [FromQuery] uint? nextCursor)
+    public virtual async Task<ActionResult<List<MessageResponseDto>>> GetChatsChatIdMessages([FromRoute][Required] uint chatId, [FromQuery][Required()] int limit, [FromQuery] int nextCursor)
     {
         // проверяем наличеи чата с заданным id 
         // проверяем роль пользователя если админ выполняем запрос 

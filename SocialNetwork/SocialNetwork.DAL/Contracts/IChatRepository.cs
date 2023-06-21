@@ -13,4 +13,6 @@ public interface IChatRepository : IRepository<Chat>
     public Task<ChatMember?> GetChatMember(uint chatId, uint userId);
     Task<ChatMember?> DeleteChatMember(uint chatId, uint userId);
     Task<List<Message>> GetAllMessages(uint chatId);
+    Task<ChatMember> AddChatMember(ChatMember chatMember);
+    Task<Message> AddMessage(Message newMessage);
 }

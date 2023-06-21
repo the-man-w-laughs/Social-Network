@@ -41,4 +41,16 @@ public class ChatRepository : Repository<Chat>, IChatRepository
     {
         return await SocialNetworkContext.Messages.Where(m=> m.ChatId == chatId).ToListAsync();
     }
+
+    public async Task<ChatMember> AddChatMember(ChatMember chatMember)
+    {
+        await SocialNetworkContext.ChatMembers.AddAsync(chatMember);
+        return chatMember;
+    }
+
+    public async Task<Message> AddMessage(Message newMessage)
+    {
+        await SocialNetworkContext.Messages.AddAsync(newMessage);
+        return newMessage;
+    }
 }

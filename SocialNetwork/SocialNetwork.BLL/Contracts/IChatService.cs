@@ -19,7 +19,8 @@ public interface IChatService
     
     public Task<List<ChatMember>> GetAllChatMembers(uint chatId, int limit, int currCursor);
     
-    Task<List<Message>> GetAllChatMessages(uint chatId, uint? limit, uint? nextCursor);
+    Task<List<Message>> GetAllChatMessages(uint chatId, int limit, int nextCursor);
     Task<Chat> AddChat(Chat newChat);
     Task<ChatMember> AddChatMember(ChatMember chatOwner);
+    Task<Message> addMessage(Message newMessage);
 }

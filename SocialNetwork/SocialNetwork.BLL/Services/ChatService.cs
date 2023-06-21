@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using SocialNetwork.BLL.Contracts;
+using SocialNetwork.DAL.Context;
 using SocialNetwork.DAL.Contracts;
 using SocialNetwork.DAL.Entities.Chats;
 using SocialNetwork.DAL.Entities.Messages;
@@ -59,22 +60,28 @@ public class ChatService : IChatService
             .ToList();
     }
 
-    public Task<Chat> AddChat(Chat newChat)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<ChatMember> AddChatMember(ChatMember chatOwner)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<List<Message>> GetAllChatMessages(uint chatId, int limit, uint? nextCursor)
+    public async Task<List<Message>> GetAllChatMessages(uint chatId, int limit, int nextCursor)
     {
         var messages = await _chatRepository.GetAllMessages(chatId);
         return messages.OrderBy(m => m.Id)
             .Where(p => p.Id > nextCursor)
             .Take(limit)
             .ToList();
+    }
+
+
+    public async Task<Chat> AddChat(Chat newChat)
+    {
+        return await _chatRepository.AddAsync(newChat);
+    }
+
+    public async Task<ChatMember> AddChatMember(ChatMember chatMember)
+    {
+        return await _chatRepository.AddChatMember(chatMember);
+    }
+
+    public async Task<Message> addMessage(Message newMessage)
+    {
+        return await _chatRepository.AddMessage(newMessage);
     }
 }
