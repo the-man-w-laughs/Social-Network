@@ -10,19 +10,4 @@ namespace SocialNetwork.DAL.Repositories;
 public class MediaRepository : Repository<Media>, IMediaRepository
 {
     public MediaRepository(SocialNetworkContext socialNetworkContext) : base(socialNetworkContext) {}
-
-
-    public async override Task SaveAsync()
-    {
-        var modifiedEntries = SocialNetworkContext.ChangeTracker.Entries<Media>()
-            .Where(e => e.State == EntityState.Modified);
-
-        foreach (var entry in modifiedEntries)
-        {
-            var chat = entry.Entity;
-            chat.UpdatedAt = DateTime.Now;
-        }
-
-        await base.SaveAsync();
-    }
 }

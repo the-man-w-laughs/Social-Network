@@ -20,14 +20,15 @@ public class AuthService : IAuthService
         return users.Any();
     }
 
-    public async Task<User> AddUser(User newUser)
+    public async Task AddUser(User newUser)
     {
-        return await _userRepository.AddAsync(newUser);        
+        await _userRepository.AddAsync(newUser);
+        await _userRepository.SaveAsync();        
     }
 
     public async Task<User?> GetUserByLogin(string login)
     {
-        var users = await  _userRepository.Select(u=> u.Login == login);
+        var users = await  _userRepository.SelectAsync(u=> u.Login == login);
         return users.FirstOrDefault();
     }
 

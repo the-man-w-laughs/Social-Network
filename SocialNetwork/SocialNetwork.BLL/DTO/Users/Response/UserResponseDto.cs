@@ -7,17 +7,17 @@ public class UserResponseDto
     public uint Id { get; set; }
 
     public string? Email { get; set; }
-    public DateTime EmailUpdatedAt { get; set; }
+    public DateTime? EmailUpdatedAt { get; set; }
 
     public string Login { get; set; } = null!;
-    public DateTime LoginUpdatedAt { get; set; }
+    public DateTime? LoginUpdatedAt { get; set; }
 
     public byte[] PasswordHash { get; set; } = null!;
     public string Salt { get; set; } = null!;
-    public DateTime PasswordUpdatedAt { get; set; }
+    public DateTime? PasswordUpdatedAt { get; set; }
 
     public UserType TypeId { get; set; }
-    public DateTime UserTypeUpdatedAt { get; set; }
+    public DateTime? UserTypeUpdatedAt { get; set; }
     public DateTime LastActiveAt { get; set; }
     public DateTime CreatedAt { get; set; }
     public bool IsDeleted { get; set; }

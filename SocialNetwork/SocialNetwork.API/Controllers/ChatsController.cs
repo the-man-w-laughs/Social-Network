@@ -146,7 +146,7 @@ public class ChatsController : ControllerBase
         var existingChat = chats.First();
         _mapper.Map(chatRequestDto, existingChat);
 
-        _chatRepository.Update(existingChat);
+        _chatRepository.Update(existingChat);        
 
         await _chatRepository.SaveAsync();
 

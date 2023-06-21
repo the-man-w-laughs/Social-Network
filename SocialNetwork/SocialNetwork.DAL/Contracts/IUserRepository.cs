@@ -5,5 +5,5 @@ namespace SocialNetwork.DAL.Contracts;
 
 public interface IUserRepository : IRepository<User>
 {
-    public List<User> GetAllUsersPaginated(int limit, int? currCursor);
+    public Task<List<User>> GetAllUsersPaginated(int limit, int? currCursor);
 }

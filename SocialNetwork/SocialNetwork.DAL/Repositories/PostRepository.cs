@@ -10,18 +10,4 @@ namespace SocialNetwork.DAL.Repositories;
 public class PostRepository : Repository<Post>, IPostRepository
 {
     public PostRepository(SocialNetworkContext socialNetworkContext) : base(socialNetworkContext) {}
-
-    public async override Task SaveAsync()
-    {
-        var modifiedEntries = SocialNetworkContext.ChangeTracker.Entries<Post>()
-            .Where(e => e.State == EntityState.Modified);
-
-        foreach (var entry in modifiedEntries)
-        {
-            var chat = entry.Entity;
-            chat.UpdatedAt = DateTime.Now;
-        }
-
-        await base.SaveAsync();
-    }
 }

@@ -3,6 +3,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using SocialNetwork.BLL.Contracts;
+using SocialNetwork.BLL.DTO.Chats.Request;
 using SocialNetwork.BLL.DTO.Chats.Response;
 using SocialNetwork.BLL.DTO.Communities.Response;
 using SocialNetwork.BLL.DTO.Posts.Request;
@@ -122,6 +123,30 @@ public class UsersController : ControllerBase
     public virtual ActionResult<UserLoginResponseDto> PatchUsersUserIdLogin([FromRoute][Required]uint userId, [FromBody][Required] UserChangeLoginRequestDto userChangeLoginRequestDto)
     {
         return Ok(new UserLoginResponseDto());
+    }
+
+    /// <summary>
+    /// ChangeUserLogin
+    /// </summary>
+    /// <remarks>Change Login.</remarks>        
+    [HttpPut]
+    [Route("{userId}/login")]
+    public virtual async Task<ActionResult<UserLoginResponseDto>> PutUsersUserIdLogin([FromRoute][Required] uint userId, [FromBody][Required] UserChangeLoginRequestDto userChangeLoginRequestDto)
+    {
+        var users = await _userRepository.SelectAsync((user) => user.Id == userId);
+        if (users.Count == 0)
+        {
+            return NotFound();
+        }
+
+        var existingUser = users.First();
+        _mapper.Map(userChangeLoginRequestDto, existingUser);
+
+        _userRepository.Update(existingUser);
+
+        await _userRepository.SaveAsync();
+
+        return Ok(_mapper.Map<UserLoginResponseDto>(existingUser));
     }
 
     /// <summary>

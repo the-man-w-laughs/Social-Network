@@ -71,11 +71,11 @@ public sealed class AuthController : ControllerBase
             Salt = salt,
             TypeId = UserType.User,
             CreatedAt = DateTime.Now
-        };
+        };        
 
-        var responseUser = await _authService.AddUser(newUser);
+        await _authService.AddUser(newUser);
         
-        return Ok(_mapper.Map<UserResponseDto>(responseUser));
+        return Ok(_mapper.Map<UserResponseDto>(newUser));
         
     }
 

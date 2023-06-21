@@ -11,40 +11,12 @@ public class UserRepository : Repository<User>, IUserRepository
 {
     public UserRepository(SocialNetworkContext socialNetworkContext) : base(socialNetworkContext) { }
 
-    public async override Task SaveAsync()
+    public async Task<List<User>> GetAllUsersPaginated(int limit, int? currCursor)
     {
-        var modifiedEntries = SocialNetworkContext.ChangeTracker.Entries<User>()
-            .Where(e => e.State == EntityState.Modified);
-
-        foreach (var entry in modifiedEntries)
-        {
-            var user = entry.Entity;
-            var original = entry.OriginalValues;
-
-            if (entry.Property(u => u.PasswordHash).IsModified)
-            {
-                user.PasswordUpdatedAt = DateTime.Now;
-            }
-
-            if (entry.Property(u => u.Login).IsModified)
-            {
-                user.LoginUpdatedAt = DateTime.Now;
-            }
-
-            if (entry.Property(u => u.Email).IsModified)
-            {
-                user.EmailUpdatedAt = DateTime.Now;
-            }
-        }
-        await base.SaveAsync();
-    }
-
-    public List<User> GetAllUsersPaginated(int limit, int? currCursor)
-    {
-        return SocialNetworkContext.Users
+        return await SocialNetworkContext.Users
             .OrderBy(u => u.Id)
             .Where(p => p.Id > currCursor)
             .Take(limit)
-            .ToList();
+            .ToListAsync();
     }
 }

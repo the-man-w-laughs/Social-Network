@@ -5,6 +5,7 @@ using SocialNetwork.BLL.DTO.Comments.Response;
 using SocialNetwork.BLL.DTO.Communities.Response;
 using SocialNetwork.BLL.DTO.Messages.Response;
 using SocialNetwork.BLL.DTO.Posts.Response;
+using SocialNetwork.BLL.DTO.Users.Request;
 using SocialNetwork.BLL.DTO.Users.Response;
 using SocialNetwork.DAL.Entities.Chats;
 using SocialNetwork.DAL.Entities.Comments;
@@ -20,10 +21,11 @@ public class AutoMapperProfile : Profile
     public AutoMapperProfile()
     {
         // Chats
+        CreateMap<ChatRequestDto, Chat>();
+
         CreateMap<Chat, ChatResponseDto>();
         CreateMap<ChatMember, ChatMemberResponseDto>();
 
-        CreateMap<ChatRequestDto, Chat>();
 
         // Comments
         CreateMap<CommentLike, CommentLikeResponseDto>();
@@ -42,6 +44,8 @@ public class AutoMapperProfile : Profile
         CreateMap<Post, PostResponseDto>();
 
         // Users
+        CreateMap<UserChangeLoginRequestDto, User>();
+
         CreateMap<User, UserActivityResponseDto>();
         CreateMap<User, UserEmailResponseDto>();
         CreateMap<User, UserLoginResponseDto>();
