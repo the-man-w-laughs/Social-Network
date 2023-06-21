@@ -9,7 +9,7 @@ namespace SocialNetwork.DAL.Repositories;
 
 public class UserRepository : Repository<User>, IUserRepository
 {
-    public UserRepository(SocialNetworkContext socialNetworkContext) : base(socialNetworkContext) {}
+    public UserRepository(SocialNetworkContext socialNetworkContext) : base(socialNetworkContext) { }
 
     public async override Task SaveAsync()
     {
@@ -37,5 +37,14 @@ public class UserRepository : Repository<User>, IUserRepository
             }
         }
         await base.SaveAsync();
+    }
+
+    public List<User> GetAllUsersPaginated(int limit, int? currCursor)
+    {
+        return SocialNetworkContext.Users
+            .OrderBy(u => u.Id)
+            .Where(p => p.Id > currCursor)
+            .Take(limit)
+            .ToList();
     }
 }

@@ -6,9 +6,9 @@ namespace SocialNetwork.BLL.Services;
 
 public class SaltService : ISaltService
 {
-    private const int SaltLength = 20;
+    private const int SaltWorkFactor = 8;
     public string GenerateSalt()
     {
-        return BCryptNet.GenerateSalt(SaltLength)[..20];
+        return BCryptNet.GenerateSalt(SaltWorkFactor)[..20];
     }
 }
