@@ -1,15 +1,17 @@
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SocialNetwork.BLL.Contracts;
 using SocialNetwork.BLL.DTO.Chats.Response;
 using SocialNetwork.BLL.DTO.Communities.Response;
 using SocialNetwork.BLL.DTO.Posts.Request;
 using SocialNetwork.BLL.DTO.Posts.Response;
 using SocialNetwork.BLL.DTO.Users.Request;
 using SocialNetwork.BLL.DTO.Users.Response;
-using SocialNetwork.DAL.Contracts.Users;
-using SocialNetwork.DAL.Entities.Chats;
-using SocialNetwork.DAL.Entities.Communities;
 using SocialNetwork.DAL.Entities.Posts;
 using SocialNetwork.DAL.Entities.Users;
 
@@ -20,30 +22,28 @@ namespace SocialNetwork.API.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly IMapper _mapper;
-    private readonly IUserRepository _userRepository; // temp
-    
-    public UsersController(IMapper mapper, IUserRepository userRepository)
+    private readonly IUserService _userService;
+    private readonly IPostService _postService;
+    public UsersController(IMapper mapper, IUserService userService, IPostService postService)
     {
         _mapper = mapper;
-        _userRepository = userRepository;
+        _userService = userService;
+        _postService = postService;
     }
 
     /// <summary>
     /// GetAllUsers
     /// </summary>
     /// <remarks>Returns all users using pagination.</remarks>
-    [HttpGet]        
-    public virtual ActionResult<List<UserProfileResponseDto>> GetUsers(
-        [FromQuery, Required] uint limit,
-        [FromQuery, Required] uint currCursor)
+    [HttpGet]     
+    [Authorize(Roles = "Admin, User")]
+    public virtual async Task<ActionResult<List<UserResponseDto>>> GetUsers(
+        [FromQuery, Required] int limit,
+        [FromQuery, Required] int currCursor)
     {
-        var userProfiles = new List<UserProfile>
-        {
-            new() { UserSex = "helicopter", UserName = "Zhanna" },
-            new() { UserSex = "Mig - 29", UserName = "Polina" }
-        };
-        
-        return Ok(userProfiles.Select(user => _mapper.Map<UserProfileResponseDto>(user)));        
+        var users = await _userService.GetUsers(limit, currCursor);
+
+        return Ok(users.Select(up=>_mapper.Map<UserResponseDto>(up)));        
     }
 
     /// <summary>
@@ -52,15 +52,25 @@ public class UsersController : ControllerBase
     /// <remarks>Get all users chats using pagination (for account owner).</remarks>
     [HttpGet]
     [Route("{userId}/chats")]        
-    public virtual ActionResult<List<ChatResponseDto>> GetUsersUserIdChats(
-        [FromQuery, Required] uint limit,
-        [FromQuery, Required] uint nextCursor)
+    public virtual async Task<ActionResult<List<ChatResponseDto>>> GetUsersUserIdChats(
+        [FromRoute,Required] int userId,
+        [FromQuery, Required] int limit,
+        [FromQuery, Required] int nextCursor)
     {
-        var userChats = new List<Chat>
+        var isUserAuthenticated =
+            await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        
+        var claimUserId = uint.Parse(isUserAuthenticated.Principal!.Claims
+            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultNameClaimType)?.Value!);
+
+        var isUserAccountOwner = claimUserId == userId;
+
+        if (!isUserAccountOwner)
         {
-            new() { Id = 200, Name = "TestChatName", CreatedAt = DateTime.Now },
-            new() { Id = 201, Name = "TestChatName", CreatedAt = DateTime.Now.AddDays(-1) }
-        };
+            return Forbid("You are not account owner");
+        }
+        
+        var userChats = await _userService.GetUserChats(claimUserId,limit,nextCursor);
         
         return Ok(userChats.Select(uc => _mapper.Map<ChatResponseDto>(uc)));
     }
@@ -71,18 +81,14 @@ public class UsersController : ControllerBase
     /// <remarks>Get user's communities using pagination.</remarks>
     [HttpGet]
     [Route("{userId}/communities")]
-    public virtual ActionResult<List<CommunityResponseDto>> GetUsersUserIdCommunities(
+    public virtual async Task<ActionResult<List<CommunityResponseDto>>> GetUsersUserIdCommunities(
         [FromRoute, Required] uint userId,
-        [FromQuery, Required] uint limit,
-        [FromQuery, Required] uint nextCursor)
+        [FromQuery, Required] int limit,
+        [FromQuery, Required] int nextCursor)
     {
-        var communities = new List<Community>
-        {
-            new() { Name = "TestCommunity1", Description = "TestCommunityDescription1", IsPrivate = false },
-            new() { Name = "TestCommunity2", Description = "TestCommunityDescription2", IsPrivate = true }
-        };
+        var userCommunities = await _userService.GetUserCommunities(userId, limit, nextCursor);
         
-        return Ok(communities.Select(c => _mapper.Map<CommunityResponseDto>(c)));
+        return Ok(userCommunities.Select(c => _mapper.Map<CommunityResponseDto>(c)));
     }
 
     /// <summary>
@@ -91,18 +97,14 @@ public class UsersController : ControllerBase
     /// <remarks>Get all user's friends using pagination.</remarks>
     [HttpGet]
     [Route("{userId}/friends")]  
-    public virtual ActionResult<List<UserProfileResponseDto>> GetUsersUserIdFriends(
+    public virtual async Task<ActionResult<List<UserResponseDto>>> GetUsersUserIdFriends(
         [FromRoute, Required] uint userId,
-        [FromQuery, Required] uint limit,
-        [FromQuery, Required] uint nextCursor)
+        [FromQuery, Required] int limit,
+        [FromQuery, Required] int nextCursor)
     {
-        var userProfiles = new List<UserProfile>
-        {
-            new() { UserSex = "helicopter", UserName = "Zhanna" },
-            new() { UserSex = "Mig - 29", UserName = "Polina" }
-        };
+        var userFriends = await _userService.GetUserFriends(userId, limit, nextCursor);
         
-        return Ok(userProfiles.Select(user => _mapper.Map<UserProfileResponseDto>(user))); 
+        return Ok(userFriends.Select(user => _mapper.Map<UserResponseDto>(user))); 
     }
 
     /// <summary>
@@ -111,16 +113,12 @@ public class UsersController : ControllerBase
     /// <remarks>Get all user's posts using pagination.</remarks>
     [HttpGet]
     [Route("{userId}/posts")]
-    public virtual ActionResult<List<PostResponseDto>> GetUsersUserIdPosts(
+    public virtual async Task<ActionResult<List<PostResponseDto>>> GetUsersUserIdPosts(
         [FromRoute, Required] uint userId,
-        [FromQuery, Required] uint limit,
-        [FromQuery, Required] uint currCursor)
+        [FromQuery, Required] int limit,
+        [FromQuery, Required] int currCursor)
     {
-        var userPosts = new List<Post>
-        {
-            new() { Id = 200, Content = "TestPostDescription1", CreatedAt = DateTime.Now },
-            new() { Id = 201, Content = "TestPostDescription2", CreatedAt = DateTime.Now.AddDays(-1) }
-        };
+        var userPosts = await _userService.GetUserPosts(userId, limit, currCursor);
         
         return Ok(userPosts.Select(up => _mapper.Map<PostResponseDto>(up)));
     }
@@ -131,9 +129,9 @@ public class UsersController : ControllerBase
     /// <remarks>Get user's profile.</remarks>
     [HttpGet]
     [Route("{userId}/profile")]
-    public virtual ActionResult<UserProfileResponseDto> GetUsersUserIdProfile([FromRoute, Required] uint userId)
+    public virtual async Task<ActionResult<UserProfileResponseDto>> GetUsersUserIdProfile([FromRoute, Required] uint userId)
     {
-        var userProfile = new UserProfile { UserSex = "helicopter", UserName = "Zhanna" };
+        var userProfile = await _userService.GetUserProfile(userId);
         
         return Ok(_mapper.Map<UserProfileResponseDto>(userProfile));
     }
@@ -163,7 +161,7 @@ public class UsersController : ControllerBase
         [FromRoute, Required] uint userId,
         [FromBody, Required] UserChangeLoginRequestDto userChangeLoginRequestDto)
     {
-        var users = await _userRepository.GetAllAsync(user => user.Id == userId);
+        /*var users = await _userRepository.GetAllAsync(user => user.Id == userId);
         if (users.Count == 0) return NotFound("User with this ID isn't found");
 
         var existingUser = users.First();
@@ -173,7 +171,8 @@ public class UsersController : ControllerBase
 
         await _userRepository.SaveAsync();
 
-        return Ok(_mapper.Map<UserLoginResponseDto>(existingUser));
+        return Ok(_mapper.Map<UserLoginResponseDto>(existingUser));*/
+        return Ok();
     }
 
     /// <summary>
@@ -227,12 +226,18 @@ public class UsersController : ControllerBase
     /// <remarks>Create user's post.</remarks>
     [HttpPost]
     [Route("{userId}/posts")]
-    public virtual ActionResult<PostResponseDto> PostUsersUserIdPosts(
+    public virtual async Task<ActionResult<UserProfilePostResponseDto>> PostUsersUserIdPosts(
         [FromRoute, Required] uint userId,
         [FromBody, Required] PostRequestDto postRequestDto)
     {
-        var post = new Post { Id = 200, Content = "TestPostDescription1", CreatedAt = DateTime.Now };
+        var newUserPost = new Post
+        {
+            Content = postRequestDto.Content,
+            CreatedAt = DateTime.Now
+        };
+
+        var userProfilePost = await _postService.CreateUserProfilePost(userId,newUserPost);
         
-        return Ok(_mapper.Map<PostResponseDto>(post));
+        return Ok(_mapper.Map<UserProfilePostResponseDto>(userProfilePost));
     }
 }

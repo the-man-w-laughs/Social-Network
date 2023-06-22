@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using SocialNetwork.BLL.Contracts;
 using SocialNetwork.BLL.DTO.Comments.Request;
 using SocialNetwork.BLL.DTO.Comments.Response;
 using SocialNetwork.BLL.DTO.Posts.Request;
@@ -16,9 +17,12 @@ public class PostsController : ControllerBase
 {
     private readonly IMapper _mapper;
 
-    public PostsController(IMapper mapper)
+    private readonly IPostService _postService;
+
+    public PostsController(IMapper mapper, IPostService postService)
     {
         _mapper = mapper;
+        _postService = postService;
     }
 
     /// <summary>

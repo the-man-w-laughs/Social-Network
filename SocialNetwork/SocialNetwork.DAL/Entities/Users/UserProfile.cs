@@ -1,6 +1,6 @@
 ﻿namespace SocialNetwork.DAL.Entities.Users;
 
-public sealed class UserProfile
+public partial class UserProfile
 {
     public uint Id { get; set; }
     public string? UserEmail { get; set; }
@@ -14,6 +14,6 @@ public sealed class UserProfile
 
     public uint UserId { get; set; }
     
-    public User User { get; set; } = null!;
-    public ICollection<UserProfileMedia> UserProfileMedia { get; set; } = new List<UserProfileMedia>();
+    public virtual User User { get; set; } = null!;
+    public virtual ICollection<UserProfileMedia> UserProfileMedia { get; set; } = new List<UserProfileMedia>();
 }

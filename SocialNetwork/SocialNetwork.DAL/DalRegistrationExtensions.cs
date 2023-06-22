@@ -28,8 +28,7 @@ public static class DalRegistrationExtensions
             var connectionString = configuration.GetConnectionString("Default");
             if (string.IsNullOrWhiteSpace(connectionString))
                 throw new InvalidOperationException("Connection string cannot be empty.");
-
-            builder.UseMySQL(connectionString);
+            builder.UseLazyLoadingProxies().UseMySQL(connectionString);
         });
 
         // Chats

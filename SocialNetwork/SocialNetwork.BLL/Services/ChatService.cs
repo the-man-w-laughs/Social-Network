@@ -38,27 +38,34 @@ public class ChatService : IChatService
 
     public async Task<bool> IsUserHaveChatAdminPermissions(uint chatId, uint userId)
     {
-        var chatMember = await _chatMemberRepository.GetChatMember(chatId, userId);
+        var chat = await _chatRepository.GetByIdAsync(chatId);
+        var chatMember = chat?.ChatMembers.FirstOrDefault(cm => cm.UserId == userId);
         return chatMember?.TypeId is ChatMemberType.Admin or ChatMemberType.Owner;
     }
 
     public async Task<ChatMember?> DeleteChatMember(uint chatId, uint userId)
     {
-        var deletedMember = await _chatMemberRepository.DeleteChatMember(chatId, userId);
-        await _chatMemberRepository.SaveAsync();
-        return deletedMember;
+        var chat = await _chatRepository.GetByIdAsync(chatId);
+        var memberToDelete = chat?.ChatMembers.FirstOrDefault(cm => cm.UserId == userId);
+        if (memberToDelete != null)
+        {
+            await _chatMemberRepository.DeleteById(memberToDelete.Id);
+            await _chatMemberRepository.SaveAsync();
+        }
+        return memberToDelete;
     }
 
     public async Task<bool> IsUserChatMember(uint chatId, uint userId)
     {
-        var chatMember = await _chatMemberRepository.GetChatMember(chatId, userId);
+        var chat = await _chatRepository.GetByIdAsync(chatId);
+        var chatMember = chat?.ChatMembers.FirstOrDefault(cm => cm.UserId == userId);
         return chatMember != null;
     }
 
     public async Task<List<ChatMember>> GetAllChatMembers(uint chatId, int limit, int currCursor)
     {
-        var chat = await _chatMemberRepository.GetAllAsync(cm => cm.ChatId == chatId);
-        return chat.OrderBy(cm => cm.Id)
+        var chat = await _chatRepository.GetByIdAsync(chatId);
+        return chat!.ChatMembers.OrderBy(cm => cm.Id)
             .Skip(currCursor)
             .Take(limit)
             .ToList();
@@ -66,8 +73,8 @@ public class ChatService : IChatService
 
     public async Task<List<Message>> GetAllChatMessages(uint chatId, int limit, int nextCursor)
     {
-        var messages = await _chatRepository.GetAllMessages(chatId);
-        return messages.OrderBy(m => m.Id)
+        var chat = await _chatRepository.GetByIdAsync(chatId);
+        return chat!.Messages.OrderBy(m => m.Id)
             .Where(p => p.Id > nextCursor)
             .Take(limit)
             .ToList();

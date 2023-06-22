@@ -48,7 +48,7 @@ public sealed class AuthController : ControllerBase
 
         var salt = _saltService.GenerateSalt();
         var hashedPassword = _passwordHashService.HashPassword(userSignUpRequestDto.Password, salt);
-
+        
         var newUser = new User
         {
             Login = userSignUpRequestDto.Login,
@@ -57,9 +57,17 @@ public sealed class AuthController : ControllerBase
             Salt = salt,
             TypeId = UserType.User,
             CreatedAt = DateTime.Now
-        };        
+        };       
+        
+        var addedUser = await _authService.AddUser(newUser);
 
-        await _authService.AddUser(newUser);
+        var userProfile = new UserProfile()
+        {
+            CreatedAt = DateTime.Now,
+            UserId = addedUser.Id
+        };
+
+        await _authService.AddUserProfile(userProfile);
         
         return Ok(_mapper.Map<UserResponseDto>(newUser));
         
