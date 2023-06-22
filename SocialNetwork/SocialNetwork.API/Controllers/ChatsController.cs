@@ -250,11 +250,48 @@ public class ChatsController : ControllerBase
     /// <remarks>Updates information about chat member (for chat admins, admins).</remarks>
     [HttpPut]
     [Route("{chatId}/members/{memberId}")]
-    public virtual async Task<ActionResult<ChatMemberResponseDto>> PatchChatsChatIdMembersMemberId(
+    public virtual async Task<ActionResult<ChangeChatMemberResponseDto>> PatchChatsChatIdMembersMemberId(
         [FromRoute, Required] uint chatId,
         [FromRoute, Required] uint memberId,
-        [FromBody, Required] ChatRequestDto chatMemberStatusDto)
+        [FromBody, Required] ChangeChatMemberRequestDto changeChatMemberRequestDto)
     {
+        var chat = await _chatService.GetChatById(chatId);
+
+        var isChatExisted = chat != null;
+
+        if (!isChatExisted)
+        {
+            return BadRequest("Chat doesn't exist");
+        }
+
+        var isUserChatMember = await _chatService.IsUserChatMember(chatId, memberId);
+        
+        if (!isUserChatMember)
+        {
+            return BadRequest("ChatMember doesn't exist");
+        }
+        
+        var isUserAuthenticated =
+            await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+        var userRole = isUserAuthenticated.Principal!.Claims
+            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultRoleClaimType)?.Value;
+
+        var userId = uint.Parse(isUserAuthenticated.Principal!.Claims
+            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultNameClaimType)?.Value!);
+
+        if (userRole == UserType.User.ToString())
+        {
+            var isUserHaveAdminPermissions = await _chatService.IsUserHaveChatAdminPermissions(chatId, userId);
+            switch (changeChatMemberRequestDto.Type)
+            {
+                
+            }
+        }
+        
+        
+        
+        
         return Ok("ChatMemberStatus");
     }
 

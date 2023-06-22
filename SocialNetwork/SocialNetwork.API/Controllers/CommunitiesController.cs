@@ -12,8 +12,6 @@ using SocialNetwork.BLL.DTO.Medias.Response;
 using SocialNetwork.BLL.DTO.Messages.Response;
 using SocialNetwork.BLL.DTO.Posts.Request;
 using SocialNetwork.BLL.DTO.Posts.Response;
-using SocialNetwork.BLL.Services;
-using SocialNetwork.DAL.Entities.Chats;
 using SocialNetwork.DAL.Entities.Communities;
 using SocialNetwork.DAL.Entities.Posts;
 using SocialNetwork.DAL.Entities.Users;
@@ -163,13 +161,49 @@ public class CommunitiesController : ControllerBase
     [HttpPost]
     [Authorize(Roles = "Admin, User")]
     [Route("{communityId}/posts")]
-    public virtual ActionResult<PostResponseDto> PostCommunitiesCommunityIdPosts(
+    public virtual async Task<ActionResult<PostResponseDto>> PostCommunitiesCommunityIdPosts(
         [FromRoute, Required] uint communityId,
         [FromBody, Required] PostRequestDto communityRequestDto)
     {
-        var post = new Post { Id = 200, Content = "TestCommunityDescription", CreatedAt = DateTime.Now };
+        var community = await _communityService.GetCommunityById(communityId);
+
+        var isCommunityExisted = community != null;
+
+        if (!isCommunityExisted)
+        {
+            return BadRequest("Community doesn't exist");
+        }
         
-        return Ok(_mapper.Map<PostResponseDto>(post));
+        var isUserAuthenticated =
+            await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+        var userRole = isUserAuthenticated.Principal!.Claims
+            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultRoleClaimType)?.Value;
+
+        var userId = uint.Parse(isUserAuthenticated.Principal!.Claims
+            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultNameClaimType)?.Value!);
+
+        if (userRole == UserType.User.ToString())
+        {
+            if (community!.IsPrivate)
+            {
+                var isUserCommunityMember = await _communityService.IsUserCommunityMember(communityId, userId);
+                if (!isUserCommunityMember)
+                {
+                    return Forbid("Community is Private, you are not a member");
+                }
+            }
+        }
+
+        var post = new Post()
+        {
+            Content = communityRequestDto.Content,
+            CreatedAt = DateTime.Now
+        };
+
+        var addedPost = await _communityService.AddCommunityPost(communityId, post, userId);
+        
+        return Ok(_mapper.Map<PostResponseDto>(addedPost));
     }
 
     /// <summary>
@@ -179,14 +213,14 @@ public class CommunitiesController : ControllerBase
     [HttpGet]
     [Authorize(Roles = "Admin, User")]
     [Route("{communityId}/posts")]
-    public virtual ActionResult<List<CommunityPostResponseDto>> GetCommunitiesPosts(
+    public virtual async Task<ActionResult<List<CommunityPostResponseDto>>> GetCommunitiesPosts(
         [FromRoute, Required] uint communityId,
-        [FromQuery, Required] uint limit,
-        [FromQuery, Required] uint currCursor)
+        [FromQuery, Required] int limit,
+        [FromQuery, Required] int currCursor)
     {
-        var communityPost = new CommunityPost { Id = 200 };
+        var communityPosts = await _communityService.GetCommunityPosts(communityId, limit, currCursor);
         
-        return Ok(_mapper.Map<PostResponseDto>(communityPost));
+        return Ok(communityPosts.Select(cp=>_mapper.Map<CommunityPostResponseDto>(cp)));
     }
 
     /// <summary>
