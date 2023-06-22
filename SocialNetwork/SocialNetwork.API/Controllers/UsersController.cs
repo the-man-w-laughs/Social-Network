@@ -70,7 +70,7 @@ public class UsersController : ControllerBase
     public virtual async Task<ActionResult<List<ChatResponseDto>>> GetUsersUserIdChats(
         [FromRoute,Required] int userId,
         [FromQuery, Required] int limit,
-        [FromQuery, Required] int nextCursor)
+        [FromQuery] int nextCursor)
     {
         var isUserAuthenticated =
             await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -99,7 +99,7 @@ public class UsersController : ControllerBase
     public virtual async Task<ActionResult<List<CommunityResponseDto>>> GetUsersUserIdCommunities(
         [FromRoute, Required] uint userId,
         [FromQuery, Required] int limit,
-        [FromQuery, Required] int nextCursor)
+        [FromQuery] int nextCursor)
     {
         var userCommunities = await _userService.GetUserCommunities(userId, limit, nextCursor);
         
@@ -115,7 +115,7 @@ public class UsersController : ControllerBase
     public virtual async Task<ActionResult<List<UserResponseDto>>> GetUsersUserIdFriends(
         [FromRoute, Required] uint userId,
         [FromQuery, Required] int limit,
-        [FromQuery, Required] int nextCursor)
+        [FromQuery] int nextCursor)
     {
         var userFriends = await _userService.GetUserFriends(userId, limit, nextCursor);
         
@@ -261,9 +261,23 @@ public class UsersController : ControllerBase
     /// </summary>
     /// <remarks>Create user media.</remarks>    
     [HttpPost]
+    [Authorize(Roles = "Admin, User")]
     [Route("{userId}/medias")]
     public async virtual Task<ActionResult<List<MediaResponseDto>>> PostUsersUserIdMedias([FromRoute][Required] uint userId,[Required] List<IFormFile> files)
     {
+        var isUserAuthenticated =
+    await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+        var claimUserId = uint.Parse(isUserAuthenticated.Principal!.Claims
+            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultNameClaimType)?.Value!);
+
+        var isUserAccountOwner = claimUserId == userId;
+
+        if (!isUserAccountOwner)
+        {
+            return Forbid("You are not account owner");
+        }
+
         if (files == null)
         {
             return BadRequest();
@@ -295,13 +309,27 @@ public class UsersController : ControllerBase
     /// </summary>
     /// <remarks>Get all user's posts using pagination. (only for user or admin)</remarks>
     [HttpGet]
+    [Authorize(Roles = "Admin, User")]
     [Route("{userId}/medias")]
-    public virtual ActionResult<List<MediaResponseDto>> GetUsersUserIdMedias(
+    public async virtual Task<ActionResult<List<MediaResponseDto>>> GetUsersUserIdMedias(
         [FromRoute, Required] uint userId,
         [FromQuery, Required] int limit,
-        [FromQuery, Required] int currCursor)
-    {       
-        var result = _mediaService.GetUserMediaList(userId, limit, currCursor);
+        [FromQuery] int currCursor)
+    {
+        var isUserAuthenticated =
+await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+        var claimUserId = uint.Parse(isUserAuthenticated.Principal!.Claims
+            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultNameClaimType)?.Value!);
+
+        var isUserAccountOwner = claimUserId == userId;
+
+        if (!isUserAccountOwner)
+        {
+            return Forbid("You are not account owner");
+        }
+
+        var result = await _mediaService.GetUserMediaList(userId, limit, currCursor);
         return Ok(result);
     }
 }

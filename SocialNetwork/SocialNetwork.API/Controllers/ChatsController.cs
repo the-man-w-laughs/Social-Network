@@ -213,7 +213,7 @@ public class ChatsController : ControllerBase
     public virtual async Task<ActionResult<List<ChatMemberResponseDto>>> GetChatsChatIdMembers(
         [FromRoute, Required] uint chatId,
         [FromQuery, Required] int limit,
-        [FromQuery, Required] int nextCursor)
+        [FromQuery] int nextCursor)
     {
         // проверяем существует ли такой chatid если нет кидаем Badrequest
         // если запрос кинул админ соц сети то обрабатываем его проверяя параметры пагинации
@@ -354,7 +354,7 @@ public class ChatsController : ControllerBase
     public virtual async Task<ActionResult<List<MessageResponseDto>>> GetChatsChatIdMessages(
         [FromRoute, Required] uint chatId,
         [FromQuery, Required] int limit,
-        [FromQuery, Required] int nextCursor)
+        [FromQuery] int nextCursor)
     {
         // проверяем наличие чата с заданным ID
         // проверяем роль пользователя если админ выполняем запрос

@@ -227,12 +227,12 @@ public class CommunitiesController : ControllerBase
     /// <remarks>Get all community's posts using pagination. (only for community or admin)</remarks>
     [HttpGet]
     [Route("{communityId}/medias")]
-    public virtual ActionResult<List<CommunityMediaOwnerResponseDto>> GetcommunityscommunityIdMedias(
+    public async virtual Task<ActionResult<List<CommunityMediaOwnerResponseDto>>> GetcommunityscommunityIdMedias(
         [FromRoute, Required] uint communityId,
         [FromQuery, Required] int limit,
         [FromQuery] int currCursor)
     {
-        var result = _mediaService.GetCommunityMediaList(communityId, limit, currCursor);
+        var result = await _mediaService.GetCommunityMediaList(communityId, limit, currCursor);
         return Ok(result);
     }
 }

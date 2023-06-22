@@ -46,7 +46,7 @@ namespace SocialNetwork.BLL.Services
 
         public async Task<List<MediaResponseDto>?> GetUserMediaList(uint userId, int limit, int currCursor)
         {
-            var userMediaOwners = await (_userMediaOwnerRepository.GetAllAsync((UserMediaOwner) => UserMediaOwner.UserId == userId));
+            var userMediaOwners = await _userMediaOwnerRepository.GetAllAsync((UserMediaOwner) => UserMediaOwner.UserId == userId);
             var mediaIds = userMediaOwners.Select(umo => umo.MediaId).ToList();
 
             var mediaList = await _mediaRepository.GetAllAsync(media => mediaIds.Contains(media.Id));
@@ -91,6 +91,12 @@ namespace SocialNetwork.BLL.Services
         {
             var newLike = await _mediaLikeRepository.LikeMedia(userId, mediaId);
             return _mapper.Map<MediaLikeResponseDto>(newLike);
+        }
+
+        public async Task<bool> IsUserLiked(uint userId, uint mediaId)
+        {
+            var newLike = await _mediaLikeRepository.GetAsync((mediaLike)=> mediaLike.UserId == userId && mediaLike.MediaId == mediaId);
+            return newLike != null;
         }
 
         public async Task<List<MediaLikeResponseDto>?> GetMediaLikes(uint mediaId, int limit, int currCursor)
