@@ -7,6 +7,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Compile Remove="DTO\Medias\Request\**" />
+      <EmbeddedResource Remove="DTO\Medias\Request\**" />
+      <None Remove="DTO\Medias\Request\**" />
+    </ItemGroup>
+
+    <ItemGroup>
       <ProjectReference Include="..\SocialNetwork.DAL\SocialNetwork.DAL.csproj" />
     </ItemGroup>
 
@@ -18,7 +24,6 @@
 
     <ItemGroup>
       <Folder Include="DTO\Medias\Response\" />
-      <Folder Include="DTO\Medias\Request\" />
     </ItemGroup>
 
 </Project>
