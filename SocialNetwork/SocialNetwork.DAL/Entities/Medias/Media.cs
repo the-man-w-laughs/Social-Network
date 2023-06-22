@@ -17,6 +17,7 @@ public partial class Media
 
     public virtual UserMediaOwner UserMediaOwner { get; set; } = null!;
     public virtual CommunityMediaOwner CommunityMediaOwner { get; set; } = null!;
+    public virtual ICollection<MediaLike> MediaLikes { get; set; } = new List<MediaLike>();
     public virtual ICollection<CommentMedia> CommentMedia { get; set; } = new List<CommentMedia>();
     public virtual ICollection<MessageMedia> MessageMedia { get; set; } = new List<MessageMedia>();
     public virtual ICollection<PostMedia> PostMedia { get; set; } = new List<PostMedia>();

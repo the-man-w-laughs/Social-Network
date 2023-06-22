@@ -7,7 +7,7 @@ namespace SocialNetwork.API.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class ControllersController : ControllerBase
+public class CommentsController : ControllerBase
 {
     /// <summary>
     /// ReplyComment

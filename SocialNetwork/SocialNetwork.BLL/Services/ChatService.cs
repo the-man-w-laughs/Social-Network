@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using SocialNetwork.BLL.Contracts;
 using SocialNetwork.DAL.Contracts;
 using SocialNetwork.DAL.Entities.Chats;
@@ -76,5 +77,10 @@ public class ChatService : IChatService
             .Where(p => p.Id > nextCursor)
             .Take(limit)
             .ToList();
+    }
+
+    public Task<List<Message>> GetAllChatMessages(uint chatId, uint? limit, uint? nextCursor)
+    {
+        throw new NotImplementedException();
     }
 }

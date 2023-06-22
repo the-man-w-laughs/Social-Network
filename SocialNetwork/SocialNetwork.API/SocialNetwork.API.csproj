@@ -15,4 +15,8 @@
       <ProjectReference Include="..\SocialNetwork.BLL\SocialNetwork.BLL.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="UploadedFiles\" />
+    </ItemGroup>
+
 </Project>

@@ -13,8 +13,8 @@ public class CommunityMediaOwnerConfiguration : IEntityTypeConfiguration<Communi
 
         builder.HasKey(e => e.Id).HasName("PRIMARY");
 
-        builder.HasIndex(e => e.CommunityId, "FK_community_mediaowner_idx");
-        builder.HasIndex(e => e.MediaId, "FK_media_mediaowner_idx");
+        builder.HasIndex(e => e.CommunityId, "FK_community_mediaowner_community_idx");
+        builder.HasIndex(e => e.MediaId, "FK_community_mediaowner_media_idx");
 
         builder.Property(e => e.Id)
             .HasColumnName("id")
@@ -29,15 +29,15 @@ public class CommunityMediaOwnerConfiguration : IEntityTypeConfiguration<Communi
             .IsRequired();
 
         builder.HasOne(d => d.Community)
-            .WithMany(p => p.Medias)
-            .HasForeignKey(d => d.CommunityId)
-            .OnDelete(DeleteBehavior.Cascade)
-            .HasConstraintName("FK_community_mediaowner");
+    .WithMany(p => p.Medias)
+    .HasForeignKey(d => d.CommunityId)
+    .OnDelete(DeleteBehavior.Cascade)
+    .HasConstraintName("FK_community_mediaowner_community");
 
         builder.HasOne(d => d.Media)
             .WithOne(p => p.CommunityMediaOwner)
-            .HasForeignKey<UserMediaOwner>(d => d.MediaId)
+            .HasForeignKey<CommunityMediaOwner>(d => d.MediaId)
             .OnDelete(DeleteBehavior.Cascade)
-            .HasConstraintName("FK_media_mediaowner");
+            .HasConstraintName("FK_community_mediaowner_media");
     }
 }

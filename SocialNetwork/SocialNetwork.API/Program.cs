@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using SocialNetwork.DAL;
 using SocialNetwork.BLL;
+using SocialNetwork.DAL.Context;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,7 +38,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
 
 app.Run();
 

@@ -10,17 +10,17 @@ public class UserMediaOwnerConfiguration : IEntityTypeConfiguration<UserMediaOwn
     public void Configure(EntityTypeBuilder<UserMediaOwner> builder)
     {
         builder.ToTable("user_media_owners");
-        
+
         builder.HasKey(e => e.Id).HasName("PRIMARY");
-        
-        builder.HasIndex(e => e.UserId, "FK_user_mediaowner_idx");
-        builder.HasIndex(e => e.MediaId, "FK_media_mediaowner_idx");
+
+        builder.HasIndex(e => e.UserId, "FK_user_mediaowner_user_idx");
+        builder.HasIndex(e => e.MediaId, "FK_user_mediaowner_media_idx");
 
         builder.Property(e => e.Id)
             .HasColumnName("id")
             .ValueGeneratedOnAdd()
             .IsRequired();
-             
+
         builder.Property(e => e.UserId)
             .HasColumnName("user_id")
             .IsRequired();
@@ -29,15 +29,15 @@ public class UserMediaOwnerConfiguration : IEntityTypeConfiguration<UserMediaOwn
             .IsRequired();
 
         builder.HasOne(d => d.User)
-            .WithMany(p => p.Medias)
-            .HasForeignKey(d => d.UserId)
-            .OnDelete(DeleteBehavior.Cascade)
-            .HasConstraintName("FK_user_mediaowner");
+    .WithMany(p => p.Medias)
+    .HasForeignKey(d => d.UserId)
+    .OnDelete(DeleteBehavior.Cascade)
+    .HasConstraintName("FK_user_mediaowner_user");
 
         builder.HasOne(d => d.Media)
             .WithOne(p => p.UserMediaOwner)
             .HasForeignKey<UserMediaOwner>(d => d.MediaId)
             .OnDelete(DeleteBehavior.Cascade)
-            .HasConstraintName("FK_media_mediaowner");
+            .HasConstraintName("FK_user_mediaowner_media");
     }
 }

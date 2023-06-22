@@ -1,10 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 using AutoMapper;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using SocialNetwork.BLL.Contracts;
 using SocialNetwork.BLL.DTO.Chats.Request;
 using SocialNetwork.BLL.DTO.Chats.Response;
 using SocialNetwork.BLL.DTO.Communities.Response;
+using SocialNetwork.BLL.DTO.Messages.Response;
 using SocialNetwork.BLL.DTO.Posts.Request;
 using SocialNetwork.BLL.DTO.Posts.Response;
 using SocialNetwork.BLL.DTO.Users.Request;
@@ -20,15 +22,17 @@ namespace SocialNetwork.API.Controllers;
 [Route("[controller]")]
 public class UsersController : ControllerBase
 {
+    private readonly IWebHostEnvironment _webHostEnvironment;
     private readonly IMapper _mapper;
     private readonly IUserRepository _userRepository;
     private readonly IPasswordHashService _passwordHashService;
     
-    public UsersController(IMapper mapper, IUserRepository userRepository, IPasswordHashService passwordHashService)
+    public UsersController(IWebHostEnvironment webHostEnvironment, IMapper mapper, IUserRepository userRepository, IPasswordHashService passwordHashService)
     {
         _mapper = mapper;
         _userRepository = userRepository;
         _passwordHashService = passwordHashService;
+        _webHostEnvironment = webHostEnvironment;
     }
 
     /// <summary>
@@ -180,5 +184,32 @@ public class UsersController : ControllerBase
     public virtual ActionResult<PostResponseDto> PostUsersUserIdPosts([FromRoute][Required]uint userId, [FromBody][Required] PostRequestDto postRequestDto)
     {
         return Ok(new PostResponseDto());
+    }
+
+    /// <summary>
+    /// CreateUserMedia
+    /// </summary>
+    /// <remarks>Create user media.</remarks>    
+    [HttpPost]
+    [Route("{userId}/medias")]
+    public virtual ActionResult<List<MediaResponseDto>> PostUsersUserIdMedias([FromRoute][Required] uint userId,List<IFormFile> files)
+    {
+        if (files == null)
+        {
+            return BadRequest();
+        }
+
+        string directoryPath = Path.Combine(_webHostEnvironment.ContentRootPath, "UploadedFiles");
+        
+        foreach(var file in files)
+        {
+            string filePath = Path.Combine(directoryPath, file.FileName);
+            using(var stream = new FileStream(filePath, FileMode.Create))
+            {
+                file.CopyTo(stream);
+            }
+        }
+
+        return Ok("Uploaded Successful");
     }
 }

@@ -241,7 +241,7 @@ public class ChatsController : ControllerBase
     /// <remarks>Updates information about chat member (for chat admins, admins).</remarks>    
     [HttpPut]
     [Route("{chatId}/members/{memberId}")]
-    public async virtual Task<ActionResult<ChatMemberResponseDto>> PatchChatsChatIdMembersMemberId([FromRoute][Required] uint chatId, [FromRoute][Required] uint memberId, [FromBody][Required] ChatRequestDto chatMemberStatusDto)
+    public async virtual Task<ActionResult<ChatMemberResponseDto>> PutChatsChatIdMembersMemberId([FromRoute][Required] uint chatId, [FromRoute][Required] uint memberId, [FromBody][Required] ChatRequestDto chatMemberStatusDto)
     {
         return Ok();
     }
