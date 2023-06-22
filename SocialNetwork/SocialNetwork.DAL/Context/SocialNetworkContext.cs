@@ -38,13 +38,11 @@ public class SocialNetworkContext : DbContext
     public DbSet<MediaLike> MediaLikes { get; set; } = null!;
 
 
-
     public SocialNetworkContext(DbContextOptions options) : base(options)
     {
         Database.EnsureDeleted();
         Database.EnsureCreated();
-    }
-    
+    }   
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

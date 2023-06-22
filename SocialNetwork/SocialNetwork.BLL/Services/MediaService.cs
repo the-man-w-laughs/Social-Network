@@ -1,5 +1,5 @@
 ﻿using SocialNetwork.BLL.Contracts;
-using SocialNetwork.DAL.Contracts;
+using SocialNetwork.DAL.Contracts.Medias;
 using SocialNetwork.DAL.Entities.Medias;
 
 namespace SocialNetwork.BLL.Services

@@ -17,4 +17,5 @@ public static class Constants
     public const int UserNameMaxLength = 20;
     public const int UserLoginMinLength = 3;
     public const int UserPasswordMinLength = 6;
+    public const int SaltMaxLength = 20;
 }
