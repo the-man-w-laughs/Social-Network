@@ -7,16 +7,19 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Compile Remove="UploadedFiles\**" />
+      <Content Remove="UploadedFiles\**" />
+      <EmbeddedResource Remove="UploadedFiles\**" />
+      <None Remove="UploadedFiles\**" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.3" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\SocialNetwork.BLL\SocialNetwork.BLL.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="UploadedFiles\" />
     </ItemGroup>
 
 </Project>

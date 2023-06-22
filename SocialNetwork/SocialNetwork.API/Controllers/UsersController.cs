@@ -1,9 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using AutoMapper;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using SocialNetwork.BLL.Contracts;
 using SocialNetwork.BLL.DTO.Chats.Response;
 using SocialNetwork.BLL.DTO.Communities.Response;
+using SocialNetwork.BLL.DTO.Medias.Response;
 using SocialNetwork.BLL.DTO.Messages.Response;
 using SocialNetwork.BLL.DTO.Posts.Request;
 using SocialNetwork.BLL.DTO.Posts.Response;
@@ -23,11 +26,16 @@ public class UsersController : ControllerBase
 {
     private readonly IWebHostEnvironment _webHostEnvironment;
     private readonly IMapper _mapper;
-    private readonly IUserRepository _userRepository; // temp    
-    public UsersController(IMapper mapper, IUserRepository userRepository)
+    private IMediaService _mediaService;
+    private IFileService _fileService;
+
+
+    public UsersController(IMapper mapper, IMediaService mediaService, IFileService fileService, IWebHostEnvironment webHostEnvironment)
     {
         _mapper = mapper;
-        _userRepository = userRepository;
+        _mediaService = mediaService;
+        _fileService = fileService;
+        _webHostEnvironment = webHostEnvironment;
     }
 
     /// <summary>
@@ -108,26 +116,6 @@ public class UsersController : ControllerBase
     }
 
     /// <summary>
-    /// GetAllUserPosts
-    /// </summary>
-    /// <remarks>Get all user's posts using pagination.</remarks>
-    [HttpGet]
-    [Route("{userId}/posts")]
-    public virtual ActionResult<List<PostResponseDto>> GetUsersUserIdPosts(
-        [FromRoute, Required] uint userId,
-        [FromQuery, Required] uint limit,
-        [FromQuery, Required] uint currCursor)
-    {
-        var userPosts = new List<Post>
-        {
-            new() { Id = 200, Content = "TestPostDescription1", CreatedAt = DateTime.Now },
-            new() { Id = 201, Content = "TestPostDescription2", CreatedAt = DateTime.Now.AddDays(-1) }
-        };
-        
-        return Ok(userPosts.Select(up => _mapper.Map<PostResponseDto>(up)));
-    }
-
-    /// <summary>
     /// GetUserProfile
     /// </summary>
     /// <remarks>Get user's profile.</remarks>
@@ -164,18 +152,8 @@ public class UsersController : ControllerBase
     public virtual async Task<ActionResult<UserLoginResponseDto>> PutUsersUserIdLogin(
         [FromRoute, Required] uint userId,
         [FromBody, Required] UserChangeLoginRequestDto userChangeLoginRequestDto)
-    {
-        var users = await _userRepository.GetAllAsync(user => user.Id == userId);
-        if (users.Count == 0) return NotFound("User with this ID isn't found");
-
-        var existingUser = users.First();
-        _mapper.Map(userChangeLoginRequestDto, existingUser);
-
-        _userRepository.Update(existingUser);
-
-        await _userRepository.SaveAsync();
-
-        return Ok(_mapper.Map<UserLoginResponseDto>(existingUser));
+    {        
+        return Ok();
     }
 
     /// <summary>
@@ -239,12 +217,32 @@ public class UsersController : ControllerBase
     }
 
     /// <summary>
+    /// GetAllUserPosts
+    /// </summary>
+    /// <remarks>Get all user's posts using pagination.</remarks>
+    [HttpGet]
+    [Route("{userId}/posts")]
+    public virtual ActionResult<List<PostResponseDto>> GetUsersUserIdPosts(
+        [FromRoute, Required] uint userId,
+        [FromQuery, Required] uint limit,
+        [FromQuery, Required] uint currCursor)
+    {
+        var userPosts = new List<Post>
+        {
+            new() { Id = 200, Content = "TestPostDescription1", CreatedAt = DateTime.Now },
+            new() { Id = 201, Content = "TestPostDescription2", CreatedAt = DateTime.Now.AddDays(-1) }
+        };
+
+        return Ok(userPosts.Select(up => _mapper.Map<PostResponseDto>(up)));
+    }
+
+    /// <summary>
     /// CreateUserMedia
     /// </summary>
     /// <remarks>Create user media.</remarks>    
     [HttpPost]
     [Route("{userId}/medias")]
-    public virtual ActionResult<List<MediaResponseDto>> PostUsersUserIdMedias([FromRoute][Required] uint userId,List<IFormFile> files)
+    public async virtual Task<ActionResult<List<MediaResponseDto>>> PostUsersUserIdMedias([FromRoute][Required] uint userId,[Required] List<IFormFile> files)
     {
         if (files == null)
         {
@@ -252,16 +250,38 @@ public class UsersController : ControllerBase
         }
 
         string directoryPath = Path.Combine(_webHostEnvironment.ContentRootPath, "UploadedFiles");
-        
-        foreach(var file in files)
+        if (!Directory.Exists(directoryPath))
+        {
+            Directory.CreateDirectory(directoryPath);
+        }
+        List<MediaResponseDto> medias = new List<MediaResponseDto>();
+
+        foreach (var file in files)
         {
             string filePath = Path.Combine(directoryPath, file.FileName);
-            using(var stream = new FileStream(filePath, FileMode.Create))
+            string modifiedFilePath = _fileService.ModifyFilePath(filePath);
+            using (var stream = new FileStream(modifiedFilePath, FileMode.Create))
             {
                 file.CopyTo(stream);
             }
+            medias.Add(await _mediaService.AddUserMedia(modifiedFilePath, userId, file.FileName));
         }
 
-        return Ok("Uploaded Successful");
+        return Ok(medias);
+    }
+
+    /// <summary>
+    /// GetAllUserMedias
+    /// </summary>
+    /// <remarks>Get all user's posts using pagination. (only for user or admin)</remarks>
+    [HttpGet]
+    [Route("{userId}/medias")]
+    public virtual ActionResult<List<MediaResponseDto>> GetUsersUserIdMedias(
+        [FromRoute, Required] uint userId,
+        [FromQuery, Required] int limit,
+        [FromQuery, Required] int currCursor)
+    {       
+        var result = _mediaService.GetUserMediaList(userId, limit, currCursor);
+        return Ok(result);
     }
 }

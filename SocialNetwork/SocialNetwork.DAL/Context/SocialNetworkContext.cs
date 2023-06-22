@@ -40,7 +40,7 @@ public class SocialNetworkContext : DbContext
 
     public SocialNetworkContext(DbContextOptions options) : base(options)
     {
-        Database.EnsureDeleted();
+        //Database.EnsureDeleted();
         Database.EnsureCreated();
     }   
 

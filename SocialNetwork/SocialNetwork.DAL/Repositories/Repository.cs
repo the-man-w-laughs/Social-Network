@@ -32,10 +32,11 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     public virtual void Delete(TEntity entity) =>
         SocialNetworkContext.Set<TEntity>().Remove(entity);
 
-    public virtual async Task DeleteById(uint id)
+    public virtual async Task<TEntity?> DeleteById(uint id)
     {
         var entity = await GetByIdAsync(id);
         if (entity != null) Delete(entity);
+        return entity;
     }
 
     public virtual async Task DeleteRangeAsync(Expression<Func<TEntity, bool>> where)

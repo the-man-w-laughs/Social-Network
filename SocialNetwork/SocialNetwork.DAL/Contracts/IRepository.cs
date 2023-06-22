@@ -11,7 +11,7 @@ public interface IRepository<TEntity> where TEntity : class, new()
     Task<TEntity> AddAsync(TEntity entity);
     void Update(TEntity entity);
     void Delete(TEntity entity);
-    Task DeleteById(uint id);
+    Task<TEntity> DeleteById(uint id);
     Task DeleteRangeAsync(Expression<Func<TEntity, bool>> where);
     Task SaveAsync();
 }

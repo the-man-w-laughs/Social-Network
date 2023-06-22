@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Net;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using SocialNetwork.BLL.DTO.Messages.Request;
-using SocialNetwork.BLL.DTO.Messages.Response;
+using SocialNetwork.BLL.Contracts;
+using SocialNetwork.BLL.DTO.Medias.Response;
 
 namespace SocialNetwork.API.Controllers;
 
@@ -9,69 +11,109 @@ namespace SocialNetwork.API.Controllers;
 [Route("[controller]")]
 public class MediasController : ControllerBase
 {
+    private readonly IMapper _mapper;
+    private readonly IWebHostEnvironment _webHostEnvironment;
+    private readonly IMediaService _mediaService;
+    private readonly IFileService _fileService;
 
-    /// <summary>
-    /// GetAllMediasObjects
-    /// </summary>
-    /// <remarks>Reply chat message (for chat members).</remarks>          
-    [HttpGet]    
-    public virtual ActionResult<MessageResponseDto> GetMedias([FromQuery] uint? limit, [FromQuery] uint currCursor)
+    public MediasController(IMapper mapper, IMediaService mediaService, IFileService fileService, IWebHostEnvironment webHostEnvironment)
     {
-        return Ok();
+        _mapper = mapper;
+        _webHostEnvironment = webHostEnvironment;
+        _mediaService = mediaService;
+        _fileService = fileService;
     }
 
     /// <summary>
     /// GetMedia
     /// </summary>
-    /// <remarks>Reply chat message (for chat members).</remarks>          
+    /// <remarks>Download media (complicated logic).</remarks>          
     [HttpGet]
     [Route("{mediaId}")]
-    public virtual ActionResult<MessageResponseDto> GetMediasMediaId([FromRoute][Required] uint messageId)
+    public async Task<ActionResult> GetMediasMediaId([FromRoute][Required] uint mediaId)
     {
-        return Ok();
+        var media = await _mediaService.GetMedia(mediaId);
+        if (System.IO.File.Exists(media.FilePath))
+        {            
+            byte[] fileBytes = System.IO.File.ReadAllBytes(media.FilePath);
+            string contentType = _fileService.GetFileType(media.FileName);            
+            var fileContentResult = new FileContentResult(fileBytes, contentType)
+            {
+                FileDownloadName = media.FileName
+            };
+
+            return fileContentResult;
+        }
+        else
+        {
+            return NotFound();
+        }
     }
 
     /// <summary>
     /// DeleteMedia
     /// </summary>
-    /// <remarks>Delete chat message (for message senders, chat admins, admins).</remarks>                   
+    /// <remarks>Delete media (for media owners).</remarks>                   
     [HttpDelete]
-    [Route("{messageId}")]
-    public virtual ActionResult<MessageResponseDto> DeleteMessagesMessageId([FromRoute][Required] uint messageId)
+    [Route("{mediaId}")]
+    public async virtual Task<ActionResult<MediaResponseDto>> DeleteMediasMediaId([FromRoute][Required] uint mediaId)
     {
-        return Ok(new MessageResponseDto());
+        var media = await _mediaService.GetMedia(mediaId);
+
+        try
+        {
+            if (System.IO.File.Exists(media.FilePath))
+            {
+                System.IO.File.Delete(media.FilePath);
+                await _mediaService.DeleteMedia(mediaId);
+                return Ok(_mapper.Map<MediaResponseDto>(media));
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+        catch (Exception ex)
+        {
+            return StatusCode((int)HttpStatusCode.InternalServerError);
+        }
     }
 
     /// <summary>
     /// LikeMedia
     /// </summary>
-    /// <remarks>Like chat message (for chat members).</remarks>        
+    /// <remarks>Like media.</remarks>        
     [HttpPost]
-    [Route("{messageId}/likes")]
-    public virtual ActionResult<MessageLikeResponseDto> PostMessagesMessageIdLikes([FromRoute][Required] uint messageId)
+    [Route("{mediaId}/likes")]
+    public virtual async Task<ActionResult<MediaLikeResponseDto>> PostMediasMediaIdLikes([FromRoute][Required] uint mediaId)
     {
-        return Ok(new MessageLikeResponseDto());
+        uint userId = 1;
+        var mediaLike = await _mediaService.LikeMedia(userId, mediaId);
+        return Ok(mediaLike);
     }
 
     /// <summary>
-    /// GetAllMessageLikes
+    /// GetAllMediaLikes
     /// </summary>
-    /// <remarks>Get all message likes using pagination (for chat members).</remarks>    
+    /// <remarks>Get all media likes using pagination (for chat members).</remarks>    
     [HttpGet]
     [Route("{mediaId}/likes")]
-    public virtual ActionResult<List<MessageLikeResponseDto>> GetMessagesMessageId([FromRoute][Required] uint messageId, [FromQuery] uint? limit, [FromQuery] uint currCursor)
+    public async virtual Task<ActionResult<List<MediaLikeResponseDto>>> GetMediasMediaId([FromRoute][Required] uint mediaId, [FromQuery][Required] int limit, [FromQuery] int currCursor)
     {
-        return Ok(new List<MessageLikeResponseDto>() { new MessageLikeResponseDto() });
+        var mediaLikes = await _mediaService.GetMediaLikes(mediaId, limit, currCursor);
+        return Ok(mediaLikes);
     }
 
     /// <summary>
-    /// UnlikeMessage
+    /// UnlikeMedia
     /// </summary>
-    /// <remarks>Unlike chat message (for like owner).</remarks>    
+    /// <remarks>Unlike media (for like owner).</remarks>    
     [HttpDelete]
-    [Route("{messageId}/likes")]
-    public virtual ActionResult<MessageLikeResponseDto> DeleteMessagesMessageIdLikes([FromRoute][Required] uint messageId)
+    [Route("{mediaId}/likes")]
+    public async virtual Task<ActionResult<MediaLikeResponseDto>> DeleteMediasMediaIdLikes([FromRoute][Required] uint mediaId)
     {
-        return Ok(new MessageLikeResponseDto());
+        uint userId = 1;
+        var mediaLike = await _mediaService.UnLikeMedia(userId, mediaId);
+        return Ok(mediaLike);
     }
 }

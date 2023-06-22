@@ -1,6 +1,6 @@
 ﻿using SocialNetwork.DAL.Entities.Medias;
 
-namespace SocialNetwork.BLL.DTO.Messages.Response;
+namespace SocialNetwork.BLL.DTO.Medias.Response;
 
 public class MediaResponseDto
 {

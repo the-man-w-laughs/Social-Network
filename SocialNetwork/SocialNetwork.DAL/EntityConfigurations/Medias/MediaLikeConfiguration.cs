@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SocialNetwork.DAL.Entities.Medias;
 using SocialNetwork.DAL.Entities.Users;
 
-namespace SocialNetwork.DAL.EntityConfigurations.Users;
+namespace SocialNetwork.DAL.EntityConfigurations.Medias;
 
 public class MediaLikeConfiguration : IEntityTypeConfiguration<MediaLike>
 {
