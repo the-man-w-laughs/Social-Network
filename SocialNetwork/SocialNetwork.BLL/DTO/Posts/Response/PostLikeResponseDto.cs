@@ -1,6 +1,6 @@
 ﻿namespace SocialNetwork.BLL.DTO.Posts.Response;
 
-public class PostLikeResponse
+public class PostLikeResponseDto
 {
     public int Id { get; set; }
     public DateTime CreatedAt { get; set; }

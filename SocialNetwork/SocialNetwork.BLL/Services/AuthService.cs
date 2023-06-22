@@ -28,7 +28,7 @@ public class AuthService : IAuthService
 
     public async Task<User?> GetUserByLogin(string login)
     {
-        var users = await  _userRepository.GetAllAsync(u=> u.Login == login);
+        var users = await _userRepository.GetAllAsync(u=> u.Login == login);
         return users.FirstOrDefault();
     }
 

@@ -1,9 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SocialNetwork.BLL.DTO.Communities.Request;
 using SocialNetwork.BLL.DTO.Communities.Response;
 using SocialNetwork.BLL.DTO.Posts.Request;
 using SocialNetwork.BLL.DTO.Posts.Response;
+using SocialNetwork.DAL.Entities.Communities;
+using SocialNetwork.DAL.Entities.Posts;
 
 namespace SocialNetwork.API.Controllers;
 
@@ -11,14 +14,23 @@ namespace SocialNetwork.API.Controllers;
 [Route("[controller]")]    
 public class CommunitiesController : ControllerBase
 {
+    private readonly IMapper _mapper;
+
+    public CommunitiesController(IMapper mapper)
+    {
+        _mapper = mapper;
+    }
+
     /// <summary>
     /// CreateCommunity
     /// </summary>
-    /// <remarks>Create community.</remarks>        
+    /// <remarks>Create community.</remarks>
     [HttpPost]
     public virtual ActionResult<CommunityResponseDto> PostCommunities([FromBody, Required] CommunityRequestDto communityRequestDto)
     {
-        return Ok(new CommunityResponseDto());
+        var community = new Community { Name = "TestCommunity", Description = "TestCommunityDescription", IsPrivate = false };
+        
+        return Ok(_mapper.Map<CommunityResponseDto>(community));
     }
 
     /// <summary>
@@ -30,7 +42,13 @@ public class CommunitiesController : ControllerBase
         [FromQuery, Required] uint limit,
         [FromQuery, Required] uint currCursor)
     {
-        return new List<CommunityResponseDto>() { new CommunityResponseDto() };
+        var communities = new List<Community>
+        {
+            new() { Name = "TestCommunity1", Description = "TestCommunityDescription1", IsPrivate = false },
+            new() { Name = "TestCommunity2", Description = "TestCommunityDescription2", IsPrivate = true }
+        };
+        
+        return Ok(communities.Select(c => _mapper.Map<CommunityResponseDto>(c)));
     }
 
     /// <summary>
@@ -43,7 +61,9 @@ public class CommunitiesController : ControllerBase
         [FromRoute, Required] uint communityId,
         [FromBody, Required] CommunityRequestDto communityRequestDto)
     {
-        return Ok(new CommunityResponseDto());
+        var community = new Community { Name = "TestCommunity", Description = "TestCommunityDescription", IsPrivate = false };
+        
+        return Ok(_mapper.Map<CommunityResponseDto>(community));
     }
 
     /// <summary>
@@ -54,7 +74,9 @@ public class CommunitiesController : ControllerBase
     [Route("{communityId}")]
     public virtual ActionResult<CommunityResponseDto> DeleteCommunitiesCommunityId([FromRoute, Required] uint communityId)
     {
-        return new CommunityResponseDto();
+        var community = new Community { Name = "TestCommunity", Description = "TestCommunityDescription", IsPrivate = false };
+        
+        return Ok(_mapper.Map<CommunityResponseDto>(community));
     }
 
     /// <summary>
@@ -67,7 +89,9 @@ public class CommunitiesController : ControllerBase
         [FromRoute, Required] uint communityId,
         [FromBody, Required] PostRequestDto communityRequestDto)
     {
-        return Ok(new PostResponseDto());
+        var post = new Post { Id = 200, Content = "TestCommunityDescription", CreatedAt = DateTime.Now };
+        
+        return Ok(_mapper.Map<PostResponseDto>(post));
     }
 
     /// <summary>
@@ -81,6 +105,8 @@ public class CommunitiesController : ControllerBase
         [FromQuery, Required] uint limit,
         [FromQuery, Required] uint currCursor)
     {
-        return new List<CommunityPostResponseDto>() { new CommunityPostResponseDto() };
+        var communityPost = new CommunityPost { Id = 200 };
+        
+        return Ok(_mapper.Map<PostResponseDto>(communityPost));
     }
 }

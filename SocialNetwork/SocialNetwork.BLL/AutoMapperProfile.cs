@@ -22,10 +22,10 @@ public class AutoMapperProfile : Profile
     {
         // Chats
         CreateMap<ChatRequestDto, Chat>();
+        CreateMap<ChatMemberRequestDto, Chat>();
 
         CreateMap<Chat, ChatResponseDto>();
         CreateMap<ChatMember, ChatMemberResponseDto>();
-
 
         // Comments
         CreateMap<CommentLike, CommentLikeResponseDto>();
@@ -40,7 +40,7 @@ public class AutoMapperProfile : Profile
         CreateMap<Message, MessageResponseDto>();
         
         // Posts
-        CreateMap<PostLike, PostLikeResponse>();
+        CreateMap<PostLike, PostLikeResponseDto>();
         CreateMap<Post, PostResponseDto>();
 
         // Users

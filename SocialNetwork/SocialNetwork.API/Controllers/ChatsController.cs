@@ -32,11 +32,10 @@ public class ChatsController : ControllerBase
     /// <summary>
     /// CreateChat
     /// </summary>
-    /// <remarks>Create new chat</remarks>        
+    /// <remarks>Create new chat</remarks>
     [HttpPost]
     [Authorize(Roles = "Admin, User")]
-    public virtual async Task<ActionResult<ChatResponseDto>> PostChats(
-        [FromBody, Required] ChatRequestDto chatRequestDto)
+    public virtual async Task<ActionResult<ChatResponseDto>> PostChats([FromBody, Required] ChatRequestDto chatRequestDto)
     {
         var isUserAuthenticated =
             await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -64,7 +63,7 @@ public class ChatsController : ControllerBase
     /// <summary>
     /// GetChatInfo
     /// </summary>
-    /// <remarks>Get chat information (name, photo). For chat members.</remarks>         
+    /// <remarks>Get chat information (name, photo). For chat members.</remarks>
     [HttpGet]
     [Authorize(Roles = "Admin, User")]
     [Route("{chatId}")]
@@ -78,7 +77,7 @@ public class ChatsController : ControllerBase
     /// <summary>
     /// GetAllChatMedias
     /// </summary>
-    /// <remarks>Get all chat medias (for chat members).</remarks>    
+    /// <remarks>Get all chat medias (for chat members).</remarks>
     [HttpGet]
     [Authorize(Roles = "Admin, User")]
     [Route("{chatId}/medias")]
@@ -94,7 +93,7 @@ public class ChatsController : ControllerBase
     /// <summary>
     /// ChangeChatInfo
     /// </summary>
-    /// <remarks>Change chat information (name, photo). For chat admins.</remarks>        
+    /// <remarks>Change chat information (name, photo). For chat admins.</remarks>
     [HttpPut]
     [Route("{chatId}")]
     public virtual async Task<ActionResult<ChatResponseDto>> PutChatsChatId(
@@ -114,13 +113,13 @@ public class ChatsController : ControllerBase
 
         // await _chatRepository.SaveAsync();
 
-        return Ok(/*_mapper.Map<ChatResponseDto>(existingChat)*/);
+        return Ok( /*_mapper.Map<ChatResponseDto>(existingChat)*/);
     }
 
     /// <summary>
     /// DeleteChat
     /// </summary>
-    /// <remarks>Delete chat. For chat admins.</remarks>      
+    /// <remarks>Delete chat. For chat admins.</remarks>
     [HttpDelete]
     [Authorize(Roles = "Admin, User")]
     [Route("{chatId}")]
@@ -161,7 +160,7 @@ public class ChatsController : ControllerBase
     /// <summary>
     /// AddChatMember
     /// </summary>
-    /// <remarks>Add new member to chat (for chat members).</remarks>        
+    /// <remarks>Add new member to chat (for chat members).</remarks>
     [HttpPost]
     [Route("{chatId}/members")]
     public virtual async Task<ActionResult<ChatMemberResponseDto>> PostChatsChatIdMembers(
@@ -207,7 +206,7 @@ public class ChatsController : ControllerBase
     /// <summary>
     /// GetAllChatMembers
     /// </summary>
-    /// <remarks>Get all chat members using pagination (for chat members).</remarks>    
+    /// <remarks>Get all chat members using pagination (for chat members).</remarks>
     [HttpGet]
     [Authorize(Roles = "Admin, User")]
     [Route("{chatId}/members")]
@@ -219,7 +218,7 @@ public class ChatsController : ControllerBase
         // проверяем существует ли такой chatid если нет кидаем Badrequest
         // если запрос кинул админ соц сети то обрабатываем его проверяя параметры пагинации
         // иначе проверяем является ли пользователь участником чата если нет accessdenied
-        
+
         var chat = await _chatService.GetChatById(chatId);
 
         var isChatExisted = chat != null;
@@ -248,7 +247,7 @@ public class ChatsController : ControllerBase
     /// <summary>
     /// ChangeMemberStatus
     /// </summary>
-    /// <remarks>Updates information about chat member (for chat admins, admins).</remarks>    
+    /// <remarks>Updates information about chat member (for chat admins, admins).</remarks>
     [HttpPut]
     [Route("{chatId}/members/{memberId}")]
     public virtual async Task<ActionResult<ChatMemberResponseDto>> PatchChatsChatIdMembersMemberId(
@@ -262,13 +261,13 @@ public class ChatsController : ControllerBase
     /// <summary>
     /// DeleteChatMember
     /// </summary>
-    /// <remarks>Delete a member from chat (for chat admins, admins).</remarks>         
+    /// <remarks>Delete a member from chat (for chat admins, admins).</remarks>
     [HttpDelete]
     [Authorize(Roles = "Admin, User")]
-    [Route("{chatId}/members/{memberId}")]
+    [Route("{chatId}/members/{userToDeleteId}")]
     public virtual async Task<ActionResult<ChatMemberResponseDto>> DeleteChatsChatIdMembersParticipantId(
         [FromRoute, Required] uint chatId,
-        [FromRoute, Required] uint toDeleteUserId)
+        [FromRoute, Required] uint userToDeleteId)
     {
         // Доступно только для авторизованных пользователей
         // проверяем существует ли чат с таким id если нет выбрасываем Bad request
@@ -292,20 +291,20 @@ public class ChatsController : ControllerBase
 
         if (userRole == UserType.User.ToString())
         {
-            var isUserHaveAdminPermissions = await _chatService.IsUserHaveAdminPermissions(chatId, userId);
+            var isUserHaveAdminPermissions = await _chatService.IsUserHaveChatAdminPermissions(chatId, userId);
             if (!isUserHaveAdminPermissions) return Forbid("User hasn't chat admin permissions");
         }
 
-        var deleteChatMember = await _chatService.DeleteChatMember(chatId, toDeleteUserId);
-        if (deleteChatMember == null) return NotFound("Chat member not found");
+        var deletedChatMember = await _chatService.DeleteChatMember(chatId, userToDeleteId);
+        if (deletedChatMember == null) return NotFound("Chat member not found");
 
-        return Ok(_mapper.Map<ChatMemberResponseDto>(deleteChatMember));
+        return Ok(_mapper.Map<ChatMemberResponseDto>(deletedChatMember));
     }
 
     /// <summary>
     /// SendMessage
     /// </summary>
-    /// <remarks>Send a message to chat.</remarks>     
+    /// <remarks>Send a message to chat.</remarks>
     [HttpPost]
     [Route("{chatId}/messages")]
     public virtual async Task<ActionResult<MessageResponseDto>> PostChatsChatIdMessages(
@@ -340,7 +339,7 @@ public class ChatsController : ControllerBase
             SenderId = userId
         };
 
-        var addedMessage = await _chatService.addMessage(newMessage);
+        var addedMessage = await _chatService.AddMessage(newMessage);
 
         return Ok(_mapper.Map<MessageResponseDto>(addedMessage));
     }
@@ -348,7 +347,7 @@ public class ChatsController : ControllerBase
     /// <summary>
     /// GetAllChatMessages
     /// </summary>
-    /// <remarks>Get all chat messages using pagination (for chat members). </remarks>    
+    /// <remarks>Get all chat messages using pagination (for chat members).</remarks>
     [HttpGet]
     [Authorize(Roles = "Admin, User")]
     [Route("{chatId}/messages")]
@@ -360,7 +359,7 @@ public class ChatsController : ControllerBase
         // проверяем наличие чата с заданным ID
         // проверяем роль пользователя если админ выполняем запрос
         // если юзер то проверям является ли он участником чата
-        
+
         var chat = await _chatService.GetChatById(chatId);
 
         var isChatExisted = chat != null;

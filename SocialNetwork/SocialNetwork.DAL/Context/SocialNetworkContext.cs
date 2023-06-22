@@ -34,10 +34,7 @@ public class SocialNetworkContext : DbContext
     public DbSet<UserProfileMedia> UserProfileMedias { get; set; } = null!;
     public DbSet<UserProfilePost> UserProfilePosts { get; set; } = null!;
 
-    public SocialNetworkContext(DbContextOptions options) : base(options)
-    {
-    }
-    
+    public SocialNetworkContext(DbContextOptions options) : base(options) => Database.EnsureCreated();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
