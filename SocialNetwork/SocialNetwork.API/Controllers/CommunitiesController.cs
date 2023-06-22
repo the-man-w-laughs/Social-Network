@@ -1,12 +1,19 @@
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SocialNetwork.BLL.Contracts;
 using SocialNetwork.BLL.DTO.Communities.Request;
 using SocialNetwork.BLL.DTO.Communities.Response;
 using SocialNetwork.BLL.DTO.Posts.Request;
 using SocialNetwork.BLL.DTO.Posts.Response;
+using SocialNetwork.DAL.Entities.Chats;
 using SocialNetwork.DAL.Entities.Communities;
 using SocialNetwork.DAL.Entities.Posts;
+using SocialNetwork.DAL.Entities.Users;
 
 namespace SocialNetwork.API.Controllers;
 
@@ -16,9 +23,12 @@ public class CommunitiesController : ControllerBase
 {
     private readonly IMapper _mapper;
 
-    public CommunitiesController(IMapper mapper)
+    private readonly ICommunityService _communityService;
+
+    public CommunitiesController(IMapper mapper, ICommunityService communityService)
     {
         _mapper = mapper;
+        _communityService = communityService;
     }
 
     /// <summary>
@@ -26,27 +36,51 @@ public class CommunitiesController : ControllerBase
     /// </summary>
     /// <remarks>Create community.</remarks>
     [HttpPost]
-    public virtual ActionResult<CommunityResponseDto> PostCommunities([FromBody, Required] CommunityRequestDto communityRequestDto)
+    [Authorize(Roles = "Admin, User")]
+    public virtual async Task<ActionResult<CommunityResponseDto>> PostCommunities(
+        [FromBody, Required] CommunityRequestDto communityRequestDto)
     {
-        var community = new Community { Name = "TestCommunity", Description = "TestCommunityDescription", IsPrivate = false };
+        var isUserAuthenticated =
+            await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+        var userId = uint.Parse(isUserAuthenticated.Principal!.Claims
+            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultNameClaimType)?.Value!);
+
+        var newCommunity = new Community()
+        {
+            CreatedAt = DateTime.Now,
+            Name = communityRequestDto.Name,
+            Description = communityRequestDto.Description,
+            IsPrivate = communityRequestDto.IsPrivate,
+            
+        };
         
-        return Ok(_mapper.Map<CommunityResponseDto>(community));
+        var addedCommunity  = await _communityService.AddCommunity(newCommunity);
+
+        var communityOwner = new CommunityMember()
+        {
+            CommunityId = addedCommunity.Id,
+            CreatedAt = DateTime.Now,
+            TypeId = CommunityMemberType.Owner,
+            UserId = userId
+        };
+
+        await _communityService.AddCommunityMember(communityOwner);
+        
+        return Ok(_mapper.Map<CommunityResponseDto>(addedCommunity));
     }
 
     /// <summary>
     /// GetAllCommunities
     /// </summary>
     /// <remarks>Get all communities using pagination.</remarks>    
-    [HttpGet]              
-    public virtual ActionResult<List<CommunityResponseDto>> GetCommunities(
-        [FromQuery, Required] uint limit,
-        [FromQuery, Required] uint currCursor)
+    [HttpGet]      
+    [Authorize(Roles = "Admin, User")]
+    public virtual async Task<ActionResult<List<CommunityResponseDto>>> GetCommunities(
+        [FromQuery, Required] int limit,
+        [FromQuery, Required] int currCursor)
     {
-        var communities = new List<Community>
-        {
-            new() { Name = "TestCommunity1", Description = "TestCommunityDescription1", IsPrivate = false },
-            new() { Name = "TestCommunity2", Description = "TestCommunityDescription2", IsPrivate = true }
-        };
+        var communities = await _communityService.GetCommunities(limit, currCursor);
         
         return Ok(communities.Select(c => _mapper.Map<CommunityResponseDto>(c)));
     }
@@ -56,6 +90,7 @@ public class CommunitiesController : ControllerBase
     /// </summary>
     /// <remarks>Change community info (for community admins, admins).</remarks>        
     [HttpPut]
+    [Authorize(Roles = "Admin, User")]
     [Route("{communityId}")]
     public virtual ActionResult<CommunityResponseDto> PutCommunitiesCommunityId(
         [FromRoute, Required] uint communityId,
@@ -71,12 +106,41 @@ public class CommunitiesController : ControllerBase
     /// </summary>
     /// <remarks>Delete community (for community admins, admins).</remarks>          
     [HttpDelete]
+    [Authorize(Roles = "Admin, User")]
     [Route("{communityId}")]
-    public virtual ActionResult<CommunityResponseDto> DeleteCommunitiesCommunityId([FromRoute, Required] uint communityId)
+    public virtual async Task<ActionResult<CommunityResponseDto>> DeleteCommunitiesCommunityId([FromRoute, Required] uint communityId)
     {
-        var community = new Community { Name = "TestCommunity", Description = "TestCommunityDescription", IsPrivate = false };
+        var community = await _communityService.GetCommunityById(communityId);
+
+        var isCommunityExists = community != null;
+
+        if (!isCommunityExists)
+        {
+            return BadRequest("Community with this id doesnt exist");
+        }
         
-        return Ok(_mapper.Map<CommunityResponseDto>(community));
+        var isUserAuthenticated =
+            await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+        var userRole = isUserAuthenticated.Principal!.Claims
+            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultRoleClaimType)?.Value;
+
+        var userId = int.Parse(isUserAuthenticated.Principal!.Claims
+            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultNameClaimType)?.Value!);
+
+        if (userRole == UserType.User.ToString())
+        {
+            var communityOwner = await _communityService.GetCommunityOwner(communityId);
+            var isUserCommunityOwner = userId == communityOwner.UserId;
+            if (!isUserCommunityOwner)
+            {
+                return Forbid("You are not Community Owner");
+            }
+        }
+
+        var deletedCommunity = await _communityService.DeleteCommunity(communityId);
+        
+        return Ok(_mapper.Map<CommunityResponseDto>(deletedCommunity));
     }
 
     /// <summary>
@@ -84,6 +148,7 @@ public class CommunitiesController : ControllerBase
     /// </summary>
     /// <remarks>Create community post (depending on isPrivate field it could be available for community members or for everybody).</remarks>         
     [HttpPost]
+    [Authorize(Roles = "Admin, User")]
     [Route("{communityId}/posts")]
     public virtual ActionResult<PostResponseDto> PostCommunitiesCommunityIdPosts(
         [FromRoute, Required] uint communityId,
@@ -99,6 +164,7 @@ public class CommunitiesController : ControllerBase
     /// </summary>
     /// <remarks>Get all community posts using pagination.</remarks>    
     [HttpGet]
+    [Authorize(Roles = "Admin, User")]
     [Route("{communityId}/posts")]
     public virtual ActionResult<List<CommunityPostResponseDto>> GetCommunitiesPosts(
         [FromRoute, Required] uint communityId,
