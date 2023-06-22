@@ -42,5 +42,5 @@ public partial class User
     public virtual ICollection<UserFriend> UserFriendUser1s { get; set; } = new List<UserFriend>();
     public virtual ICollection<UserFriend> UserFriendUser2s { get; set; } = new List<UserFriend>();
     public virtual ICollection<UserProfilePost> UserProfilePosts { get; set; } = new List<UserProfilePost>();
-    public virtual ICollection<UserProfile> UserProfiles { get; set; } = new List<UserProfile>();
+    public virtual UserProfile UserProfile { get; set; } = new UserProfile();
 }

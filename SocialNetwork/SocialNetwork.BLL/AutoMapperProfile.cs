@@ -44,6 +44,7 @@ public class AutoMapperProfile : Profile
         // Posts
         CreateMap<PostLike, PostLikeResponseDto>();
         CreateMap<Post, PostResponseDto>();
+        CreateMap<UserProfilePost, UserProfilePostResponseDto>();
 
         // Users
         CreateMap<UserChangeLoginRequestDto, User>();

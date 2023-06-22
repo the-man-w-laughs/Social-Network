@@ -42,8 +42,8 @@ public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
             .HasColumnName("user_id")
             .IsRequired();
     
-        builder.HasOne(d => d.User).WithMany(p => p.UserProfiles)
-            .HasForeignKey(d => d.UserId)
+        builder.HasOne(up => up.User).WithOne(u => u.UserProfile)
+            .HasForeignKey<UserProfile>(up => up.UserId)
             .OnDelete(DeleteBehavior.Cascade)
             .HasConstraintName("FK_user_profiles_users");
     }
