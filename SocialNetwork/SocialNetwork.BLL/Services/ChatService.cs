@@ -84,6 +84,13 @@ public class ChatService : IChatService
         return chatMember != null;
     }
 
+    public async Task<ChatMember?> GetChatMember(uint chatId, uint userId)
+    {
+        var chat = await _chatRepository.GetByIdAsync(chatId);
+        var chatMember = chat?.ChatMembers.FirstOrDefault(cm => cm.UserId == userId);
+        return chatMember;
+    }
+
     public async Task<List<ChatMember>> GetAllChatMembers(uint chatId, int limit, int currCursor)
     {
         var chat = await _chatRepository.GetByIdAsync(chatId);

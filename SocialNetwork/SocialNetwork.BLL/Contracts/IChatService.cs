@@ -15,7 +15,8 @@ public interface IChatService
     Task<bool> IsUserHaveChatAdminPermissions(uint chatId, uint userId);
     Task<ChatMember?> DeleteChatMember(uint chatId, uint userId);
     Task<bool> IsUserChatMember(uint chatId, uint userId);
-    Task<List<ChatMember>> GetAllChatMembers(uint chatId, int limit, int currCursor);
+    Task<List<ChatMember>> GetAllChatMembers(uint chatId, int limit, int currCursor);                     
+    Task<ChatMember?> GetChatMember(uint chatId, uint userId);    
     Task<List<Message>> GetAllChatMessages(uint chatId, int limit, int nextCursor);
     Task<List<MediaResponseDto>> GetAllChatMedias(uint chatId, int limit, int nextCursor);
     Task<Chat> AddChat(Chat newChat);

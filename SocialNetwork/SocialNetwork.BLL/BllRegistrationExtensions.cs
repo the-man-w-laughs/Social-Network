@@ -20,5 +20,6 @@ public static class BllRegistrationExtensions
         services.AddScoped<IMediaService, MediaService>();
         services.AddScoped<IPostService, PostService>();
         services.AddScoped<ICommunityService,CommunityService>();
+        services.AddScoped<IMessageService, MessageService>();
     }
 }
