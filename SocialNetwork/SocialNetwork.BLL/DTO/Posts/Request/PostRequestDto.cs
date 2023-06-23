@@ -2,5 +2,5 @@
 
 public class PostRequestDto
 {
-    public string? Content { get; set; }                
+    public string Content { get; set; }                
 }

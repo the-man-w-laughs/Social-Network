@@ -1,4 +1,6 @@
-﻿using SocialNetwork.DAL.Entities.Comments;
+﻿using SocialNetwork.DAL.Entities.Chats;
+using SocialNetwork.DAL.Entities.Comments;
+using SocialNetwork.DAL.Entities.Communities;
 using SocialNetwork.DAL.Entities.Messages;
 using SocialNetwork.DAL.Entities.Posts;
 using SocialNetwork.DAL.Entities.Users;
@@ -22,4 +24,7 @@ public partial class Media
     public virtual ICollection<MessageMedia> MessageMedia { get; set; } = new List<MessageMedia>();
     public virtual ICollection<PostMedia> PostMedia { get; set; } = new List<PostMedia>();
     public virtual ICollection<UserProfileMedia> UserProfileMedia { get; set; } = new List<UserProfileMedia>();
+    public virtual UserProfile? UserProfile { get; set; } = null;
+    public virtual Chat? Chat { get; set; } = null;
+    public virtual Community? Community { get; set; } = null;
 }

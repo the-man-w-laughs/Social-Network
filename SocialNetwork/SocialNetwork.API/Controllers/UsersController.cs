@@ -7,12 +7,15 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialNetwork.BLL.Contracts;
 using SocialNetwork.BLL.DTO.Chats.Response;
+using SocialNetwork.BLL.DTO.Communities.Request;
 using SocialNetwork.BLL.DTO.Communities.Response;
 using SocialNetwork.BLL.DTO.Medias.Response;
 using SocialNetwork.BLL.DTO.Posts.Request;
 using SocialNetwork.BLL.DTO.Posts.Response;
 using SocialNetwork.BLL.DTO.Users.Request;
 using SocialNetwork.BLL.DTO.Users.Response;
+using SocialNetwork.BLL.Services;
+using SocialNetwork.DAL.Entities.Communities;
 using SocialNetwork.DAL.Entities.Posts;
 using SocialNetwork.DAL.Entities.Users;
 
@@ -50,7 +53,7 @@ public class UsersController : ControllerBase
     /// GetAllUsers
     /// </summary>
     /// <remarks>Returns all users using pagination.</remarks>
-    [HttpGet]     
+    [HttpGet]
     [Authorize(Roles = "Admin, User")]
     public virtual async Task<ActionResult<List<UserResponseDto>>> GetUsers(
         [FromQuery, Required] int limit,
@@ -58,7 +61,7 @@ public class UsersController : ControllerBase
     {
         var users = await _userService.GetUsers(limit, currCursor);
 
-        return Ok(users.Select(up=>_mapper.Map<UserResponseDto>(up)));        
+        return Ok(users.Select(up => _mapper.Map<UserResponseDto>(up)));
     }
 
     /// <summary>
@@ -66,15 +69,15 @@ public class UsersController : ControllerBase
     /// </summary>
     /// <remarks>Get all users chats using pagination (for account owner).</remarks>
     [HttpGet]
-    [Route("{userId}/chats")]        
+    [Route("{userId}/chats")]
     public virtual async Task<ActionResult<List<ChatResponseDto>>> GetUsersUserIdChats(
-        [FromRoute,Required] int userId,
+        [FromRoute, Required] int userId,
         [FromQuery, Required] int limit,
         [FromQuery] int nextCursor)
     {
         var isUserAuthenticated =
             await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        
+
         var claimUserId = uint.Parse(isUserAuthenticated.Principal!.Claims
             .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultNameClaimType)?.Value!);
 
@@ -84,9 +87,9 @@ public class UsersController : ControllerBase
         {
             return Forbid("You are not account owner");
         }
-        
-        var userChats = await _userService.GetUserChats(claimUserId,limit,nextCursor);
-        
+
+        var userChats = await _userService.GetUserChats(claimUserId, limit, nextCursor);
+
         return Ok(userChats.Select(uc => _mapper.Map<ChatResponseDto>(uc)));
     }
 
@@ -102,7 +105,7 @@ public class UsersController : ControllerBase
         [FromQuery] int nextCursor)
     {
         var userCommunities = await _userService.GetUserCommunities(userId, limit, nextCursor);
-        
+
         return Ok(userCommunities.Select(c => _mapper.Map<CommunityResponseDto>(c)));
     }
 
@@ -111,15 +114,15 @@ public class UsersController : ControllerBase
     /// </summary>
     /// <remarks>Get all user's friends using pagination.</remarks>
     [HttpGet]
-    [Route("{userId}/friends")]  
+    [Route("{userId}/friends")]
     public virtual async Task<ActionResult<List<UserResponseDto>>> GetUsersUserIdFriends(
         [FromRoute, Required] uint userId,
         [FromQuery, Required] int limit,
         [FromQuery] int nextCursor)
     {
         var userFriends = await _userService.GetUserFriends(userId, limit, nextCursor);
-        
-        return Ok(userFriends.Select(user => _mapper.Map<UserResponseDto>(user))); 
+
+        return Ok(userFriends.Select(user => _mapper.Map<UserResponseDto>(user)));
     }
 
     /// <summary>
@@ -131,7 +134,7 @@ public class UsersController : ControllerBase
     public virtual async Task<ActionResult<UserProfileResponseDto>> GetUsersUserIdProfile([FromRoute, Required] uint userId)
     {
         var userProfile = await _userService.GetUserProfile(userId);
-        
+
         return Ok(_mapper.Map<UserProfileResponseDto>(userProfile));
     }
 
@@ -145,8 +148,8 @@ public class UsersController : ControllerBase
         [FromRoute, Required] uint userId,
         [FromBody, Required] UserActivityRequestDto userActivityRequestDto)
     {
-        var user = new User {LastActiveAt = DateTime.Now };
-        
+        var user = new User { LastActiveAt = DateTime.Now };
+
         return Ok(_mapper.Map<UserActivityResponseDto>(user));
     }
 
@@ -158,7 +161,7 @@ public class UsersController : ControllerBase
     [Route("{userId}/login")]
     public virtual async Task<ActionResult<UserLoginResponseDto>> PutUsersUserIdLogin(
         [FromRoute, Required] uint userId,
-        [FromBody, Required] UserChangeLoginRequestDto userChangeLoginRequestDto) 
+        [FromBody, Required] UserChangeLoginRequestDto userChangeLoginRequestDto)
     {
         /*var users = await _userRepository.GetAllAsync(user => user.Id == userId);
         if (users.Count == 0) return NotFound("User with this ID isn't found");
@@ -185,7 +188,7 @@ public class UsersController : ControllerBase
         [FromBody, Required] UserChangeLoginRequestDto userChangeLoginRequestDto)
     {
         var user = new User { PasswordHash = new byte[] { 12, 228, 123 } };
-        
+
         return Ok(_mapper.Map<UserPasswordResponseDto>(user));
     }
 
@@ -200,7 +203,7 @@ public class UsersController : ControllerBase
         [FromBody, Required] UserEmailRequestDto userLoginRequestDto)
     {
         var user = new User { Email = "TestEmail@gmail.com" };
-        
+
         return Ok(_mapper.Map<UserEmailResponseDto>(user));
     }
 
@@ -208,17 +211,41 @@ public class UsersController : ControllerBase
     /// ChangeUserProfile
     /// </summary>
     /// <remarks>Change user profile(status, sex).</remarks>
-    [HttpPut]
+    [HttpPatch]
+    [Authorize(Roles = "Admin, User")]
     [Route("{userId}/profile")]
-    public virtual ActionResult<UserProfileResponseDto> PutUsersUserIdProfile(
+    public async virtual Task<ActionResult<UserProfileResponseDto>> PutUsersUserIdProfile(
         [FromRoute, Required] uint userId,
-        [FromBody, Required] UserProfileRequestDto userLoginRequestDto)
+        [FromBody, Required] UserProfilePatchRequestDto userProfilePatchRequestDto)
     {
-        var userProfile = new UserProfile { UserSex = "helicopter", UserName = "Zhanna" };
-        
-        return Ok(_mapper.Map<UserProfileResponseDto>(userProfile));
+        var isUserAuthenticated =
+            await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+        var userRole = isUserAuthenticated.Principal!.Claims
+            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultRoleClaimType)?.Value;
+        var claimUserId = uint.Parse(isUserAuthenticated.Principal!.Claims
+            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultNameClaimType)?.Value!);
+
+        if (userRole == UserType.User.ToString())
+        {
+            var isUserAccountOwner = claimUserId == userId;
+
+            if (!isUserAccountOwner)
+            {
+                return Forbid("You are not account owner");
+            }
+        }
+        try
+        {
+            var updatedUserProfile = await _userService.ChangeUserProfile(userId, userProfilePatchRequestDto);
+            return Ok(updatedUserProfile);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
-    
+
     /// <summary>
     /// CreateUserPost
     /// </summary>
@@ -235,8 +262,8 @@ public class UsersController : ControllerBase
             CreatedAt = DateTime.Now
         };
 
-        var userProfilePost = await _postService.CreateUserProfilePost(userId,newUserPost);
-        
+        var userProfilePost = await _postService.CreateUserProfilePost(userId, newUserPost);
+
         return Ok(_mapper.Map<UserProfilePostResponseDto>(userProfilePost));
     }
 
@@ -263,7 +290,7 @@ public class UsersController : ControllerBase
     [HttpPost]
     [Authorize(Roles = "Admin, User")]
     [Route("{userId}/medias")]
-    public async virtual Task<ActionResult<List<MediaResponseDto>>> PostUsersUserIdMedias([FromRoute][Required] uint userId,[Required] List<IFormFile> files)
+    public async virtual Task<ActionResult<List<MediaResponseDto>>> PostUsersUserIdMedias([FromRoute][Required] uint userId, [Required] List<IFormFile> files)
     {
         var isUserAuthenticated =
     await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -271,11 +298,16 @@ public class UsersController : ControllerBase
         var claimUserId = uint.Parse(isUserAuthenticated.Principal!.Claims
             .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultNameClaimType)?.Value!);
 
-        var isUserAccountOwner = claimUserId == userId;
-
-        if (!isUserAccountOwner)
+        var userRole = isUserAuthenticated.Principal!.Claims
+            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultRoleClaimType)?.Value;
+        if (userRole == UserType.User.ToString())
         {
-            return Forbid("You are not account owner");
+            var isUserAccountOwner = claimUserId == userId;
+
+            if (!isUserAccountOwner)
+            {
+                return Forbid("You are not account owner");
+            }
         }
 
         if (files == null)

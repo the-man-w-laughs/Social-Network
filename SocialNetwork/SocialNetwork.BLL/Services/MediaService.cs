@@ -38,10 +38,13 @@ namespace SocialNetwork.BLL.Services
             var newUserMediaOwner = _userMediaOwnerRepository.AddUserMediaOwner(userId, newMedia.Id);
             return _mapper.Map<MediaResponseDto>(newMedia);
         }
-        public async Task<Media> GetMedia(uint mediaId)
+        public async Task<MediaResponseDto> GetMedia(uint mediaId)
         {
             var media = await _mediaRepository.GetByIdAsync(mediaId);
-            return media;
+            var mediaResponseDto = _mapper.Map<MediaResponseDto>(media);
+
+            mediaResponseDto.LikeCount = (await _mediaLikeRepository.GetMediaLikes(mediaId)).Count();            
+            return mediaResponseDto;
         }
 
         public async Task<List<MediaResponseDto>?> GetUserMediaList(uint userId, int limit, int currCursor)

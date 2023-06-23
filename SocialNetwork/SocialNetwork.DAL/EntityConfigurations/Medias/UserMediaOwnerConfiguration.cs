@@ -13,8 +13,8 @@ public class UserMediaOwnerConfiguration : IEntityTypeConfiguration<UserMediaOwn
 
         builder.HasKey(e => e.Id).HasName("PRIMARY");
 
-        builder.HasIndex(e => e.UserId, "FK_user_mediaowner_user_idx");
-        builder.HasIndex(e => e.MediaId, "FK_user_mediaowner_media_idx");
+        //builder.HasIndex(e => e.UserId, "FK_user_mediaowner_user_idx");
+        //builder.HasIndex(e => e.MediaId, "FK_user_mediaowner_media_idx");
 
         builder.Property(e => e.Id)
             .HasColumnName("id")

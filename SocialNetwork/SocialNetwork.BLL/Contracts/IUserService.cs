@@ -1,3 +1,7 @@
+using SocialNetwork.BLL.DTO.Communities.Request;
+using SocialNetwork.BLL.DTO.Communities.Response;
+using SocialNetwork.BLL.DTO.Users.Request;
+using SocialNetwork.BLL.DTO.Users.Response;
 using SocialNetwork.DAL.Entities.Chats;
 using SocialNetwork.DAL.Entities.Communities;
 using SocialNetwork.DAL.Entities.Posts;
@@ -13,4 +17,5 @@ public interface IUserService
     Task<List<User>> GetUserFriends(uint userId, int limit, int nextCursor);
     Task<List<Post>> GetUserPosts(uint userId, int limit, int currCursor);
     Task<UserProfile> GetUserProfile(uint userId);
+    Task<UserProfileResponseDto> ChangeUserProfile(uint userId, UserProfilePatchRequestDto userProfileRequestDto);
 }

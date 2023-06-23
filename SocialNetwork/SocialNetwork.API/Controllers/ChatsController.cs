@@ -43,7 +43,7 @@ public class ChatsController : ControllerBase
         var userId = uint.Parse(isUserAuthenticated.Principal!.Claims
             .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultNameClaimType)?.Value!);
 
-        var newChat = new Chat { Name = chatRequestDto.Name, CreatedAt = DateTime.Now };
+        var newChat = new Chat { Name = chatRequestDto.Name, CreatedAt = DateTime.Now};
         var addedChat = await _chatService.AddChat(newChat);
 
         var chatOwner = new ChatMember
@@ -58,8 +58,7 @@ public class ChatsController : ControllerBase
 
         return Ok(_mapper.Map<ChatResponseDto>(addedChat));
     }
-
-    // TODO: make DTO
+    
     /// <summary>
     /// GetChatInfo
     /// </summary>
@@ -67,13 +66,31 @@ public class ChatsController : ControllerBase
     [HttpGet]
     [Authorize(Roles = "Admin, User")]
     [Route("{chatId}")]
-    public virtual IActionResult GetChatsChatId([FromRoute, Required] uint chatId)
+    public virtual async Task<IActionResult> GetChatsChatId([FromRoute, Required] uint chatId)
     {
-        // TODO ПРИДУМАТЬ УЖЕ НАКОНЕЦ ТО ЧТО ТО С MEDIA для фото чата!!!!!!!!!
-        return Ok("GetChatInfo");
-    }
+        var chat = await _chatService.GetChatById(chatId);
 
-    // TODO: make DTO
+        var isChatExisted = chat != null;
+        if (!isChatExisted) return BadRequest("Chat with request Id doesn't exist");
+
+        var isUserAuthenticated =
+            await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+        var userRole = isUserAuthenticated.Principal!.Claims
+            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultRoleClaimType)?.Value;
+
+        var userId = int.Parse(isUserAuthenticated.Principal!.Claims
+            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultNameClaimType)?.Value!);
+
+        if (userRole == UserType.User.ToString())
+        {
+            var isChatMember = await _chatService.IsUserChatMember(chatId, (uint)userId);            
+            if (!isChatMember) return Forbid("You are not chat member.");
+        }
+
+        return Ok(await _chatService.GetChatById(chatId));
+    }
+    
     /// <summary>
     /// GetAllChatMedias
     /// </summary>
@@ -81,39 +98,75 @@ public class ChatsController : ControllerBase
     [HttpGet]
     [Authorize(Roles = "Admin, User")]
     [Route("{chatId}/medias")]
-    public virtual ActionResult<ChatMediaResponseDto> GetChatChatIdMedias(
+    public async virtual Task<ActionResult<List<ChatMediaResponseDto>>> GetChatChatIdMedias(
         [FromRoute, Required] uint chatId,
-        [FromQuery, Required] uint limit,
-        [FromQuery, Required] uint nextCursor)
+        [FromQuery, Required] int limit,
+        [FromQuery] int nextCursor)
     {
-        // TODO ПРИДУМАТЬ УЖЕ НАКОНЕЦ ТО ЧТО ТО С MEDIA!!!!!!!!!
-        return Ok("GetAllChatMedias");
+        var chat = await _chatService.GetChatById(chatId);
+
+        var isChatExisted = chat != null;
+        if (!isChatExisted) return BadRequest("Chat with request Id doesn't exist");
+
+        var isUserAuthenticated =
+            await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+        var userRole = isUserAuthenticated.Principal!.Claims
+            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultRoleClaimType)?.Value;
+
+        var userId = int.Parse(isUserAuthenticated.Principal!.Claims
+            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultNameClaimType)?.Value!);
+
+        if (userRole == UserType.User.ToString())
+        {
+            var isChatMember = await _chatService.IsUserChatMember(chatId, (uint)userId);
+            if (!isChatMember) return Forbid("You are not chat member.");
+        }
+
+        return Ok(await _chatService.GetAllChatMedias(chatId, limit, nextCursor));
     }
 
     /// <summary>
     /// ChangeChatInfo
     /// </summary>
     /// <remarks>Change chat information (name, photo). For chat admins.</remarks>
-    [HttpPut]
+    [HttpPatch]
+    [Authorize(Roles = "Admin, User")]
     [Route("{chatId}")]
-    public virtual async Task<ActionResult<ChatResponseDto>> PutChatsChatId(
+    public virtual async Task<ActionResult<ChatResponseDto>> PatchChatsChatId(
         [FromRoute, Required] uint chatId,
-        [FromBody, Required] ChatRequestDto chatRequestDto)
+        [FromBody, Required] ChatPatchRequestDto chatPatchRequestDto)
     {
-        // var chats = await _chatRepository.SelectAsync((chat) => chat.Id == chatId);
-        // if (chats.Count == 0)
-        // {
-        //     return NotFound();
-        // }
+        var chat = await _chatService.GetChatById(chatId);
 
-        // var existingChat = chats.First();
-        // _mapper.Map(chatRequestDto, existingChat);
+        var isChatExisted = chat != null;
+        if (!isChatExisted) return BadRequest("Chat with request Id doesn't exist");
 
-        // _chatRepository.Update(existingChat);        
+        var isUserAuthenticated =
+            await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
-        // await _chatRepository.SaveAsync();
+        var userRole = isUserAuthenticated.Principal!.Claims
+            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultRoleClaimType)?.Value;
 
-        return Ok( /*_mapper.Map<ChatResponseDto>(existingChat)*/);
+        var userId = int.Parse(isUserAuthenticated.Principal!.Claims
+            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultNameClaimType)?.Value!);
+
+        if (userRole == UserType.User.ToString())
+        {
+            var chatOwner = await _chatService.GetChatOwnerByChatId(chatId);
+            var isUserChatOwner = chatOwner.UserId == userId;
+            if (!isUserChatOwner) return Forbid("You are not chat Owner");
+        }
+        try
+        {
+            var updatedChat = await _chatService.ChangeChat(chatId, chatPatchRequestDto);
+            return Ok(updatedChat);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+
     }
 
     /// <summary>
@@ -287,11 +340,7 @@ public class ChatsController : ControllerBase
             {
                 
             }
-        }
-        
-        
-        
-        
+        }                             
         return Ok("ChatMemberStatus");
     }
 

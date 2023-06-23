@@ -2,6 +2,7 @@ using AutoMapper;
 using SocialNetwork.BLL.DTO.Chats.Request;
 using SocialNetwork.BLL.DTO.Chats.Response;
 using SocialNetwork.BLL.DTO.Comments.Response;
+using SocialNetwork.BLL.DTO.Communities.Request;
 using SocialNetwork.BLL.DTO.Communities.Response;
 using SocialNetwork.BLL.DTO.Medias.Response;
 using SocialNetwork.BLL.DTO.Messages.Response;
@@ -34,6 +35,8 @@ public class AutoMapperProfile : Profile
         CreateMap<Comment, CommentResponseDto>();
 
         // Communities
+        CreateMap<CommunityRequestDto, Community>();
+
         CreateMap<CommunityPost, CommunityPostResponseDto>();
         CreateMap<Community, CommunityResponseDto>();
 
@@ -48,6 +51,7 @@ public class AutoMapperProfile : Profile
 
         // Users
         CreateMap<UserChangeLoginRequestDto, User>();
+        CreateMap<UserProfilePatchRequestDto, UserProfile>();
 
         CreateMap<User, UserActivityResponseDto>();
         CreateMap<User, UserEmailResponseDto>();

@@ -46,5 +46,12 @@ public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
             .HasForeignKey<UserProfile>(up => up.UserId)
             .OnDelete(DeleteBehavior.Cascade)
             .HasConstraintName("FK_user_profiles_users");
+
+        builder.Property(e => e.ProfilePictureId)
+    .HasColumnName("profile_picture_id");    
+        builder.HasOne(up => up.ProfilePicture).WithOne(u => u.UserProfile)
+            .HasForeignKey<UserProfile>(up => up.ProfilePictureId)
+            .OnDelete(DeleteBehavior.Restrict)
+            .HasConstraintName("FK_picture_profiles_picture");
     }
 }

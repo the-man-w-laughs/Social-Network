@@ -1,3 +1,5 @@
+using SocialNetwork.BLL.DTO.Communities.Request;
+using SocialNetwork.BLL.DTO.Communities.Response;
 using SocialNetwork.DAL.Entities.Communities;
 using SocialNetwork.DAL.Entities.Posts;
 
@@ -14,4 +16,5 @@ public interface ICommunityService
     Task<bool> IsUserCommunityMember(uint communityId, uint userId);
     Task<CommunityPost> AddCommunityPost(uint communityId, Post post, uint proposerId);
     Task<List<CommunityPost>> GetCommunityPosts(uint communityId, int limit, int currCursor);
+    Task<CommunityResponseDto> ChangeCommunity(uint communityId, CommunityPatchRequestDto newCommunity);
 }

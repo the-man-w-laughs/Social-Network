@@ -2,5 +2,6 @@
 
 public class ChatRequestDto
 {
-    public string Name { get; set; } = null!;  
+    public uint ChatPictureId { get; set; }
+    public string Name { get; set; } = null!;     
 }

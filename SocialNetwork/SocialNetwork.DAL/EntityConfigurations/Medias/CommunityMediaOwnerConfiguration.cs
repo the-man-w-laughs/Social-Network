@@ -13,8 +13,8 @@ public class CommunityMediaOwnerConfiguration : IEntityTypeConfiguration<Communi
 
         builder.HasKey(e => e.Id).HasName("PRIMARY");
 
-        builder.HasIndex(e => e.CommunityId, "FK_community_mediaowner_community_idx");
-        builder.HasIndex(e => e.MediaId, "FK_community_mediaowner_media_idx");
+        //builder.HasIndex(e => e.CommunityId, "FK_community_mediaowner_community_idx");
+        //builder.HasIndex(e => e.MediaId, "FK_community_mediaowner_media_idx");
 
         builder.Property(e => e.Id)
             .HasColumnName("id")

@@ -6,12 +6,14 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialNetwork.BLL.Contracts;
+using SocialNetwork.BLL.DTO.Chats.Request;
 using SocialNetwork.BLL.DTO.Communities.Request;
 using SocialNetwork.BLL.DTO.Communities.Response;
 using SocialNetwork.BLL.DTO.Medias.Response;
 using SocialNetwork.BLL.DTO.Messages.Response;
 using SocialNetwork.BLL.DTO.Posts.Request;
 using SocialNetwork.BLL.DTO.Posts.Response;
+using SocialNetwork.BLL.Services;
 using SocialNetwork.DAL.Entities.Communities;
 using SocialNetwork.DAL.Entities.Posts;
 using SocialNetwork.DAL.Entities.Users;
@@ -60,10 +62,8 @@ public class CommunitiesController : ControllerBase
         var newCommunity = new Community()
         {
             CreatedAt = DateTime.Now,
-            Name = communityRequestDto.Name,
-            Description = communityRequestDto.Description,
-            IsPrivate = communityRequestDto.IsPrivate,
-            
+            Name = communityRequestDto.Name,            
+            IsPrivate = communityRequestDto.IsPrivate,                        
         };
         
         var addedCommunity  = await _communityService.AddCommunity(newCommunity);
@@ -100,16 +100,50 @@ public class CommunitiesController : ControllerBase
     /// ChangeCommunityInfo
     /// </summary>
     /// <remarks>Change community info (for community admins, admins).</remarks>        
-    [HttpPut]
+    [HttpPatch]
     [Authorize(Roles = "Admin, User")]
     [Route("{communityId}")]
-    public virtual ActionResult<CommunityResponseDto> PutCommunitiesCommunityId(
+    public async virtual Task<ActionResult<CommunityResponseDto>> PatchCommunitiesCommunityId(
         [FromRoute, Required] uint communityId,
-        [FromBody, Required] CommunityRequestDto communityRequestDto)
+        [FromBody, Required] CommunityPatchRequestDto communityPatchRequestDto)
     {
-        var community = new Community { Name = "TestCommunity", Description = "TestCommunityDescription", IsPrivate = false };
-        
-        return Ok(_mapper.Map<CommunityResponseDto>(community));
+        var community = await _communityService.GetCommunityById(communityId);
+
+        var isCommunityExists = community != null;
+
+        if (!isCommunityExists)
+        {
+            return BadRequest("Community with this id doesnt exist");
+        }
+
+        var isUserAuthenticated =
+            await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+        var userRole = isUserAuthenticated.Principal!.Claims
+            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultRoleClaimType)?.Value;
+
+        var userId = int.Parse(isUserAuthenticated.Principal!.Claims
+            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultNameClaimType)?.Value!);
+
+        if (userRole == UserType.User.ToString())
+        {
+            var communityOwner = await _communityService.GetCommunityOwner(communityId);
+            var isUserCommunityOwner = userId == communityOwner.UserId;
+            if (!isUserCommunityOwner)
+            {
+                return Forbid("You are not Community Owner");
+            }
+        }
+        try
+        {
+            var updatedCommunity = await _communityService.ChangeCommunity(communityId, communityPatchRequestDto);
+
+            return Ok(updatedCommunity);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     /// <summary>

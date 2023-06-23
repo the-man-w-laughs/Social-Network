@@ -51,11 +51,11 @@ public class MessagesController : ControllerBase
     /// ChangeMessage
     /// </summary>
     /// <remarks>Change chat message (for message senders, chat admins, admins).</remarks>
-    [HttpPut]
+    [HttpPatch]
     [Route("{messageId}")]
-    public virtual ActionResult<MessageResponseDto> PutMessagesMessageId(
+    public virtual ActionResult<MessageResponseDto> PatchMessagesMessageId(
         [FromRoute, Required] uint messageId,
-        [FromBody, Required] MessageRequestDto messageRequestDto)
+        [FromBody, Required] MessagePatchRequestDto messagePatchRequestDto)
     {
         var message = new Message { Id = 200, Content = "TestMessage", CreatedAt = DateTime.Now };
         

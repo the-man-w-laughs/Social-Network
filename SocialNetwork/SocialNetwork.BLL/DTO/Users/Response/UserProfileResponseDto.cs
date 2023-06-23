@@ -3,7 +3,7 @@
 public class UserProfileResponseDto
 {
     public uint Id { get; set; }
-    public string? UserEmail { get; set; }
+    public uint? ProfilePictureId { get; set; }    
     public string? UserName { get; set; }
     public string? UserSurname { get; set; }
     public string? UserSex { get; set; }
