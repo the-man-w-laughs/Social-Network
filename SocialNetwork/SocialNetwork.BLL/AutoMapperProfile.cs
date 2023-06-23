@@ -2,7 +2,9 @@ using AutoMapper;
 using SocialNetwork.BLL.DTO.Chats.Request;
 using SocialNetwork.BLL.DTO.Chats.Response;
 using SocialNetwork.BLL.DTO.Comments.Response;
+using SocialNetwork.BLL.DTO.Communities.Request;
 using SocialNetwork.BLL.DTO.Communities.Response;
+using SocialNetwork.BLL.DTO.Medias.Response;
 using SocialNetwork.BLL.DTO.Messages.Response;
 using SocialNetwork.BLL.DTO.Posts.Response;
 using SocialNetwork.BLL.DTO.Users.Request;
@@ -10,6 +12,7 @@ using SocialNetwork.BLL.DTO.Users.Response;
 using SocialNetwork.DAL.Entities.Chats;
 using SocialNetwork.DAL.Entities.Comments;
 using SocialNetwork.DAL.Entities.Communities;
+using SocialNetwork.DAL.Entities.Medias;
 using SocialNetwork.DAL.Entities.Messages;
 using SocialNetwork.DAL.Entities.Posts;
 using SocialNetwork.DAL.Entities.Users;
@@ -22,16 +25,18 @@ public class AutoMapperProfile : Profile
     {
         // Chats
         CreateMap<ChatRequestDto, Chat>();
+        CreateMap<ChatMemberRequestDto, Chat>();
 
         CreateMap<Chat, ChatResponseDto>();
         CreateMap<ChatMember, ChatMemberResponseDto>();
-
 
         // Comments
         CreateMap<CommentLike, CommentLikeResponseDto>();
         CreateMap<Comment, CommentResponseDto>();
 
         // Communities
+        CreateMap<CommunityRequestDto, Community>();
+
         CreateMap<CommunityPost, CommunityPostResponseDto>();
         CreateMap<Community, CommunityResponseDto>();
 
@@ -40,11 +45,13 @@ public class AutoMapperProfile : Profile
         CreateMap<Message, MessageResponseDto>();
         
         // Posts
-        CreateMap<PostLike, PostLikeResponse>();
+        CreateMap<PostLike, PostLikeResponseDto>();
         CreateMap<Post, PostResponseDto>();
+        CreateMap<UserProfilePost, UserProfilePostResponseDto>();
 
         // Users
         CreateMap<UserChangeLoginRequestDto, User>();
+        CreateMap<UserProfilePatchRequestDto, UserProfile>();
 
         CreateMap<User, UserActivityResponseDto>();
         CreateMap<User, UserEmailResponseDto>();
@@ -52,5 +59,12 @@ public class AutoMapperProfile : Profile
         CreateMap<User, UserPasswordResponseDto>();
         CreateMap<UserProfile, UserProfileResponseDto>();        
         CreateMap<User, UserResponseDto>();
+
+        // Medias
+
+        CreateMap<CommunityMediaOwner, CommunityMediaOwnerResponseDto>();
+        CreateMap<UserMediaOwner, UserMediaOwnerResponseDto>();
+        CreateMap<MediaLike, MediaLikeResponseDto>();
+        CreateMap<Media, MediaResponseDto>();        
     }
 }

@@ -1,4 +1,3 @@
-using System.Runtime.Intrinsics.Arm;
 using System.Text;
 using Konscious.Security.Cryptography;
 using SocialNetwork.BLL.Contracts;

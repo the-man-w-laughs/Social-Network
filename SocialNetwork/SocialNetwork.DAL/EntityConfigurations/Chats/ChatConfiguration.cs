@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SocialNetwork.DAL.Entities.Chats;
+using SocialNetwork.DAL.Entities.Communities;
 
 namespace SocialNetwork.DAL.EntityConfigurations.Chats;
 
@@ -21,5 +22,11 @@ public class ChatConfiguration : IEntityTypeConfiguration<Chat>
             .HasColumnType("datetime");
         builder.Property(e => e.Name).HasColumnName("name").IsRequired()
             .HasMaxLength(Constants.ChatNameMaxLength);
+        builder.Property(e => e.ChatPictureId)
+.HasColumnName("chat_picture_id");
+        builder.HasOne(up => up.ChatPicture).WithOne(u => u.Chat)
+            .HasForeignKey<Chat>(up => up.ChatPictureId)
+            .OnDelete(DeleteBehavior.Restrict)
+            .HasConstraintName("FK_picture_chat_picture");
     }
 }

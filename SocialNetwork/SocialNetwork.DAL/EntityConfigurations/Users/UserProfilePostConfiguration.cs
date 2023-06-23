@@ -17,7 +17,7 @@ public class UserProfilePostConfiguration : IEntityTypeConfiguration<UserProfile
 
         builder.Property(e => e.Id)
             .HasColumnName("id")
-            .ValueGeneratedNever()
+            .ValueGeneratedOnAdd()
             .IsRequired();
         builder.Property(e => e.PostId)
             .HasColumnName("post_id")
