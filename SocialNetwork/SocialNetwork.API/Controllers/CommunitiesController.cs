@@ -116,8 +116,8 @@ public class CommunitiesController : ControllerBase
     [Authorize(Roles = "Admin, User")]
     [Route("{communityId}")]
     [ProducesResponseType(typeof(CommunityResponseDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
     public async virtual Task<ActionResult<CommunityResponseDto>> PatchCommunitiesCommunityId(
         [FromRoute, Required] uint communityId,
         [FromBody, Required] CommunityPatchRequestDto communityPatchRequestDto)
@@ -173,8 +173,8 @@ public class CommunitiesController : ControllerBase
     [Authorize(Roles = "Admin, User")]
     [Route("{communityId}")]
     [ProducesResponseType(typeof(CommunityResponseDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
     public virtual async Task<ActionResult<CommunityResponseDto>> DeleteCommunitiesCommunityId([FromRoute, Required] uint communityId)
     {
         var community = await _communityService.GetCommunityById(communityId);
@@ -223,8 +223,8 @@ public class CommunitiesController : ControllerBase
     [Authorize(Roles = "Admin, User")]
     [Route("{communityId}/posts")]
     [ProducesResponseType(typeof(PostResponseDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
     public virtual async Task<ActionResult<PostResponseDto>> PostCommunitiesCommunityIdPosts(
         [FromRoute, Required] uint communityId,
         [FromBody, Required] PostRequestDto communityRequestDto)
@@ -283,7 +283,7 @@ public class CommunitiesController : ControllerBase
     [Authorize(Roles = "Admin, User")]
     [Route("{communityId}/posts")]
     [ProducesResponseType(typeof(List<CommunityPostResponseDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     public virtual async Task<ActionResult<List<CommunityPostResponseDto>>> GetCommunitiesPosts(
         [FromRoute, Required] uint communityId,
         [FromQuery, Required] int limit,
@@ -305,7 +305,7 @@ public class CommunitiesController : ControllerBase
     [HttpPost]
     [Route("{communityId}/medias")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     public virtual ActionResult<List<MediaResponseDto>> PostcommunityscommunityIdMedias([FromRoute][Required] uint communityId, [Required] List<IFormFile> files)
     {
         if (files == null)

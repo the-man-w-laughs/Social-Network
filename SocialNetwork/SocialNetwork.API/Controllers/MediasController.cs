@@ -74,9 +74,9 @@ public class MediasController : ControllerBase
     [HttpDelete]
     [Authorize(Roles = "Admin")]
     [Route("{mediaId}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(MediaResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
     public async virtual Task<ActionResult<MediaResponseDto>> DeleteMediasMediaId([FromRoute][Required] uint mediaId)
     {
         var localMedia = await _mediaService.GetLocalMedia(mediaId);
@@ -112,9 +112,9 @@ public class MediasController : ControllerBase
     [HttpPost]
     [Authorize(Roles = "User")]
     [Route("{mediaId}/likes")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(MediaLikeResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
     public virtual async Task<ActionResult<MediaLikeResponseDto>> PostMediasMediaIdLikes([FromRoute][Required] uint mediaId)
     {
         var media = await _mediaService.GetMedia(mediaId);
@@ -152,8 +152,8 @@ public class MediasController : ControllerBase
     [HttpGet]
     [Authorize(Roles = "Admin, User")]
     [Route("{mediaId}/likes")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(List<MediaLikeResponseDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     public async virtual Task<ActionResult<List<MediaLikeResponseDto>>> GetMediasMediaId([FromRoute][Required] uint mediaId, [FromQuery][Required] int limit, [FromQuery] int currCursor)
     {
         var media = await _mediaService.GetMedia(mediaId);
@@ -176,8 +176,8 @@ public class MediasController : ControllerBase
     [HttpDelete]
     [Authorize(Roles = "User")]
     [Route("{mediaId}/likes")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(MediaLikeResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     public async virtual Task<ActionResult<MediaLikeResponseDto>> DeleteMediasMediaIdLikes([FromRoute][Required] uint mediaId)
     {
         var media = await _mediaService.GetMedia(mediaId);
