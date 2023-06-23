@@ -34,8 +34,13 @@ public class MediasController : ControllerBase
     /// GetMedia
     /// </summary>
     /// <remarks>Download media (complicated logic).</remarks>          
+    /// <param name="mediaId">The ID of the media.</param>    
+    /// <response code="200">Returns the media file.</response>
+    /// <response code="404">If the media file is not found.</response>
     [HttpGet]
     [Route("{mediaId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     public async Task<ActionResult> GetMediasMediaId([FromRoute][Required] uint mediaId)
     {
         var localMedia = await _mediaService.GetLocalMedia(mediaId);
@@ -54,7 +59,7 @@ public class MediasController : ControllerBase
         }
         else
         {
-            return NotFound();
+            return NotFound("No media with this id.");
         }
     }
 
@@ -62,9 +67,16 @@ public class MediasController : ControllerBase
     /// DeleteMedia
     /// </summary>    
     /// <remarks>Delete media (for media owners).</remarks>                   
+    /// <param name="mediaId">The ID of the media.</param>    
+    /// <response code="200">Returns the deleted media.</response>
+    /// <response code="404">If the media is not found.</response>
+    /// <response code="500">If an error occurs during the deletion process.</response>
     [HttpDelete]
     [Authorize(Roles = "Admin")]
     [Route("{mediaId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async virtual Task<ActionResult<MediaResponseDto>> DeleteMediasMediaId([FromRoute][Required] uint mediaId)
     {
         var localMedia = await _mediaService.GetLocalMedia(mediaId);
@@ -80,7 +92,7 @@ public class MediasController : ControllerBase
             }
             else
             {
-                return NotFound();
+                return NotFound("No media with this id.");
             }
         }
         catch (Exception ex)
@@ -93,9 +105,16 @@ public class MediasController : ControllerBase
     /// LikeMedia
     /// </summary>
     /// <remarks>Like media.</remarks>        
+    /// <param name="mediaId">The ID of the media.</param>    
+    /// <response code="200">Returns the liked media.</response>
+    /// <response code="404">If the media is not found.</response>
+    /// <response code="409">If the user has already liked the media.</response>
     [HttpPost]
     [Authorize(Roles = "User")]
     [Route("{mediaId}/likes")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public virtual async Task<ActionResult<MediaLikeResponseDto>> PostMediasMediaIdLikes([FromRoute][Required] uint mediaId)
     {
         var media = await _mediaService.GetMedia(mediaId);
@@ -125,9 +144,16 @@ public class MediasController : ControllerBase
     /// GetAllMediaLikes    
     /// </summary>
     /// <remarks>Get all media likes using pagination (for chat members).</remarks>    
+    /// <param name="mediaId">The ID of the media.</param>
+    /// <param name="limit">The maximum number of likes to retrieve.</param>
+    /// <param name="currCursor">The cursor indicating the current position in the likes list.</param>    
+    /// <response code="200">Returns the list of media likes.</response>
+    /// <response code="404">If the media is not found.</response>
     [HttpGet]
     [Authorize(Roles = "Admin, User")]
     [Route("{mediaId}/likes")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async virtual Task<ActionResult<List<MediaLikeResponseDto>>> GetMediasMediaId([FromRoute][Required] uint mediaId, [FromQuery][Required] int limit, [FromQuery] int currCursor)
     {
         var media = await _mediaService.GetMedia(mediaId);
@@ -144,9 +170,14 @@ public class MediasController : ControllerBase
     /// UnlikeMedia
     /// </summary>
     /// <remarks>Unlike media (for like owner).</remarks>    
+    /// <param name="mediaId">The ID of the media.</param>    
+    /// <response code="200">Returns the unliked media like.</response>
+    /// <response code="404">If the media is not found or the user has not liked the media.</response>
     [HttpDelete]
     [Authorize(Roles = "User")]
     [Route("{mediaId}/likes")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async virtual Task<ActionResult<MediaLikeResponseDto>> DeleteMediasMediaIdLikes([FromRoute][Required] uint mediaId)
     {
         var media = await _mediaService.GetMedia(mediaId);
