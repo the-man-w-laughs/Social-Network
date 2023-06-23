@@ -11,6 +11,7 @@ public interface IChatService
     public Task<bool> IsUserHaveChatAdminPermissions(uint chatId, uint userId);
     public Task<ChatMember?> DeleteChatMember(uint chatId, uint userId);
     public Task<bool> IsUserChatMember(uint chatId, uint userId);
+    Task<ChatMember?> GetChatMember(uint chatId, uint userId);
     public Task<List<ChatMember>> GetAllChatMembers(uint chatId, int limit, int currCursor);
     Task<List<Message>> GetAllChatMessages(uint chatId, int limit, int nextCursor);
     Task<Chat> AddChat(Chat newChat);
