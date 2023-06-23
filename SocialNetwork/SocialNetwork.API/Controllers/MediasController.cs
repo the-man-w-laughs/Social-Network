@@ -38,16 +38,16 @@ public class MediasController : ControllerBase
     [Route("{mediaId}")]
     public async Task<ActionResult> GetMediasMediaId([FromRoute][Required] uint mediaId)
     {
-        var media = await _mediaService.GetMedia(mediaId);
+        var localMedia = await _mediaService.GetLocalMedia(mediaId);
 
-        if (media != null && System.IO.File.Exists(media.FilePath))
+        if (localMedia != null && System.IO.File.Exists(localMedia.FilePath))
         {
-            byte[] fileBytes = System.IO.File.ReadAllBytes(media.FilePath);
-            string contentType = _fileService.GetFileType(media.FileName);
+            byte[] fileBytes = System.IO.File.ReadAllBytes(localMedia.FilePath);
+            string contentType = _fileService.GetFileType(localMedia.FileName);
 
             var fileContentResult = new FileContentResult(fileBytes, contentType)
             {
-                FileDownloadName = media.FileName
+                FileDownloadName = localMedia.FileName
             };
 
             return fileContentResult;
@@ -67,15 +67,16 @@ public class MediasController : ControllerBase
     [Route("{mediaId}")]
     public async virtual Task<ActionResult<MediaResponseDto>> DeleteMediasMediaId([FromRoute][Required] uint mediaId)
     {
-        var media = await _mediaService.GetMedia(mediaId);
+        var localMedia = await _mediaService.GetLocalMedia(mediaId);
+        var media = _mediaService.GetMedia(mediaId);
 
         try
         {
-            if (System.IO.File.Exists(media.FilePath))
+            if (localMedia!= null && System.IO.File.Exists(localMedia.FilePath))
             {
-                System.IO.File.Delete(media.FilePath);
+                System.IO.File.Delete(localMedia.FilePath);
                 await _mediaService.DeleteMedia(mediaId);
-                return Ok(_mapper.Map<MediaResponseDto>(media));
+                return Ok(media);
             }
             else
             {

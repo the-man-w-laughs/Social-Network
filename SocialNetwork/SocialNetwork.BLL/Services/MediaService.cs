@@ -47,6 +47,12 @@ namespace SocialNetwork.BLL.Services
             return mediaResponseDto;
         }
 
+        public async Task<Media?> GetLocalMedia(uint mediaId)
+        {
+            var media = await _mediaRepository.GetByIdAsync(mediaId);            
+            return media;
+        }
+
         public async Task<List<MediaResponseDto>?> GetUserMediaList(uint userId, int limit, int currCursor)
         {
             var userMediaOwners = await _userMediaOwnerRepository.GetAllAsync((UserMediaOwner) => UserMediaOwner.UserId == userId);
@@ -82,11 +88,11 @@ namespace SocialNetwork.BLL.Services
             return _mapper.Map<List<MediaResponseDto>>(paginatedMediaList);
         }
 
-        public async Task<MediaResponseDto?> DeleteMedia(uint mediaId)
+        public async Task<Media?> DeleteMedia(uint mediaId)
         {
             var media = await _mediaRepository.DeleteById(mediaId);
             await _mediaLikeRepository.SaveAsync();
-            return _mapper.Map<MediaResponseDto>(media);
+            return media;
         }
 
 
@@ -117,5 +123,6 @@ namespace SocialNetwork.BLL.Services
             var mediaLike = await _mediaLikeRepository.UnLikeMedia(userId, mediaId);
             return _mapper.Map<MediaLikeResponseDto>(mediaLike);
         }
+
     }
 }

@@ -29,11 +29,18 @@ public sealed class AuthController : ControllerBase
     }
 
     /// <summary>
-    /// SignUp
+    /// Sign up.
     /// </summary>
-    /// <remarks>Creates new user using login, Mail and Password.</remarks>    
+    /// <remarks>Creates a new user using the provided login, email, and password.</remarks>
+    /// <param name="userSignUpRequestDto">The user sign-up request data transfer object.</param>    
+    /// <response code="200">Returns a <see cref="UserResponseDto"/> if the user was successfully created.</response>
+    /// <response code="400">Returns a string message if the login or password is invalid.</response>
+    /// <response code="409">Returns a string message if a user with the same login already exists.</response>
     [HttpPost]
     [Route("sign-up")]
+    [ProducesResponseType(typeof(UserResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
     public async Task<ActionResult<UserResponseDto>> SignUp([FromBody, Required] UserSignUpRequestDto userSignUpRequestDto)
     {
         // сначала проверяем все поля на валидность 
@@ -74,11 +81,20 @@ public sealed class AuthController : ControllerBase
     }
 
     /// <summary>
-    /// Login
+    /// Login.
     /// </summary>
-    /// <remarks>Login user using login and password.</remarks>    
+    /// <remarks>Login user using login and password.</remarks>
+    /// <param name="userLoginRequestDto">The user login request data transfer object.</param>    
+    /// <response code="200">Returns a <see cref="UserResponseDto"/> if the login was successful.</response>
+    /// <response code="400">Returns a string message if the login or password is invalid.</response>
+    /// <response code="401">Returns a string message if the password is incorrect.</response>
+    /// <response code="409">Returns a string message if a user is already authenticated.</response>    
     [HttpPost]
     [Route("login")]
+    [ProducesResponseType(typeof(UserResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
     public async Task<ActionResult<UserResponseDto>> Login([FromBody, Required] UserLoginRequestDto userLoginRequestDto)
     {
         // проверяем не авторизован ли пользователь уже
@@ -118,12 +134,14 @@ public sealed class AuthController : ControllerBase
     }
 
     /// <summary>
-    /// Logout
+    /// Logout.
     /// </summary>
-    /// <remarks>logout.</remarks>    
+    /// <remarks>Logs out the current user.</remarks>    
+    /// <response code="200">Returns a string message indicating successful logout.</response>
     [HttpPost]
     [Authorize(Roles = "Admin, User")]
     [Route("logout")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     public async Task<ActionResult<string>> Logout()
     {
         // доступ только для авторизованных пользователей
