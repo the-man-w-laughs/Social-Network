@@ -16,7 +16,7 @@ public class ChatMemberConfiguration : IEntityTypeConfiguration<ChatMember>
         builder.HasIndex(e => e.UserId, "FK_chat_members_users_idx");
         builder.HasIndex(e => e.ChatId, "FK_chat_members_chats_idx");
 
-        builder.Property(e => e.Id).HasColumnName("id").IsRequired();
+        builder.Property(e => e.Id).HasColumnName("id").IsRequired().ValueGeneratedOnAdd();
         builder.Property(e => e.TypeId).HasColumnName("chat_member_type").IsRequired();
         builder.Property(e => e.CreatedAt).HasColumnName("created_at").IsRequired()
             .HasColumnType("datetime").HasDefaultValueSql("CURRENT_TIMESTAMP");

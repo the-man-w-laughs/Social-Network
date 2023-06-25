@@ -3,7 +3,7 @@ using SocialNetwork.DAL;
 using SocialNetwork.DAL.Contracts.Users;
 using SocialNetwork.DAL.Entities.Users;
 
-namespace SocialNetwork.BLL.Services;
+namespace SocialNetwork.BLL.Services.Auth;
 
 public class AuthService : IAuthService
 {
@@ -32,7 +32,7 @@ public class AuthService : IAuthService
 
     public async Task<User?> GetUserByLogin(string login)
     {
-        var users = await _userRepository.GetAllAsync(u=> u.Login == login);
+        var users = await _userRepository.GetAllAsync(u => u.Login == login);
         return users.FirstOrDefault();
     }
 
@@ -46,7 +46,7 @@ public class AuthService : IAuthService
         return password.Length >= Constants.UserPasswordMinLength;
     }
 
-    public async  Task<UserProfile> AddUserProfile(UserProfile userProfile)
+    public async Task<UserProfile> AddUserProfile(UserProfile userProfile)
     {
         var addedProfile = await _userProfileRepository.AddAsync(userProfile);
         await _userProfileRepository.SaveAsync();

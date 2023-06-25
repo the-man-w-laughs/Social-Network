@@ -2,6 +2,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using SocialNetwork.BLL.Contracts;
 using SocialNetwork.BLL.Services;
+using SocialNetwork.BLL.Services.Auth;
+using SocialNetwork.BLL.Services.File;
 
 namespace SocialNetwork.BLL;
 

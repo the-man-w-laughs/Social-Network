@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SocialNetwork.BLL.Services
+namespace SocialNetwork.BLL.Services.File
 {
     internal class FileService : IFileService
     {
@@ -16,7 +16,7 @@ namespace SocialNetwork.BLL.Services
 
         public string GetFileType(string fileName)
         {
-            string extension = Path.GetExtension(fileName).ToLowerInvariant();            
+            string extension = Path.GetExtension(fileName).ToLowerInvariant();
 
             switch (extension)
             {

@@ -17,7 +17,7 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     public virtual async Task<List<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> where) =>
         await SocialNetworkContext.Set<TEntity>().Where(where).ToListAsync();
 
-    public virtual async Task<TEntity?> GetByIdAsync(uint id) =>
+    public virtual async Task<TEntity?> GetByIdAsync(uint id) =>    
         await SocialNetworkContext.Set<TEntity>().FindAsync(id);
 
     public virtual async Task<TEntity?> GetAsync(Expression<Func<TEntity, bool>> where) =>

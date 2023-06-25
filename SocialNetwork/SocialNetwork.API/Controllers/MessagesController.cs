@@ -74,7 +74,7 @@ public class MessagesController : ControllerBase
 
     // TODO: aggregate message info
     /// <summary>
-    /// GetChatMessageInfo
+    /// GetMessageInfo    
     /// </summary>
     /// <remarks>Get information about chat message.</remarks>
     [HttpGet]
@@ -91,7 +91,7 @@ public class MessagesController : ControllerBase
     /// <summary>
     /// ChangeMessage
     /// </summary>
-    /// <remarks>Change chat message (for message senders, chat admins, admins).</remarks>
+    /// <remarks>Change chat message (for message senders).</remarks>
     [HttpPatch]
     [Route("{messageId}")]
     public virtual ActionResult<MessageResponseDto> PatchMessagesMessageId(
