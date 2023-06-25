@@ -18,4 +18,11 @@ public interface IUserService
     Task<List<Post>> GetUserPosts(uint userId, int limit, int currCursor);
     Task<UserProfile> GetUserProfile(uint userId);
     Task<UserProfileResponseDto> ChangeUserProfile(uint userId, UserProfilePatchRequestDto userProfileRequestDto);
+    Task<User?> GetUserById(uint userId);
+    Task<bool> IsUserYourFriend(uint userId, uint userFriendId);
+    Task<bool> IsUserYourFollower(uint userId, uint userFollowerId);
+    Task<UserFollower> DeleteFollower(uint userId, uint id);
+    Task<UserFriend> AddFriend(uint userId, uint friendId);
+    Task<UserFollower> Follow(uint sourceId, uint targetId);
+    Task DeleteFriendship(uint userId, uint id);
 }

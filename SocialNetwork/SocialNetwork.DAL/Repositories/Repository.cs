@@ -29,7 +29,7 @@ public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity :
     public virtual void Update(TEntity entity) =>
         SocialNetworkContext.Entry(entity).State = EntityState.Modified;
 
-    public virtual void Delete(TEntity entity) =>
+    public virtual void  Delete(TEntity entity) =>
         SocialNetworkContext.Set<TEntity>().Remove(entity);
 
     public virtual async Task<TEntity?> DeleteById(uint id)

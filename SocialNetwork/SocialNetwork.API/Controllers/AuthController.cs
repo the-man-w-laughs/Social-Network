@@ -103,7 +103,6 @@ public sealed class AuthController : ControllerBase
         // если пароль неверный возвращаем ошибку авторизации
         // иначе ok с dto
         // выставляем куки либо header auth
-;
         var isUserAuthenticated =
             await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         
