@@ -9,8 +9,15 @@ public class CommunityMediaOwnerRepository : Repository<CommunityMediaOwner>, IC
 {
     public CommunityMediaOwnerRepository(SocialNetworkContext socialNetworkContext) : base(socialNetworkContext) { }
 
-    public Task<List<CommunityMediaOwner>> GetCommunityMediaOwnerList(uint communityId)
+    public async Task<CommunityMediaOwner> AddCommunityMediaOwner(uint communityId, uint mediaId)
     {
-        throw new NotImplementedException();
+        var newUserMediaOwner = new CommunityMediaOwner() { CommunityId = communityId, MediaId = mediaId };
+        await AddAsync(newUserMediaOwner);
+        await SaveAsync();
+        return newUserMediaOwner;
+    }
+    public async Task<List<CommunityMediaOwner>> GetCommunityMediaOwnerList(uint communityId)
+    {
+        return await GetAllAsync((userMediaOwner) => userMediaOwner.CommunityId == communityId);
     }
 }
