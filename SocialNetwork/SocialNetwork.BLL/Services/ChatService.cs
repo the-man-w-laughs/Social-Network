@@ -163,7 +163,7 @@ public class ChatService : IChatService
         if (chatPatchRequestDto.Name != null)
         {
             if (chatPatchRequestDto.Name.Length == 0)
-                throw new Exception($"Chat name should have at east one character.");
+                throw new Exception($"Chat name should have at least one character.");
             else
             {
                 if (chat.Name != chatPatchRequestDto.Name)

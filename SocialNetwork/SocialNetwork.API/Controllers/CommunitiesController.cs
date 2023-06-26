@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using AutoMapper;
+using DocumentFormat.OpenXml.Office2010.ExcelAc;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -306,14 +307,14 @@ public class CommunitiesController : ControllerBase
     [Route("{communityId}/medias")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-    public virtual ActionResult<List<MediaResponseDto>> PostcommunityscommunityIdMedias([FromRoute][Required] uint communityId, [Required] List<IFormFile> files)
+    public virtual ActionResult<List<MediaResponseDto>> PostCommunitiesCommunityIdMedias([FromRoute][Required] uint communityId, [Required] List<IFormFile> files)
     {
         if (files == null)
         {
             return BadRequest();
         }
         
-        string directoryPath = Path.Combine(_webHostEnvironment.ContentRootPath, "UploadedFiles");
+        var directoryPath = Path.Combine(_webHostEnvironment.ContentRootPath, "UploadedFiles");
         if (!Directory.Exists(directoryPath))
         {
             Directory.CreateDirectory(directoryPath);
@@ -343,12 +344,108 @@ public class CommunitiesController : ControllerBase
     [HttpGet]
     [Route("{communityId}/medias")]
     [ProducesResponseType(typeof(List<MediaResponseDto>), StatusCodes.Status200OK)]
-    public async virtual Task<ActionResult<List<MediaResponseDto>>> GetcommunityscommunityIdMedias(
+    public virtual async Task<ActionResult<List<MediaResponseDto>>> GetcommunityscommunityIdMedias(
         [FromRoute, Required] uint communityId,
         [FromQuery, Required] int limit,
         [FromQuery] int currCursor)
     {
         var result = await _mediaService.GetCommunityMediaList(communityId, limit, currCursor);
         return Ok(result);
+    }
+
+    [HttpGet]
+    [Route("{communityId}")]
+    [Authorize(Roles = "Admin, User")]
+    public virtual async Task<ActionResult<CommunityResponseDto>> GetCommunity(
+        [FromRoute, Required] uint communityId)
+    {
+        var community = await _communityService.GetCommunityById(communityId);
+
+        var isCommunityExist = community != null;
+
+        if (!isCommunityExist)
+        {
+            return BadRequest("Community doesn't exist");
+        }
+
+        return Ok(_mapper.Map<CommunityResponseDto>(community));
+    }
+
+    [HttpGet]
+    [Route("{communityId}/members")]
+    [Authorize(Roles = "Admin, User")]
+    public virtual async Task<ActionResult<List<CommunityMemberResponseDto>>> GetCommunityMembers(
+        [FromRoute, Required] uint communityId,
+        [FromQuery, Required] int limit,
+        [FromQuery] int currCursor,
+        [FromQuery, Required] uint communityMemberTypeId)
+    {
+        var community = await _communityService.GetCommunityById(communityId);
+
+        var isCommunityExist = community != null;
+
+        if (!isCommunityExist)
+        {
+            return BadRequest("Community doesn't exist");
+        }
+
+        var isUserAuthenticated =
+            await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+        var userId = uint.Parse(isUserAuthenticated.Principal!.Claims
+            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultNameClaimType)?.Value!);
+
+        if (community!.IsPrivate)
+        {
+            var isUserCommunityMember = await _communityService.IsUserCommunityMember(communityId, userId);
+            if (!isUserCommunityMember)
+            {
+                return Forbid("Community is private, you aren't community member");
+            }
+        }
+
+        var communityMembers = await _communityService.GetCommunityMember(communityId, communityMemberTypeId);
+
+        return Ok(communityMembers.Select(cm => _mapper.Map<CommunityMemberResponseDto>(cm)));
+
+    }
+
+    [HttpPost]
+    [Route("{communityId}/members/{userId}")]
+    [Authorize(Roles = "Admin, User")]
+    public virtual async Task<ActionResult<CommunityMemberResponseDto>> GetCommunityMembers(
+        [FromRoute,Required] uint userId,
+        [FromRoute, Required] uint communityId)
+    {
+        var community = await _communityService.GetCommunityById(communityId);
+
+        var isCommunityExist = community != null;
+
+        if (!isCommunityExist)
+        {
+            return BadRequest("Community doesn't exist");
+        }
+        
+        var isUserAuthenticated =
+            await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        
+        var isUserCommunityMember = await _communityService.IsUserCommunityMember(communityId, userId);
+
+        if (isUserCommunityMember)
+        {
+            return Conflict("User is already community member");
+        }
+
+        var newCommunityMember = new CommunityMember
+        {
+            CreatedAt = DateTime.Now,
+            UserId = userId,
+            CommunityId = communityId,
+            TypeId = CommunityMemberType.Member
+        };
+
+        var addedMember = await _communityService.AddCommunityMember(newCommunityMember);
+
+        return Ok(_mapper.Map<CommunityMemberResponseDto>(addedMember));
     }
 }

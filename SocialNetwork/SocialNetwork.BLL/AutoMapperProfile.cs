@@ -36,6 +36,7 @@ public class AutoMapperProfile : Profile
 
         // Communities
         CreateMap<CommunityRequestDto, Community>();
+        CreateMap<CommunityMember, CommunityMemberResponseDto>();
 
         CreateMap<CommunityPost, CommunityPostResponseDto>();
         CreateMap<Community, CommunityResponseDto>();

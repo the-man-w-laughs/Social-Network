@@ -493,4 +493,17 @@ await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationS
         return Ok(_mapper.Map<UserProfileResponseDto>(deletedFollower.Source.UserProfile));
     }
 
+    [HttpGet]
+    [Authorize(Roles = "Admin, User")]
+    [Route("{userId}/followers")]
+    public virtual async Task<ActionResult<List<UserResponseDto>>> GetUserFollowers(
+        [FromRoute, Required] uint userId,
+        [FromQuery, Required] int limit,
+        [FromQuery] int currCursor)
+    {
+        var userFollowers = await _userService.GetUserFollowers(userId, limit, currCursor);
+
+        return Ok(userFollowers.Select(followers => _mapper.Map<UserResponseDto>(followers)));
+    }
+
 }

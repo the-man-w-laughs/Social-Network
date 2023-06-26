@@ -254,4 +254,14 @@ public class UserService : IUserService
         _userFriendRepository.Delete(friendship!);
         await _userFriendRepository.SaveAsync();
     }
+
+    public async Task<List<User>> GetUserFollowers(uint userId, int limit, int currCursor)
+    {
+        var user = await _userRepository.GetByIdAsync(userId);
+        return user!.UserFollowerTargets.Select(uf => uf.Source)
+            .OrderBy(uf => uf.Id)
+            .Skip(currCursor)
+            .Take(limit)
+            .ToList();
+    }
 }

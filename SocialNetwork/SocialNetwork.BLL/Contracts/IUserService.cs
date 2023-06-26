@@ -25,4 +25,5 @@ public interface IUserService
     Task<UserFriend> AddFriend(uint userId, uint friendId);
     Task<UserFollower> Follow(uint sourceId, uint targetId);
     Task DeleteFriendship(uint userId, uint id);
+    Task<List<User>> GetUserFollowers(uint userId, int limit, int currCursor);
 }

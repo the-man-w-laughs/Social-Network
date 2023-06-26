@@ -47,8 +47,8 @@ public class MediasController : ControllerBase
 
         if (localMedia != null && System.IO.File.Exists(localMedia.FilePath))
         {
-            byte[] fileBytes = System.IO.File.ReadAllBytes(localMedia.FilePath);
-            string contentType = _fileService.GetFileType(localMedia.FileName);
+            var fileBytes = await System.IO.File.ReadAllBytesAsync(localMedia.FilePath);
+            var contentType = _fileService.GetFileType(localMedia.FileName);
 
             var fileContentResult = new FileContentResult(fileBytes, contentType)
             {
@@ -77,7 +77,7 @@ public class MediasController : ControllerBase
     [ProducesResponseType(typeof(MediaResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
-    public async virtual Task<ActionResult<MediaResponseDto>> DeleteMediasMediaId([FromRoute][Required] uint mediaId)
+    public virtual async Task<ActionResult<MediaResponseDto>> DeleteMediasMediaId([FromRoute][Required] uint mediaId)
     {
         var localMedia = await _mediaService.GetLocalMedia(mediaId);
         var media = _mediaService.GetMedia(mediaId);
@@ -154,7 +154,7 @@ public class MediasController : ControllerBase
     [Route("{mediaId}/likes")]
     [ProducesResponseType(typeof(List<MediaLikeResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-    public async virtual Task<ActionResult<List<MediaLikeResponseDto>>> GetMediasMediaId([FromRoute][Required] uint mediaId, [FromQuery][Required] int limit, [FromQuery] int currCursor)
+    public virtual async Task<ActionResult<List<MediaLikeResponseDto>>> GetMediasMediaId([FromRoute][Required] uint mediaId, [FromQuery][Required] int limit, [FromQuery] int currCursor)
     {
         var media = await _mediaService.GetMedia(mediaId);
         if (media == null)
@@ -178,7 +178,7 @@ public class MediasController : ControllerBase
     [Route("{mediaId}/likes")]
     [ProducesResponseType(typeof(MediaLikeResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-    public async virtual Task<ActionResult<MediaLikeResponseDto>> DeleteMediasMediaIdLikes([FromRoute][Required] uint mediaId)
+    public virtual async Task<ActionResult<MediaLikeResponseDto>> DeleteMediasMediaIdLikes([FromRoute][Required] uint mediaId)
     {
         var media = await _mediaService.GetMedia(mediaId);
         if (media == null)
