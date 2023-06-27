@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using SocialNetwork.BLL.Contracts;
 using SocialNetwork.BLL.DTO.Medias.Response;
 using SocialNetwork.DAL.Entities.Users;
+using SocialNetwork.BLL.Exceptions;
 
 namespace SocialNetwork.API.Controllers;
 
@@ -43,23 +44,30 @@ public class MediasController : ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     public async Task<ActionResult> GetMediasMediaId([FromRoute][Required] uint mediaId)
     {
-        var localMedia = await _mediaService.GetLocalMedia(mediaId);
-
-        if (localMedia != null && System.IO.File.Exists(localMedia.FilePath))
+        try
         {
-            var fileBytes = await System.IO.File.ReadAllBytesAsync(localMedia.FilePath);
-            var contentType = _fileService.GetFileType(localMedia.FileName);
+            var localMedia = await _mediaService.GetLocalMedia(mediaId);
 
-            var fileContentResult = new FileContentResult(fileBytes, contentType)
+            if (System.IO.File.Exists(localMedia.FilePath))
             {
-                FileDownloadName = localMedia.FileName
-            };
+                byte[] fileBytes = System.IO.File.ReadAllBytes(localMedia.FilePath);
+                string contentType = _fileService.GetFileType(localMedia.FileName);
 
-            return fileContentResult;
+                var fileContentResult = new FileContentResult(fileBytes, contentType)
+                {
+                    FileDownloadName = localMedia.FileName
+                };
+
+                return fileContentResult;
+            }
+            else
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError);
+            }
         }
-        else
+        catch (NotFoundException ex)
         {
-            return NotFound("No media with this id.");
+            return NotFound(ex.Message);
         }
     }
 
@@ -72,30 +80,37 @@ public class MediasController : ControllerBase
     /// <response code="404">If the media is not found.</response>
     /// <response code="500">If an error occurs during the deletion process.</response>
     [HttpDelete]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "User")]
     [Route("{mediaId}")]
     [ProducesResponseType(typeof(MediaResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
-    public virtual async Task<ActionResult<MediaResponseDto>> DeleteMediasMediaId([FromRoute][Required] uint mediaId)
-    {
-        var localMedia = await _mediaService.GetLocalMedia(mediaId);
-        var media = _mediaService.GetMedia(mediaId);
+    public async virtual Task<ActionResult<MediaResponseDto>> DeleteMediasMediaId([FromRoute][Required] uint mediaId)
+    {        
+        var userId = (uint)HttpContext.Items["UserId"]!;
 
         try
         {
-            if (localMedia!= null && System.IO.File.Exists(localMedia.FilePath))
+            var deletedMedia = await _mediaService.DeleteMedia(userId, mediaId);
+            if (System.IO.File.Exists(deletedMedia.FilePath))
             {
-                System.IO.File.Delete(localMedia.FilePath);
-                await _mediaService.DeleteMedia(mediaId);
-                return Ok(media);
+                System.IO.File.Delete(deletedMedia.FilePath);
+                return Ok(_mapper.Map<MediaLikeResponseDto>(deletedMedia));
             }
             else
             {
                 return NotFound("No media with this id.");
             }
         }
-        catch (Exception ex)
+        catch (OwnershipException ex)
+        {
+            return Forbid(ex.Message);
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (Exception)
         {
             return StatusCode((int)HttpStatusCode.InternalServerError);
         }
@@ -116,26 +131,20 @@ public class MediasController : ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
     public virtual async Task<ActionResult<MediaLikeResponseDto>> PostMediasMediaIdLikes([FromRoute][Required] uint mediaId)
-    {
-        var media = await _mediaService.GetMedia(mediaId);
-        if (media == null)
+    {        
+        var userId = (uint)HttpContext.Items["UserId"]!;
+        try
         {
-            return NotFound("Media does not exist.");
+            await _mediaService.GetLocalMedia(mediaId);            
+            return Ok(await _mediaService.LikeMedia(userId, mediaId));
         }
-
-        var isUserAuthenticated = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
-        var claimUserId = uint.Parse(isUserAuthenticated.Principal!.Claims
-            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultNameClaimType)?.Value!);
-
-        if (!await _mediaService.IsUserLiked(claimUserId, mediaId))
+        catch (NotFoundException ex)
         {
-            var mediaLike = await _mediaService.LikeMedia(claimUserId, mediaId);
-            return Ok(mediaLike);
-        }
-        else
+            return NotFound(ex.Message);
+        }           
+        catch (DuplicateEntryException ex)
         {
-            return Conflict("User has already liked this media.");
+            return Conflict(ex.Message);
         }
     }
 
@@ -150,20 +159,21 @@ public class MediasController : ControllerBase
     /// <response code="200">Returns the list of media likes.</response>
     /// <response code="404">If the media is not found.</response>
     [HttpGet]
-    [Authorize(Roles = "Admin, User")]
+    [Authorize(Roles = "User")]
     [Route("{mediaId}/likes")]
     [ProducesResponseType(typeof(List<MediaLikeResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     public virtual async Task<ActionResult<List<MediaLikeResponseDto>>> GetMediasMediaId([FromRoute][Required] uint mediaId, [FromQuery][Required] int limit, [FromQuery] int currCursor)
     {
-        var media = await _mediaService.GetMedia(mediaId);
-        if (media == null)
+        try
         {
-            return NotFound("Media does not exist.");
+            await _mediaService.GetLocalMedia(mediaId);
+            return Ok(await _mediaService.GetMediaLikes(mediaId, limit, currCursor));
         }
-
-        var mediaLikes = await _mediaService.GetMediaLikes(mediaId, limit, currCursor);
-        return Ok(mediaLikes);
+        catch (NotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
     }
 
     /// <summary>
@@ -178,26 +188,19 @@ public class MediasController : ControllerBase
     [Route("{mediaId}/likes")]
     [ProducesResponseType(typeof(MediaLikeResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-    public virtual async Task<ActionResult<MediaLikeResponseDto>> DeleteMediasMediaIdLikes([FromRoute][Required] uint mediaId)
-    {
-        var media = await _mediaService.GetMedia(mediaId);
-        if (media == null)
-        {
-            return NotFound("Media does not exist.");
-        }
 
-        var isUserAuthenticated = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        var claimUserId = uint.Parse(isUserAuthenticated.Principal!.Claims
-            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultNameClaimType)?.Value!);
+    public async virtual Task<ActionResult<MediaLikeResponseDto>> DeleteMediasMediaIdLikes([FromRoute][Required] uint mediaId)
+    {        
+        var userId = (uint)HttpContext.Items["UserId"]!;        
 
-        if (await _mediaService.IsUserLiked(claimUserId, mediaId))
+        try
         {
-            var mediaLike = await _mediaService.UnLikeMedia(claimUserId, mediaId);
-            return Ok(mediaLike);
+            await _mediaService.GetLocalMedia(mediaId);
+            return Ok(await _mediaService.UnLikeMedia(userId, mediaId));
         }
-        else
+        catch (NotFoundException ex)
         {
-            return NotFound("User has not liked this media.");
+            return NotFound(ex.Message);
         }
     }
 

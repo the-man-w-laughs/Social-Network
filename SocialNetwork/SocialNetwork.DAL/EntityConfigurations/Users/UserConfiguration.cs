@@ -12,8 +12,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         
         builder.HasKey(user => user.Id).HasName("PRIMARY");
         
-        builder.Property(user  => user.Id).HasColumnName("id").IsRequired()
-            .IsRequired()
+        builder.Property(user  => user.Id).HasColumnName("id").IsRequired()            
             .ValueGeneratedOnAdd();
         builder.Property(user  => user.Login).HasColumnName("login").IsRequired()
             .HasMaxLength(Constants.UserLoginMaxLength);

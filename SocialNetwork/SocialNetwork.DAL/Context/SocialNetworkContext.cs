@@ -7,6 +7,7 @@ using SocialNetwork.DAL.Entities.Medias;
 using SocialNetwork.DAL.Entities.Messages;
 using SocialNetwork.DAL.Entities.Posts;
 using SocialNetwork.DAL.Entities.Users;
+using System.Reflection.Emit;
 
 namespace SocialNetwork.DAL.Context;
 
@@ -41,14 +42,15 @@ public class SocialNetworkContext : DbContext
     public SocialNetworkContext(DbContextOptions options) : base(options)
     {
         //Database.EnsureDeleted();
-        Database.EnsureCreated();
+        Database.EnsureCreated();        
     }   
+    
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.UseCollation("utf8mb3_general_ci");
         MySqlModelBuilder.HasCharSet(modelBuilder, "utf8mb3");
 
-        modelBuilder.ApplyConfigurationsFromAssembly(System.Reflection.Assembly.GetExecutingAssembly());
+        modelBuilder.ApplyConfigurationsFromAssembly(System.Reflection.Assembly.GetExecutingAssembly());        
     }
 }

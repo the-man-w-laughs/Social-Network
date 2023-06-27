@@ -62,9 +62,6 @@ public class AutoMapperProfile : Profile
         CreateMap<User, UserResponseDto>();
 
         // Medias
-
-        CreateMap<CommunityMediaOwner, CommunityMediaOwnerResponseDto>();
-        CreateMap<UserMediaOwner, UserMediaOwnerResponseDto>();
         CreateMap<MediaLike, MediaLikeResponseDto>();
         CreateMap<Media, MediaResponseDto>();        
     }

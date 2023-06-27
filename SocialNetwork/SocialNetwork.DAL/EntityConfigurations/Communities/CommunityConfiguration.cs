@@ -15,6 +15,7 @@ public class CommunityConfiguration : IEntityTypeConfiguration<Community>
 
         builder.Property(e => e.Id).HasColumnName("id").IsRequired()
             .ValueGeneratedOnAdd();
+
         builder.Property(e => e.Name).HasColumnName("name").IsRequired()
             .HasMaxLength(Constants.CommunityNameMaxLength);
         builder.Property(e => e.Description).HasColumnName("description")

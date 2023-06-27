@@ -47,6 +47,11 @@ public sealed class AuthController : ControllerBase
         // далее нужно проверить еслть ли пользователь с таким логином если есть возвращаем Conflict
         // иначе генерируем соль, формируем хэш пароля записываем все в бд возвращаем ok с dto
 
+        var isUserAuthenticated =
+            await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+        if (isUserAuthenticated.Succeeded) return Conflict("User is already authenticated");
+
         if (!_authService.IsLoginValid(userSignUpRequestDto.Login)) return BadRequest("Invalid Login");
         if (!_authService.IsPasswordValid(userSignUpRequestDto.Password)) return BadRequest("Invalid Password");
 
@@ -122,8 +127,13 @@ public sealed class AuthController : ControllerBase
         var claims = new List<Claim>
         {
             new(ClaimsIdentity.DefaultNameClaimType, user.Id.ToString()),
-            new(ClaimsIdentity.DefaultRoleClaimType, UserType.User.ToString())
+            new(ClaimsIdentity.DefaultRoleClaimType, UserType.User.ToString()),
         };
+
+        if (user.TypeId == UserType.Admin)
+        {
+            claims.Add(new(ClaimsIdentity.DefaultRoleClaimType, UserType.Admin.ToString()));
+        }        
         var claimsIdentity = new ClaimsIdentity(claims, "Cookies");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
         
@@ -136,9 +146,9 @@ public sealed class AuthController : ControllerBase
     /// Logout.
     /// </summary>
     /// <remarks>Logs out the current user.</remarks>    
-    /// <response code="200">Returns a string message indicating successful logout.</response>
+    /// <response code="200">Returns a string message indicating successful logout.</response>S
     [HttpPost]
-    [Authorize(Roles = "Admin, User")]
+    [Authorize(Roles = "User")]
     [Route("logout")]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     public async Task<ActionResult<string>> Logout()

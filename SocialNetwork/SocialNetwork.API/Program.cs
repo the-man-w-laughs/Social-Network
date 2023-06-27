@@ -3,6 +3,7 @@ using SocialNetwork.DAL;
 using SocialNetwork.BLL;
 using SocialNetwork.DAL.Context;
 using System.Reflection;
+using SocialNetwork.API.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,6 +43,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<AuthenticationMiddleware>();
 
 app.MapControllers();
 

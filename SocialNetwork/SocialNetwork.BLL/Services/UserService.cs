@@ -63,6 +63,17 @@ public class UserService : IUserService
             .Take(limit)
             .ToList();
     }
+    public async Task<List<Community>> GetUserManagedCommunities(uint userId, int limit, int nextCursor)
+    {
+        var user = await _userRepository.GetByIdAsync(userId);
+        return user!.CommunityMembers
+            .Where(c => c.TypeId == CommunityMemberType.Admin || c.TypeId == CommunityMemberType.Owner)
+            .OrderBy(c => c.Community.Id)
+            .Skip(nextCursor)
+            .Take(limit)
+            .Select(c => c.Community)
+            .ToList();
+    }
 
     public async Task<List<User>> GetUserFriends(uint userId, int limit, int nextCursor)
     {
