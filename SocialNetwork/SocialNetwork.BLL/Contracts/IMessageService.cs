@@ -1,15 +1,15 @@
-using SocialNetwork.DAL.Entities.Messages;
+using SocialNetwork.BLL.DTO.Messages.Request;
+using SocialNetwork.BLL.DTO.Messages.Response;
 
 namespace SocialNetwork.BLL.Contracts;
 
 public interface IMessageService
 {
-    Task<Message> AddMessage(Message message);
-    Task<Message?> GetMessage(uint messageId);
-    Task<bool> IsUserCanDeleteMessage(Message message, uint userId);
-    Task DeleteMessage(uint messageId);
-    Task AddMessageLike(MessageLike messageLike);
-    Task<bool> IsChatMemberAlreadyLikeMessage(uint messageId, uint chatMemberId);
-    Task<List<MessageLike>> GetAllMessageLikesPaginated(uint messageId, int limit, int currCursor);
-    Task<MessageLike?> DeleteMessageLike(uint messageId, uint chatMemberId);
+    Task<MessageResponseDto> GetMessage(uint messageId);
+    Task<MessageResponseDto> ReplyMessage(uint userId, uint messageId, MessageRequestDto messageRequestDto);
+    Task<MessageResponseDto> DeleteMessage(uint userId, uint messageId);
+    Task<List<MessageLikeResponseDto>> GetAllMessageLikesPaginated(uint messageId, int limit, int currCursor);
+    Task<MessageLikeResponseDto> LikeMessage(uint userId, uint messageId);
+    Task<MessageLikeResponseDto> UnlikeMessage(uint userId, uint messageId);
+    Task<MessageResponseDto> ChangeMessage(uint userId, uint messageId, MessagePatchRequestDto messagePatchRequestDto);
 }
