@@ -13,13 +13,13 @@ using SocialNetwork.BLL.Exceptions;
 namespace SocialNetwork.API.Controllers;
 
 [ApiController]
-[Route("[controller]")]    
+[Route("[controller]")]
 public class CommunitiesController : ControllerBase
 {
-    private readonly ICommunityService _communityService;    
+    private readonly ICommunityService _communityService;
 
     public CommunitiesController(ICommunityService communityService)
-    {        
+    {
         _communityService = communityService;
     }
 
@@ -34,19 +34,14 @@ public class CommunitiesController : ControllerBase
     [HttpPost]
     [Authorize(Roles = "User")]
     [ProducesResponseType(typeof(CommunityResponseDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]    
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     public virtual async Task<ActionResult<CommunityResponseDto>> PostCommunities(
         [FromBody, Required] CommunityRequestDto communityRequestDto)
     {
         var userId = (uint)HttpContext.Items["UserId"]!;
-        try {
-            var addedCommunity = await _communityService.AddCommunity(communityRequestDto);
-            await _communityService.AddCommunityOwner(addedCommunity.Id, userId);
-            return Ok(addedCommunity);
-        }
-        catch (ArgumentException ex){
-            return BadRequest(ex.Message);
-        }                          
+        var addedCommunity = await _communityService.AddCommunity(communityRequestDto);
+        await _communityService.AddCommunityOwner(addedCommunity.Id, userId);
+        return Ok(addedCommunity);
     }
 
     /// <summary>
@@ -65,22 +60,11 @@ public class CommunitiesController : ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     public virtual async Task<ActionResult<CommunityResponseDto>> GetCommunitiesCommunityId(
-    [FromRoute, Required] uint communityId)
+        [FromRoute, Required] uint communityId)
     {
-        try
-        {
-            var userId = (uint)HttpContext.Items["UserId"]!;
-            var community = await _communityService.GetCommunity(userId, communityId);
-            return Ok(community);
-        }
-        catch (NotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (OwnershipException ex)
-        {
-            return Forbid(ex.Message);
-        }
+        var userId = (uint)HttpContext.Items["UserId"]!;
+        var community = await _communityService.GetCommunity(userId, communityId);
+        return Ok(community);
     }
 
     /// <summary>
@@ -98,7 +82,6 @@ public class CommunitiesController : ControllerBase
         [FromQuery] int currCursor)
     {
         var communities = await _communityService.GetCommunities(limit, currCursor);
-
         return Ok(communities);
     }
 
@@ -119,28 +102,14 @@ public class CommunitiesController : ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-    public async virtual Task<ActionResult<CommunityResponseDto>> PatchCommunitiesCommunityId(
+    public virtual async Task<ActionResult<CommunityResponseDto>> PatchCommunitiesCommunityId(
         [FromRoute, Required] uint communityId,
         [FromBody, Required] CommunityPatchRequestDto communityPatchRequestDto)
     {
         var userId = (uint)HttpContext.Items["UserId"]!;
-        try
-        {
-            var updatedCommunity = await _communityService.ChangeCommunity(userId, communityId, communityPatchRequestDto);
-            return Ok(updatedCommunity);
-        }
-        catch (NotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (OwnershipException ex)
-        {
-            return Forbid(ex.Message);
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        var updatedCommunity =
+            await _communityService.ChangeCommunity(userId, communityId, communityPatchRequestDto);
+        return Ok(updatedCommunity);
     }
 
     /// <summary>
@@ -154,30 +123,15 @@ public class CommunitiesController : ControllerBase
     [HttpDelete]
     [Authorize(Roles = "User")]
     [Route("{communityId}")]
-    [ProducesResponseType(typeof(CommunityResponseDto), StatusCodes.Status200OK)]    
+    [ProducesResponseType(typeof(CommunityResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-    public virtual async Task<ActionResult<CommunityResponseDto>> DeleteCommunitiesCommunityId([FromRoute, Required] uint communityId)
+    public virtual async Task<ActionResult<CommunityResponseDto>> DeleteCommunitiesCommunityId(
+        [FromRoute, Required] uint communityId)
     {
         var userId = (uint)HttpContext.Items["UserId"]!;
-        try
-        {
-            var deletedCommunity = await _communityService.DeleteCommunity(userId, communityId);
-
-            return Ok(deletedCommunity);
-        }
-        catch (NotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (OwnershipException ex)
-        {
-            return Forbid(ex.Message);
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }        
+        var deletedCommunity = await _communityService.DeleteCommunity(userId, communityId);
+        return Ok(deletedCommunity);
     }
 
     /// <summary>
@@ -202,24 +156,8 @@ public class CommunitiesController : ControllerBase
         [FromBody, Required] PostRequestDto postRequestDto)
     {
         var userId = (uint)HttpContext.Items["UserId"]!;
-        try
-        {
-            var addedPost = await _communityService.AddCommunityPost(userId, communityId, postRequestDto);
-
-            return Ok(addedPost);
-        }
-        catch (NotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (OwnershipException ex)
-        {
-            return Forbid(ex.Message);
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        var addedPost = await _communityService.AddCommunityPost(userId, communityId, postRequestDto);
+        return Ok(addedPost);
     }
 
     /// <summary>
@@ -243,20 +181,9 @@ public class CommunitiesController : ControllerBase
         [FromQuery] int currCursor)
     {
         var userId = (uint)HttpContext.Items["UserId"]!;
-        try
-        {
-            var communityPosts = await _communityService.GetCommunityPosts(userId,communityId, limit, currCursor);
-
-            return Ok(communityPosts);
-        }
-        catch (NotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (OwnershipException ex)
-        {
-            return Forbid(ex.Message);
-        }        
+        var communityPosts = await _communityService
+            .GetCommunityPosts(userId, communityId, limit, currCursor);
+        return Ok(communityPosts);
     }
 
     /// <summary>
@@ -273,20 +200,9 @@ public class CommunitiesController : ControllerBase
         [FromQuery] uint? communityMemberTypeId)
     {
         var userId = (uint)HttpContext.Items["UserId"]!;
-        try
-        {
-            var communityPosts = await _communityService.GetCommunityMembers(userId, communityId, communityMemberTypeId, limit, currCursor);
-
-            return Ok(communityPosts);
-        }
-        catch (NotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (OwnershipException ex)
-        {
-            return Forbid(ex.Message);
-        }
+        var communityPosts = await _communityService
+            .GetCommunityMembers(userId, communityId, communityMemberTypeId, limit, currCursor);
+        return Ok(communityPosts);
     }
 
     /// <summary>
@@ -297,28 +213,12 @@ public class CommunitiesController : ControllerBase
     [Route("{communityId}/members/{userIdToAdd}")]
     [Authorize(Roles = "User")]
     public virtual async Task<ActionResult<CommunityMemberResponseDto>> PostCommunitiesCommunityIdMembersMemberId(
-        [FromRoute,Required] uint userIdToAdd,
+        [FromRoute, Required] uint userIdToAdd,
         [FromRoute, Required] uint communityId)
     {
         var userId = (uint)HttpContext.Items["UserId"]!;
-        try
-        {
-            var addedMember = await _communityService.AddCommunityMember(userId, communityId, userIdToAdd);
-
-            return Ok(addedMember);
-        }
-        catch (NotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (OwnershipException ex)
-        {
-            return Forbid(ex.Message);
-        }
-        catch (DuplicateEntryException ex)
-        {
-            return Conflict(ex.Message);
-        }
+        var addedMember = await _communityService.AddCommunityMember(userId, communityId, userIdToAdd);
+        return Ok(addedMember);
     }
 
     /// <summary>
@@ -329,29 +229,14 @@ public class CommunitiesController : ControllerBase
     [Route("{communityId}/members/{userIdToChange}")]
     [Authorize(Roles = "User")]
     public virtual async Task<ActionResult<CommunityMemberResponseDto>> PutCommunitiesCommunityIdMembersMemberId(
-    [FromRoute, Required] uint userIdToChange,
-    [FromRoute, Required] uint communityId,
-    [FromBody, Required] CommunityMemberRequestDto communityMemberRequestDto)
+        [FromRoute, Required] uint userIdToAdd,
+        [FromRoute, Required] uint communityId,
+        [FromBody, Required] CommunityMemberRequestDto communityMemberRequestDto)
     {
         var userId = (uint)HttpContext.Items["UserId"]!;
-        try
-        {
-            var deletedMember = await _communityService.ChangeCommunityMember(userId, communityId, userIdToChange, communityMemberRequestDto);
-
-            return Ok(deletedMember);
-        }
-        catch (NotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (OwnershipException ex)
-        {
-            return Forbid(ex.Message);
-        }
-        catch (DuplicateEntryException ex)
-        {
-            return Conflict(ex.Message);
-        }
+        var deletedMember = await _communityService
+            .ChangeCommunityMember(userId, communityId, userIdToAdd, communityMemberRequestDto);
+        return Ok(deletedMember);
     }
 
     /// <summary>
@@ -362,27 +247,11 @@ public class CommunitiesController : ControllerBase
     [Route("{communityId}/members/{userIdToDelete}")]
     [Authorize(Roles = "User")]
     public virtual async Task<ActionResult<CommunityMemberResponseDto>> DeleteCommunityMembers(
-    [FromRoute, Required] uint userIdToDelete,
-    [FromRoute, Required] uint communityId)
+        [FromRoute, Required] uint userIdToAdd,
+        [FromRoute, Required] uint communityId)
     {
         var userId = (uint)HttpContext.Items["UserId"]!;
-        try
-        {
-            var deletedMember = await _communityService.DeleteCommunityMember(userId, communityId, userIdToDelete);
-
-            return Ok(deletedMember);
-        }
-        catch (NotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (OwnershipException ex)
-        {
-            return Forbid(ex.Message);
-        }
-        catch (DuplicateEntryException ex)
-        {
-            return Conflict(ex.Message);
-        }
+        var deletedMember = await _communityService.DeleteCommunityMember(userId, communityId, userIdToAdd);
+        return Ok(deletedMember);
     }
 }

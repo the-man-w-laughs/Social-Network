@@ -1,15 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Data;
 using System.Net;
-using System.Security.Claims;
 using AutoMapper;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialNetwork.BLL.Contracts;
 using SocialNetwork.BLL.DTO.Medias.Response;
-using SocialNetwork.DAL.Entities.Users;
 using SocialNetwork.BLL.Exceptions;
 
 namespace SocialNetwork.API.Controllers;
@@ -23,7 +18,8 @@ public class MediasController : ControllerBase
     private readonly IMediaService _mediaService;
     private readonly IFileService _fileService;
 
-    public MediasController(IMapper mapper, IMediaService mediaService, IFileService fileService, IWebHostEnvironment webHostEnvironment)
+    public MediasController(IMapper mapper, IMediaService mediaService, IFileService fileService,
+        IWebHostEnvironment webHostEnvironment)
     {
         _mapper = mapper;
         _webHostEnvironment = webHostEnvironment;
@@ -42,33 +38,24 @@ public class MediasController : ControllerBase
     [Route("{mediaId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> GetMediasMediaId([FromRoute][Required] uint mediaId)
+    public async Task<ActionResult> GetMediasMediaId([FromRoute] [Required] uint mediaId)
     {
-        try
+        var localMedia = await _mediaService.GetLocalMedia(mediaId);
+
+        if (System.IO.File.Exists(localMedia.FilePath))
         {
-            var localMedia = await _mediaService.GetLocalMedia(mediaId);
+            var fileBytes = System.IO.File.ReadAllBytes(localMedia.FilePath);
+            var contentType = _fileService.GetFileType(localMedia.FileName);
 
-            if (System.IO.File.Exists(localMedia.FilePath))
+            var fileContentResult = new FileContentResult(fileBytes, contentType)
             {
-                byte[] fileBytes = System.IO.File.ReadAllBytes(localMedia.FilePath);
-                string contentType = _fileService.GetFileType(localMedia.FileName);
+                FileDownloadName = localMedia.FileName
+            };
 
-                var fileContentResult = new FileContentResult(fileBytes, contentType)
-                {
-                    FileDownloadName = localMedia.FileName
-                };
+            return fileContentResult;
+        }
 
-                return fileContentResult;
-            }
-            else
-            {
-                return StatusCode((int)HttpStatusCode.InternalServerError);
-            }
-        }
-        catch (NotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
+        throw new Exception("Not file in local storage.");
     }
 
     /// <summary>
@@ -85,35 +72,17 @@ public class MediasController : ControllerBase
     [ProducesResponseType(typeof(MediaResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
-    public async virtual Task<ActionResult<MediaResponseDto>> DeleteMediasMediaId([FromRoute][Required] uint mediaId)
-    {        
+    public virtual async Task<ActionResult<MediaResponseDto>> DeleteMediasMediaId([FromRoute] [Required] uint mediaId)
+    {
         var userId = (uint)HttpContext.Items["UserId"]!;
+        var deletedMedia = await _mediaService.DeleteMedia(userId, mediaId);
+        if (System.IO.File.Exists(deletedMedia.FilePath))
+        {
+            System.IO.File.Delete(deletedMedia.FilePath);
+            return Ok(_mapper.Map<MediaResponseDto>(deletedMedia));
+        }
 
-        try
-        {
-            var deletedMedia = await _mediaService.DeleteMedia(userId, mediaId);
-            if (System.IO.File.Exists(deletedMedia.FilePath))
-            {
-                System.IO.File.Delete(deletedMedia.FilePath);
-                return Ok(_mapper.Map<MediaResponseDto>(deletedMedia));
-            }
-            else
-            {
-                return NotFound("No media with this id.");
-            }
-        }
-        catch (OwnershipException ex)
-        {
-            return Forbid(ex.Message);
-        }
-        catch (NotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (Exception)
-        {
-            return StatusCode((int)HttpStatusCode.InternalServerError);
-        }
+        return NotFound("No media with this id.");
     }
 
     /// <summary>
@@ -130,22 +99,12 @@ public class MediasController : ControllerBase
     [ProducesResponseType(typeof(MediaLikeResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
-    public virtual async Task<ActionResult<MediaLikeResponseDto>> PostMediasMediaIdLikes([FromRoute][Required] uint mediaId)
-    {        
+    public virtual async Task<ActionResult<MediaLikeResponseDto>> PostMediasMediaIdLikes(
+        [FromRoute] [Required] uint mediaId)
+    {
         var userId = (uint)HttpContext.Items["UserId"]!;
-        try
-        {
-            await _mediaService.GetLocalMedia(mediaId);            
-            return Ok(await _mediaService.LikeMedia(userId, mediaId));
-        }
-        catch (NotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }           
-        catch (DuplicateEntryException ex)
-        {
-            return Conflict(ex.Message);
-        }
+        await _mediaService.GetLocalMedia(mediaId);
+        return Ok(await _mediaService.LikeMedia(userId, mediaId));
     }
 
 
@@ -163,17 +122,11 @@ public class MediasController : ControllerBase
     [Route("{mediaId}/likes")]
     [ProducesResponseType(typeof(List<MediaLikeResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-    public virtual async Task<ActionResult<List<MediaLikeResponseDto>>> GetMediasMediaId([FromRoute][Required] uint mediaId, [FromQuery][Required] int limit, [FromQuery] int currCursor)
+    public virtual async Task<ActionResult<List<MediaLikeResponseDto>>> GetMediasMediaId(
+        [FromRoute] [Required] uint mediaId, [FromQuery] [Required] int limit, [FromQuery] int currCursor)
     {
-        try
-        {
-            await _mediaService.GetLocalMedia(mediaId);
-            return Ok(await _mediaService.GetMediaLikes(mediaId, limit, currCursor));
-        }
-        catch (NotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
+        await _mediaService.GetLocalMedia(mediaId);
+        return Ok(await _mediaService.GetMediaLikes(mediaId, limit, currCursor));
     }
 
     /// <summary>
@@ -188,20 +141,11 @@ public class MediasController : ControllerBase
     [Route("{mediaId}/likes")]
     [ProducesResponseType(typeof(MediaLikeResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-
-    public async virtual Task<ActionResult<MediaLikeResponseDto>> DeleteMediasMediaIdLikes([FromRoute][Required] uint mediaId)
-    {        
-        var userId = (uint)HttpContext.Items["UserId"]!;        
-
-        try
-        {
-            await _mediaService.GetLocalMedia(mediaId);
-            return Ok(await _mediaService.UnLikeMedia(userId, mediaId));
-        }
-        catch (NotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
+    public virtual async Task<ActionResult<MediaLikeResponseDto>> DeleteMediasMediaIdLikes(
+        [FromRoute] [Required] uint mediaId)
+    {
+        var userId = (uint)HttpContext.Items["UserId"]!;
+        await _mediaService.GetLocalMedia(mediaId);
+        return Ok(await _mediaService.UnLikeMedia(userId, mediaId));
     }
-
 }
