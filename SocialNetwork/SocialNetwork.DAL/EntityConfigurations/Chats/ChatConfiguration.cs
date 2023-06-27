@@ -25,9 +25,9 @@ public class ChatConfiguration : IEntityTypeConfiguration<Chat>
             .HasMaxLength(Constants.ChatNameMaxLength);
         builder.Property(e => e.ChatPictureId)
 .HasColumnName("chat_picture_id");
-        builder.HasOne(up => up.ChatPicture).WithOne(u => u.Chat)
-            .HasForeignKey<Chat>(up => up.ChatPictureId)
-            .OnDelete(DeleteBehavior.Restrict)
+        builder.HasOne(up => up.ChatPicture).WithMany(u => u.Chat)
+            .HasForeignKey(up => up.ChatPictureId)
+            .OnDelete(DeleteBehavior.SetNull)
             .HasConstraintName("FK_picture_chat_picture");
     }
 }

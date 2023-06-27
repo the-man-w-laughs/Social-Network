@@ -1,5 +1,6 @@
 using SocialNetwork.BLL.DTO.Communities.Request;
 using SocialNetwork.BLL.DTO.Communities.Response;
+using SocialNetwork.BLL.DTO.Posts.Request;
 using SocialNetwork.DAL.Entities.Communities;
 using SocialNetwork.DAL.Entities.Posts;
 
@@ -7,15 +8,16 @@ namespace SocialNetwork.BLL.Contracts;
 
 public interface ICommunityService
 {
-    Task<Community> AddCommunity(Community newCommunity);
-    Task<CommunityMember> AddCommunityMember(CommunityMember communityMember);
-    Task<List<Community>> GetCommunities(int limit, int currCursor);
-    Task<Community?> GetCommunityById(uint communityId);
-    Task<CommunityMember> GetCommunityOwner(uint communityId);
-    Task<Community> DeleteCommunity(uint communityId);
-    Task<bool> IsUserCommunityMember(uint communityId, uint userId);
-    Task<CommunityPost> AddCommunityPost(uint communityId, Post post, uint proposerId);
-    Task<List<CommunityPost>> GetCommunityPosts(uint communityId, int limit, int currCursor);
-    Task<CommunityResponseDto> ChangeCommunity(uint communityId, CommunityPatchRequestDto newCommunity);
-    Task<List<CommunityMember>> GetCommunityMember(uint communityId, uint communityMemberTypeId);
+    Task<CommunityResponseDto> AddCommunity(CommunityRequestDto newCommunity);
+    Task<CommunityResponseDto> GetCommunity(uint userId, uint communityId);
+    Task<List<CommunityResponseDto>> GetCommunities(int limit, int currCursor);        
+    Task<CommunityResponseDto> DeleteCommunity(uint userId, uint communityId);    
+    Task<CommunityPostResponseDto> AddCommunityPost(uint proposerId, uint communityId, PostRequestDto postRequestDto);
+    Task<List<CommunityPostResponseDto>> GetCommunityPosts(uint userId, uint communityId, int limit, int currCursor);
+    Task<CommunityResponseDto> ChangeCommunity(uint userId, uint communityId, CommunityPatchRequestDto newCommunity);
+    Task<CommunityMemberResponseDto> AddCommunityOwner(uint id, uint userId);
+    Task<CommunityMemberResponseDto> AddCommunityMember(uint userId, uint communityId, uint userIdToAdd);
+    Task<List<CommunityMemberResponseDto>> GetCommunityMembers(uint userId, uint communityId, uint? communityMemberTypeId, int limit, int currCursor);
+    Task<CommunityMemberResponseDto> ChangeCommunityMember(uint userId, uint communityId, uint userIdToChange, CommunityMemberRequestDto communityMemberRequestDto);
+    Task<CommunityMemberResponseDto> DeleteCommunityMember(uint userId, uint communityId, uint userIdToAdd);
 }

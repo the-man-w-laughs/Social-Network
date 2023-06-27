@@ -4,6 +4,7 @@ using SocialNetwork.BLL;
 using SocialNetwork.DAL.Context;
 using System.Reflection;
 using SocialNetwork.API.Middlewares;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,10 @@ builder.Services.AddControllers();
 
 builder.Services.RegisterDalDependencies(builder.Configuration);
 builder.Services.RegisterBllDependencies(builder.Configuration);
+
+builder.Services.AddControllers().AddNewtonsoftJson(options =>
+    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+);
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

@@ -8,7 +8,7 @@ public class MediaRepository : Repository<Media>, IMediaRepository
 {
     public MediaRepository(SocialNetworkContext socialNetworkContext) : base(socialNetworkContext) {}
 
-    public async Task<Media> AddMedia(string filePath, OwnerType ownerType, string fileName)
+    public async Task<Media> AddMedia(uint userId, string filePath, string fileName)
     {
         var newMedia = new Media()
         {
@@ -16,7 +16,7 @@ public class MediaRepository : Repository<Media>, IMediaRepository
             FilePath = filePath,
             MediaTypeId = MediaType.Image,
             CreatedAt = DateTime.Now,
-            OwnerTypeId = ownerType
+            OwnerId = userId
         };
         await AddAsync(newMedia);
 

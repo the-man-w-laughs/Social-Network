@@ -18,27 +18,20 @@ namespace SocialNetwork.BLL.Services
     {
         private readonly IMapper _mapper;
         private readonly IMediaRepository _mediaRepository;
-        private readonly IMediaLikeRepository _mediaLikeRepository;
-        private readonly ICommunityMediaOwnerRepository _communityMediaOwnerRepository;
-        private readonly IUserMediaOwnerRepository _userMediaOwnerRepository;
+        private readonly IMediaLikeRepository _mediaLikeRepository;                
 
         public MediaService(
             IMapper mapper,
             IMediaRepository mediaRepository,
-            IMediaLikeRepository mediaLikeRepository,
-            IUserMediaOwnerRepository userMediaOwnerRepository,
-            ICommunityMediaOwnerRepository communityMediaOwnerRepository)
+            IMediaLikeRepository mediaLikeRepository)
         {
             _mapper = mapper;
             _mediaRepository = mediaRepository;
-            _mediaLikeRepository = mediaLikeRepository;
-            _communityMediaOwnerRepository = communityMediaOwnerRepository;
-            _userMediaOwnerRepository = userMediaOwnerRepository;
+            _mediaLikeRepository = mediaLikeRepository;                        
         }
         public async Task<MediaResponseDto> AddUserMedia(string filePath, uint userId, string fileName)
         {
-            var newMedia = await _mediaRepository.AddMedia(filePath, OwnerType.User, fileName);
-            await _userMediaOwnerRepository.AddUserMediaOwner(userId, newMedia.Id);
+            var newMedia = await _mediaRepository.AddMedia(userId, filePath, fileName);            
             return _mapper.Map<MediaResponseDto>(newMedia);
         }
         public async Task<MediaResponseDto> GetMedia(uint mediaId)
@@ -57,29 +50,7 @@ namespace SocialNetwork.BLL.Services
         }
         public async Task<List<MediaResponseDto>> GetUserMediaList(uint userId, int limit, int currCursor)
         {
-            var userMediaOwners = await _userMediaOwnerRepository.GetUserMediaOwnerList(userId);
-            var mediaIds = userMediaOwners.Select(umo => umo.MediaId).ToList();
-
-            var mediaList = await _mediaRepository.GetAllAsync(media => mediaIds.Contains(media.Id));
-            var paginatedMediaList = mediaList.OrderBy(cm => cm.Id)
-            .Skip(currCursor)
-            .Take(limit)
-            .ToList();
-            return _mapper.Map<List<MediaResponseDto>>(paginatedMediaList);
-        }
-        public async Task<MediaResponseDto> AddCommunityMedia(string filePath, uint communityId, string fileName)
-        {
-            var newMedia = await _mediaRepository.AddMedia(filePath, OwnerType.User, fileName);            
-            await _communityMediaOwnerRepository.AddCommunityMediaOwner(communityId, newMedia.Id);
-            return _mapper.Map<MediaResponseDto>(newMedia);
-        }
-
-        public async Task<List<MediaResponseDto>> GetCommunityMediaList(uint communityId, int limit, int currCursor)
-        {
-            var communityMediaOwners = await _communityMediaOwnerRepository.GetCommunityMediaOwnerList(communityId);
-            var mediaIds = communityMediaOwners.Select(umo => umo.MediaId).ToList();
-
-            var mediaList = await _mediaRepository.GetAllAsync(media => mediaIds.Contains(media.Id));
+            var mediaList = await _mediaRepository.GetAllAsync(m => m.OwnerId == userId);
             var paginatedMediaList = mediaList.OrderBy(cm => cm.Id)
             .Skip(currCursor)
             .Take(limit)
@@ -89,7 +60,7 @@ namespace SocialNetwork.BLL.Services
 
         public async Task<bool> IsUserMediaOwner(uint userId, uint mediaId)
         {
-            var result = await _userMediaOwnerRepository.GetAsync(e => e.UserId == userId && e.MediaId == mediaId);
+            var result = await _mediaRepository.GetAsync(e => e.OwnerId == userId);
             if (result != null) return true; else return false;
         }
 

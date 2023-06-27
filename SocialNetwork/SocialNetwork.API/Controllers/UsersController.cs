@@ -235,7 +235,7 @@ public class UsersController : ControllerBase
             var updatedUserProfile = await _userService.ChangeUserProfile(claimUserId, userProfilePatchRequestDto);
             return Ok(updatedUserProfile);
         }
-        catch (Exception ex)
+        catch (ArgumentException ex)
         {
             return BadRequest(ex.Message);
         }

@@ -13,18 +13,16 @@ public partial class Media
     public string FileName { get; set; } = null!;
     public string FilePath { get; set; } = null!;
     public MediaType MediaTypeId { get; set; }
-    public OwnerType OwnerTypeId { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime? UpdatedAt { get; set; }
-
-    public virtual UserMediaOwner UserMediaOwner { get; set; } = null!;
-    public virtual CommunityMediaOwner CommunityMediaOwner { get; set; } = null!;
+    public uint OwnerId { get; set; }
+    public DateTime CreatedAt { get; set; }    
+    
+    public virtual User Owner { get; set; } = null!;
     public virtual ICollection<MediaLike> MediaLikes { get; set; } = new List<MediaLike>();
     public virtual ICollection<CommentMedia> CommentMedia { get; set; } = new List<CommentMedia>();
     public virtual ICollection<MessageMedia> MessageMedia { get; set; } = new List<MessageMedia>();
     public virtual ICollection<PostMedia> PostMedia { get; set; } = new List<PostMedia>();
     public virtual ICollection<UserProfileMedia> UserProfileMedia { get; set; } = new List<UserProfileMedia>();
-    public virtual UserProfile? UserProfile { get; set; } = null;
-    public virtual Chat? Chat { get; set; } = null;
-    public virtual Community? Community { get; set; } = null;
+    public virtual ICollection<UserProfile> UserProfile { get; set; } = new List<UserProfile>();
+    public virtual ICollection<Chat> Chat { get; set; } = new List<Chat>();
+    public virtual ICollection<Community> Community { get; set; } = new List<Community>();
 }

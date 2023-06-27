@@ -7,8 +7,8 @@ public class MediaResponseDto
     public uint Id { get; set; }
     public string FileName { get; set; } = null!;    
     public int? LikeCount { get; set; }
-    public MediaType MediaTypeId { get; set; }
-    public OwnerType OwnerTypeId { get; set; }
+    public uint OwnerId { get; set; }
+    public MediaType MediaTypeId { get; set; }    
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
 }

@@ -110,8 +110,7 @@ public class UserService : IUserService
         {
             var media = await _mediaRepository.GetByIdAsync((uint)userProfilePatchRequestDto.ProfilePictureId);
             if (media == null)
-                throw new Exception(
-                    $"Media with id equal {userProfilePatchRequestDto.ProfilePictureId} doesn't exist.");
+                throw new ArgumentException($"Media with id equal {userProfilePatchRequestDto.ProfilePictureId} doesn't exist.");
             else
             {
                 if (userProfile.ProfilePictureId != userProfilePatchRequestDto.ProfilePictureId)
@@ -125,7 +124,7 @@ public class UserService : IUserService
         if (userProfilePatchRequestDto.UserName != null)
         {
             if (userProfilePatchRequestDto.UserName.Length == 0)
-                throw new Exception($"User name should have at east one character.");
+                throw new ArgumentException($"User name should have at east one character.");
             else
             {
                 if (userProfile.UserName != userProfilePatchRequestDto.UserName)
@@ -139,7 +138,7 @@ public class UserService : IUserService
         if (userProfilePatchRequestDto.UserSurname != null)
         {
             if (userProfilePatchRequestDto.UserSurname.Length == 0)
-                throw new Exception($"User surname should have at east one character.");
+                throw new ArgumentException($"User surname should have at east one character.");
             else
             {
                 if (userProfile.UserSurname != userProfilePatchRequestDto.UserSurname)
@@ -153,7 +152,7 @@ public class UserService : IUserService
         if (userProfilePatchRequestDto.UserSex != null)
         {
             if (userProfilePatchRequestDto.UserSex.Length == 0)
-                throw new Exception($"User sex should have at east one character.");
+                throw new ArgumentException($"User sex should have at east one character.");
             else
             {
                 if (userProfile.UserSex != userProfilePatchRequestDto.UserSex)
@@ -167,7 +166,7 @@ public class UserService : IUserService
         if (userProfilePatchRequestDto.UserCountry != null)
         {
             if (userProfilePatchRequestDto.UserCountry.Length == 0)
-                throw new Exception($"User country should have at east one character.");
+                throw new ArgumentException($"User country should have at east one character.");
             else
             {
                 if (userProfile.UserCountry != userProfilePatchRequestDto.UserCountry)
@@ -181,7 +180,7 @@ public class UserService : IUserService
         if (userProfilePatchRequestDto.UserEducation != null)
         {
             if (userProfilePatchRequestDto.UserEducation.Length == 0)
-                throw new Exception($"User country should have at east one character.");
+                throw new ArgumentException($"User country should have at east one character.");
             else
             {
                 if (userProfile.UserEducation != userProfilePatchRequestDto.UserEducation)
