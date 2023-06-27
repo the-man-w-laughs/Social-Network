@@ -120,7 +120,7 @@ public class ChatsController : ControllerBase
     [ProducesResponseType(typeof(List<MediaResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
-    public async virtual Task<ActionResult<List<MediaResponseDto>>> GetChatChatIdMedias(
+    public virtual async Task<ActionResult<List<MediaResponseDto>>> GetChatChatIdMedias(
         [FromRoute, Required] uint chatId,
         [FromQuery, Required] int limit,
         [FromQuery] int nextCursor)

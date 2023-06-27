@@ -13,7 +13,7 @@ public class CommunityConfiguration : IEntityTypeConfiguration<Community>
         
         builder.HasKey(e => e.Id).HasName("PRIMARY");
 
-        builder.Property(user => user.Id).HasColumnName("id").IsRequired()            
+        builder.Property(e => e.Id).HasColumnName("id").IsRequired()
             .ValueGeneratedOnAdd();
 
         builder.Property(e => e.Name).HasColumnName("name").IsRequired()

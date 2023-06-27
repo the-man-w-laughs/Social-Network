@@ -17,4 +17,5 @@ public interface ICommunityService
     Task<CommunityPost> AddCommunityPost(uint communityId, Post post, uint proposerId);
     Task<List<CommunityPost>> GetCommunityPosts(uint communityId, int limit, int currCursor);
     Task<CommunityResponseDto> ChangeCommunity(uint communityId, CommunityPatchRequestDto newCommunity);
+    Task<List<CommunityMember>> GetCommunityMember(uint communityId, uint communityMemberTypeId);
 }

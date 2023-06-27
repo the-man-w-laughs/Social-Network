@@ -169,4 +169,14 @@ public class CommunityService : ICommunityService
         }
         return _mapper.Map<CommunityResponseDto>(community);
     }
+
+    public async Task<List<CommunityMember>> GetCommunityMember(uint communityId, 
+        uint communityMemberTypeId)
+    {
+        var community = await _communityRepository.GetByIdAsync(communityId);
+        return community!
+            .CommunityMembers
+            .Where(cm => cm.TypeId == (CommunityMemberType)communityMemberTypeId)
+            .ToList();
+    }
 }
