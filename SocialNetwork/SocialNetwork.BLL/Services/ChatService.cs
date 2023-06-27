@@ -3,6 +3,9 @@ using SocialNetwork.BLL.Contracts;
 using SocialNetwork.BLL.DTO.Chats.Request;
 using SocialNetwork.BLL.DTO.Chats.Response;
 using SocialNetwork.BLL.DTO.Medias.Response;
+using SocialNetwork.BLL.DTO.Messages.Request;
+using SocialNetwork.BLL.DTO.Messages.Response;
+using SocialNetwork.BLL.Exceptions;
 using SocialNetwork.DAL.Contracts.Chats;
 using SocialNetwork.DAL.Contracts.Medias;
 using SocialNetwork.DAL.Contracts.Messages;
@@ -180,5 +183,211 @@ public class ChatService : IChatService
             await _chatRepository.SaveAsync();            
         }
         return _mapper.Map<ChatResponseDto>(chat);
+    }
+
+    public async Task<ChatResponseDto> CreateChat(ChatRequestDto chatRequestDto, uint userId)
+    {
+        var newChat = new Chat 
+            { 
+                Name = chatRequestDto.Name,
+                CreatedAt = DateTime.Now
+            };
+        var addedChat = await AddChat(newChat);
+
+        var chatOwner = new ChatMember
+        {
+            ChatId = addedChat.Id,
+            CreatedAt = DateTime.Now,
+            TypeId = ChatMemberType.Owner,
+            UserId = userId
+        };
+        await AddChatMember(chatOwner);
+        
+        return _mapper.Map<ChatResponseDto>(addedChat);
+    }
+
+    public async Task<ChatResponseDto> GetChatInfo(uint chatId, uint userId)
+    {
+        var chat = await GetChatById(chatId);
+        if (chat == null) 
+            throw new NotFoundException("Chat with request Id doesn't exist");
+        
+        var isUserChatMember = await IsUserChatMember(chatId, userId);            
+        if (!isUserChatMember) 
+            throw new AccessDeniedException("You are not chat member.");
+
+        return _mapper.Map<ChatResponseDto>(chat);
+    }
+
+    public async Task<List<MediaResponseDto>> GetChatMedias(uint userId, uint chatId, int limit, int nextCursor)
+    {
+        var chat = await GetChatById(chatId);
+        if (chat == null)
+            throw new NotFoundException("Chat with request Id doesn't exist");
+
+        var isChatMember = await IsUserChatMember(chatId, userId);
+        if (!isChatMember) 
+            throw new AccessDeniedException("You are not chat member.");
+
+        return await GetAllChatMedias(chatId, limit, nextCursor);
+    }
+
+    public async Task<ChatResponseDto> UpdateChat(uint chatId, uint userId, ChatPatchRequestDto chatPatchRequestDto)
+    {
+        var chat = await GetChatById(chatId);
+        if (chat == null)
+            throw new NotFoundException("Chat with request Id doesn't exist");
+
+        var chatOwner = await GetChatOwnerByChatId(chatId);
+        if (chatOwner.UserId != userId) 
+            throw new OwnershipException("You are not chat Owner");
+        
+        var updatedChat = await ChangeChat(chatId, chatPatchRequestDto);
+
+        return updatedChat;
+    }
+
+    public async Task<ChatResponseDto> DeleteChat(uint chatId, uint userId)
+    {
+        var chat = await GetChatById(chatId);
+        if (chat == null)
+            throw new NotFoundException("Chat with request Id doesn't exist");
+        
+        var chatOwner = await GetChatOwnerByChatId(chatId);
+        if (userId != chatOwner.UserId)
+            throw new OwnershipException("You are not chat Owner");
+       
+        await DeleteChat(chatId);
+
+        return _mapper.Map<ChatResponseDto>(chat);
+    }
+
+    public async Task<ChatMemberResponseDto> AddChatMember(uint userId, uint chatId, ChatMemberRequestDto postChatMemberDto)
+    {
+        var chat = await GetChatById(chatId);
+        if (chat == null) 
+            throw new NotFoundException("Chat with request Id doesn't exist");
+        
+        var isUserChatMember = await IsUserChatMember(chatId, userId);
+        if (!isUserChatMember)
+            throw new AccessDeniedException("User isn't chat member");
+        
+        var isNewMemberAlreadyInChat = await IsUserChatMember(chatId, postChatMemberDto.UserId); 
+        if (isNewMemberAlreadyInChat) 
+            throw new DuplicateEntryException("User is already in chat");
+        
+        var newChatMember = new ChatMember
+        {
+            ChatId = chatId,
+            CreatedAt = DateTime.Now,
+            TypeId = ChatMemberType.Member,
+            UserId = postChatMemberDto.UserId
+        };
+
+        var addedChatMember = await AddChatMember(newChatMember);
+
+        return _mapper.Map<ChatMemberResponseDto>(addedChatMember);
+    }
+
+    public async Task<List<ChatMemberResponseDto>> GetChatMembers(uint userId, uint chatId, int limit, int nextCursor)
+    {
+        var chat = await GetChatById(chatId);
+        if (chat == null)
+            throw new NotFoundException("Chat with request Id doesn't exist");
+        
+        var isUserChatMember = await IsUserChatMember(chatId, userId);
+        if (!isUserChatMember) 
+            throw new AccessDeniedException("User isn't chat member");
+   
+        var chatMembers = await GetAllChatMembers(chatId, limit, nextCursor);
+
+        return chatMembers.Select(cm => _mapper.Map<ChatMemberResponseDto>(cm)).ToList();
+    }
+
+    public async Task<ChangeChatMemberResponseDto> UpdateChatMember(uint chatId, uint userId, uint memberId,
+        ChangeChatMemberRequestDto changeChatMemberRequestDto)
+    {
+        var chat = await GetChatById(chatId);
+        if (chat == null)
+            throw new NotFoundException("Chat doesn't exist");
+        
+        var isUserChatMember = await IsUserChatMember(chatId, memberId);
+        if (!isUserChatMember)
+            throw new NotFoundException("ChatMember doesn't exist");
+        
+        var isUserHaveAdminPermissions = await IsUserHaveChatAdminPermissions(chatId, userId);
+        if (!isUserHaveAdminPermissions)
+            throw new OwnershipException("You are not chat Owner");
+
+        switch (changeChatMemberRequestDto.Type)
+        {
+            case ChatMemberType.Member:
+                break;
+            case ChatMemberType.Admin:
+                break;
+            case ChatMemberType.Owner:
+                throw new OwnershipException("There can only be 1 owner");
+            default:
+                throw new ArgumentOutOfRangeException(nameof(changeChatMemberRequestDto.Type));
+        }
+
+        var updatedChatMember = new ChatMember();
+
+        return _mapper.Map<ChangeChatMemberResponseDto>(updatedChatMember);
+    }
+
+    public async Task<ChatMemberResponseDto> DeleteChatMember(uint userId, uint userToDeleteId, uint chatId)
+    {
+        var chat = await GetChatById(chatId);
+        if (chat == null)
+            throw new NotFoundException("Chat with request ID doesn't exist");
+        
+        var isUserHaveAdminPermissions = await IsUserHaveChatAdminPermissions(chatId, userId);
+        if (!isUserHaveAdminPermissions) 
+            throw new AccessDeniedException("User hasn't chat admin permissions");
+        
+        var deletedChatMember = await DeleteChatMember(chatId, userToDeleteId);
+        if (deletedChatMember == null)
+            throw new NotFoundException("Chat member not found");
+
+        return _mapper.Map<ChatMemberResponseDto>(deletedChatMember);
+    }
+
+    public async Task<MessageResponseDto> SendMessage(uint chatId, uint userId, MessageRequestDto postChatMemberDto)
+    {
+        var chat = await GetChatById(chatId);
+        if (chat == null)
+            throw new NotFoundException("Chat with request ID doesn't exist");
+        
+        var isUserChatMember = await IsUserChatMember(chatId, userId);
+        if (!isUserChatMember) 
+            throw new AccessDeniedException("User isn't chat member");
+        
+        var newMessage = new Message
+        {
+            ChatId = chatId,
+            Content = postChatMemberDto.Content,
+            CreatedAt = DateTime.Now,
+            SenderId = userId
+        };
+
+        var addedMessage = await AddMessage(newMessage);
+
+        return _mapper.Map<MessageResponseDto>(addedMessage);
+    }
+
+    public async Task<List<MessageResponseDto>> GetChatMessages(uint chatId, uint userId, int limit, int nextCursor)
+    {
+        var chat = await GetChatById(chatId);
+        if (chat == null) 
+            throw new NotFoundException("Chat with request Id doesn't exist");
+        
+        var isUserChatMember = await IsUserChatMember(chatId, userId);
+        if (!isUserChatMember) 
+            throw new AccessDeniedException("User isn't chat member");
+       
+        var messages = await GetAllChatMessages(chatId, limit, nextCursor);
+
+        return messages.Select(m => _mapper.Map<MessageResponseDto>(m)).ToList();
     }
 }

@@ -7,6 +7,6 @@ public class PostResponseDto
     public int? LikeCount { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
-
+    public List<uint> Attachments { get; set; } = new List<uint>();
     public uint? RepostId { get; set; }
 }

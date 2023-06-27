@@ -11,7 +11,8 @@ public interface ICommunityService
     Task<CommunityResponseDto> AddCommunity(CommunityRequestDto newCommunity);
     Task<CommunityResponseDto> GetCommunity(uint userId, uint communityId);
     Task<List<CommunityResponseDto>> GetCommunities(int limit, int currCursor);        
-    Task<CommunityResponseDto> DeleteCommunity(uint userId, uint communityId);    
+    Task<CommunityResponseDto> DeleteCommunity(uint userId, uint communityId);
+    Task<CommunityResponseDto> DeleteCommunity(uint communityId);
     Task<CommunityPostResponseDto> AddCommunityPost(uint proposerId, uint communityId, PostRequestDto postRequestDto);
     Task<List<CommunityPostResponseDto>> GetCommunityPosts(uint userId, uint communityId, int limit, int currCursor);
     Task<CommunityResponseDto> ChangeCommunity(uint userId, uint communityId, CommunityPatchRequestDto newCommunity);

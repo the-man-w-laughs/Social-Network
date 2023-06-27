@@ -22,17 +22,19 @@ public sealed class AdminController : ControllerBase
 {
     private readonly IMapper _mapper;
     private readonly IMediaService _mediaService;
+    private readonly ICommunityService _communityService;
 
-    public AdminController(IMapper mapper, IMediaService mediaService)
+    public AdminController(IMapper mapper, IMediaService mediaService, ICommunityService communityService)
     {
         _mapper = mapper;
-        _mediaService = mediaService;        
+        _mediaService = mediaService;
+        _communityService = communityService;
     }
 
     /// <summary>
     /// DeleteMedia
     /// </summary>
-    /// <remarks>Delete media report.</remarks>    
+    /// <remarks>Delete media.</remarks>    
     [HttpDelete]
     [Authorize(Roles = "Admin")]
     [Route("medias/{mediaId}")]
@@ -70,7 +72,15 @@ public sealed class AdminController : ControllerBase
     [Route("communities/{communityId}")]
     public async Task<ActionResult<UserResponseDto>> DeleteAdminCommunities([FromRoute, Required] uint communityId)
     {
-        return Ok();
+        try
+        {
+            var deletedCommunity = await _communityService.DeleteCommunity(communityId);
+            return Ok(deletedCommunity);
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
     }
 
     /// <summary>

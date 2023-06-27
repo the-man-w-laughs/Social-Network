@@ -255,6 +255,7 @@ public class UsersController : ControllerBase
             Content = postRequestDto.Content,
             CreatedAt = DateTime.Now
         };
+
         var isUserAuthenticated =
 await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
@@ -488,5 +489,4 @@ await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationS
 
         return Ok(userFollowers.Select(followers => _mapper.Map<UserResponseDto>(followers)));
     }
-
 }

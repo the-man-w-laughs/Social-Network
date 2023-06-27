@@ -259,6 +259,10 @@ public class CommunitiesController : ControllerBase
         }        
     }
 
+    /// <summary>
+    /// GetAllCommunityMembers
+    /// </summary>
+    /// <remarks>Retrieve all members of community.</remarks>
     [HttpGet]
     [Route("{communityId}/members")]
     [Authorize(Roles = "User")]
@@ -285,8 +289,12 @@ public class CommunitiesController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// AddCommunityMember
+    /// </summary>
+    /// <remarks>Add member to the community.</remarks>
     [HttpPost]
-    [Route("{communityId}/members/{userId}")]
+    [Route("{communityId}/members/{userIdToAdd}")]
     [Authorize(Roles = "User")]
     public virtual async Task<ActionResult<CommunityMemberResponseDto>> PostCommunitiesCommunityIdMembersMemberId(
         [FromRoute,Required] uint userIdToAdd,
@@ -313,18 +321,22 @@ public class CommunitiesController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// ChangeCommunityMember
+    /// </summary>
+    /// <remarks>Change member of the community.</remarks>
     [HttpPut]
-    [Route("{communityId}/members/{userId}")]
+    [Route("{communityId}/members/{userIdToChange}")]
     [Authorize(Roles = "User")]
     public virtual async Task<ActionResult<CommunityMemberResponseDto>> PutCommunitiesCommunityIdMembersMemberId(
-[FromRoute, Required] uint userIdToAdd,
-[FromRoute, Required] uint communityId,
-[FromBody, Required] CommunityMemberRequestDto communityMemberRequestDto)
+    [FromRoute, Required] uint userIdToChange,
+    [FromRoute, Required] uint communityId,
+    [FromBody, Required] CommunityMemberRequestDto communityMemberRequestDto)
     {
         var userId = (uint)HttpContext.Items["UserId"]!;
         try
         {
-            var deletedMember = await _communityService.ChangeCommunityMember(userId, communityId, userIdToAdd, communityMemberRequestDto);
+            var deletedMember = await _communityService.ChangeCommunityMember(userId, communityId, userIdToChange, communityMemberRequestDto);
 
             return Ok(deletedMember);
         }
@@ -342,17 +354,21 @@ public class CommunitiesController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// DeleteCommunityMember
+    /// </summary>
+    /// <remarks>Delete member of the community.</remarks>
     [HttpDelete]
-    [Route("{communityId}/members/{userId}")]
+    [Route("{communityId}/members/{userIdToDelete}")]
     [Authorize(Roles = "User")]
     public virtual async Task<ActionResult<CommunityMemberResponseDto>> DeleteCommunityMembers(
-    [FromRoute, Required] uint userIdToAdd,
+    [FromRoute, Required] uint userIdToDelete,
     [FromRoute, Required] uint communityId)
     {
         var userId = (uint)HttpContext.Items["UserId"]!;
         try
         {
-            var deletedMember = await _communityService.DeleteCommunityMember(userId, communityId, userIdToAdd);
+            var deletedMember = await _communityService.DeleteCommunityMember(userId, communityId, userIdToDelete);
 
             return Ok(deletedMember);
         }

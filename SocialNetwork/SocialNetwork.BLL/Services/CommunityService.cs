@@ -198,7 +198,15 @@ public class CommunityService : ICommunityService
     private async Task<CommunityMember?> GetCommunityMember(uint communityId, uint userId)
     {
         return await _communityMemberRepository.GetAsync(m => m.UserId == userId && m.CommunityId == communityId);
-    }   
+    }
+
+    public async Task<CommunityResponseDto> DeleteCommunity(uint communityId)
+    {
+        var community = await _communityRepository.GetByIdAsync(communityId) ?? throw new NotFoundException("No community with this Id.");
+        _communityRepository.Delete(community);
+        await _communityRepository.SaveAsync();
+        return _mapper.Map<CommunityResponseDto>(community);
+    }
 
     public async Task<CommunityResponseDto> DeleteCommunity(uint userId, uint communityId)
     {
