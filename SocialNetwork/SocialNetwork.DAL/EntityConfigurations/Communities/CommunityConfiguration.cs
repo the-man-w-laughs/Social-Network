@@ -26,9 +26,9 @@ public class CommunityConfiguration : IEntityTypeConfiguration<Community>
         builder.Property(e => e.UpdatedAt).HasColumnName("updated_at").HasColumnType("datetime");
         builder.Property(e => e.CommunityPictureId)
     .HasColumnName("community_picture_id");
-        builder.HasOne(up => up.CommunityPicture).WithOne(u => u.Community)
-            .HasForeignKey<Community>(up => up.CommunityPictureId)
-            .OnDelete(DeleteBehavior.Restrict)
+        builder.HasOne(up => up.CommunityPicture).WithMany(u => u.Community)
+            .HasForeignKey(up => up.CommunityPictureId)
+            .OnDelete(DeleteBehavior.SetNull)
             .HasConstraintName("FK_picture_community_picture");
     }
 }

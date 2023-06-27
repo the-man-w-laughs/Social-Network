@@ -1,13 +1,17 @@
 using System.ComponentModel.DataAnnotations;
+using System.Net;
 using System.Security.Claims;
 using AutoMapper;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialNetwork.BLL.Contracts;
+using SocialNetwork.BLL.DTO.Medias.Response;
 using SocialNetwork.BLL.DTO.Users.Request;
 using SocialNetwork.BLL.DTO.Users.Response;
+using SocialNetwork.BLL.Exceptions;
 using SocialNetwork.DAL.Entities.Users;
 
 namespace SocialNetwork.API.Controllers;
@@ -17,16 +21,12 @@ namespace SocialNetwork.API.Controllers;
 public sealed class AdminController : ControllerBase
 {
     private readonly IMapper _mapper;
-    private readonly IAuthService _authService;
-    private readonly ISaltService _saltService;
-    private readonly IPasswordHashService _passwordHashService;
+    private readonly IMediaService _mediaService;
 
-    public AdminController(IMapper mapper, IAuthService authService, ISaltService saltService, IPasswordHashService passwordHashService)
+    public AdminController(IMapper mapper, IMediaService mediaService)
     {
         _mapper = mapper;
-        _authService = authService;
-        _saltService = saltService;
-        _passwordHashService = passwordHashService;
+        _mediaService = mediaService;        
     }
 
     /// <summary>
@@ -38,7 +38,27 @@ public sealed class AdminController : ControllerBase
     [Route("medias/{mediaId}")]
     public async Task<ActionResult<UserResponseDto>> DeleteAdminMedias([FromRoute, Required] uint mediaId)
     {
-        return Ok();
+        try
+        {
+            var deletedMedia = await _mediaService.DeleteMedia(mediaId);
+            if (System.IO.File.Exists(deletedMedia.FilePath))
+            {
+                System.IO.File.Delete(deletedMedia.FilePath);
+                return Ok(_mapper.Map<MediaLikeResponseDto>(deletedMedia));
+            }
+            else
+            {
+                return NotFound("No media with this id.");
+            }
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (Exception)
+        {
+            return StatusCode((int)HttpStatusCode.InternalServerError);
+        }
     }
 
     /// <summary>

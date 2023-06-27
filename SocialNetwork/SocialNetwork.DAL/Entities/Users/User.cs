@@ -29,8 +29,8 @@ public partial class User
     public bool IsDeactivated { get; set; }
     public DateTime? DeactivatedAt { get; set; }
 
-    public virtual ICollection<MediaLike> MediaLikes { get; set; } = new List<MediaLike>();
-    public virtual ICollection<UserMediaOwner> Medias { get; set; } = new List<UserMediaOwner>();
+    public virtual ICollection<Media> Medias { get; set; } = new List<Media>();
+    public virtual ICollection<MediaLike> MediaLikes { get; set; } = new List<MediaLike>();    
     public virtual ICollection<ChatMember> ChatMembers { get; set; } = new List<ChatMember>();
     public virtual ICollection<CommentLike> CommentLikes { get; set; } = new List<CommentLike>();    
     public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();

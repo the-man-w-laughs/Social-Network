@@ -47,9 +47,7 @@ public static class DalRegistrationExtensions
         
         // Medias
         services.AddScoped<IMediaRepository, MediaRepository>();
-        services.AddScoped<IMediaLikeRepository, MediaLikeRepository>();
-        services.AddScoped<IUserMediaOwnerRepository, UserMediaOwnerRepository>();
-        services.AddScoped<ICommunityMediaOwnerRepository, CommunityMediaOwnerRepository>();
+        services.AddScoped<IMediaLikeRepository, MediaLikeRepository>();        
 
         // Messages
         services.AddScoped<IMessageRepository, MessageRepository>();

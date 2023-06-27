@@ -33,9 +33,7 @@ public class SocialNetworkContext : DbContext
     public DbSet<UserFriend> UserFriends { get; set; } = null!;
     public DbSet<UserProfile> UserProfiles { get; set; } = null!;
     public DbSet<UserProfileMedia> UserProfileMedias { get; set; } = null!;
-    public DbSet<UserProfilePost> UserProfilePosts { get; set; } = null!;
-    public DbSet<CommunityMediaOwner> CommunityMediaOwners { get; set; } = null!;
-    public DbSet<UserMediaOwner> UserMediaOwners { get; set; } = null!;
+    public DbSet<UserProfilePost> UserProfilePosts { get; set; } = null!;        
     public DbSet<MediaLike> MediaLikes { get; set; } = null!;
 
 

@@ -12,8 +12,6 @@ public interface IMediaService
     public Task<Media> GetLocalMedia(uint mediaId);
     public Task<MediaResponseDto> GetMedia(uint mediaId);
     public Task<List<MediaResponseDto>> GetUserMediaList(uint userId, int limit, int currCursor);
-    public Task<MediaResponseDto> AddCommunityMedia(string filePath, uint communityId, string fileName);
-    public Task<List<MediaResponseDto>> GetCommunityMediaList(uint communityId, int limit, int currCursor);
     public Task<bool> IsUserMediaOwner(uint userId, uint mediaId);
     public Task<Media> DeleteMedia(uint mediaId);
     public Task<Media> DeleteMedia(uint userId, uint mediaId);

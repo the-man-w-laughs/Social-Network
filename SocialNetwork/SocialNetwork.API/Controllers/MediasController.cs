@@ -95,7 +95,7 @@ public class MediasController : ControllerBase
             if (System.IO.File.Exists(deletedMedia.FilePath))
             {
                 System.IO.File.Delete(deletedMedia.FilePath);
-                return Ok(_mapper.Map<MediaLikeResponseDto>(deletedMedia));
+                return Ok(_mapper.Map<MediaResponseDto>(deletedMedia));
             }
             else
             {

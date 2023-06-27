@@ -50,9 +50,9 @@ public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
         builder.Property(e => e.ProfilePictureId)
     .HasColumnName("profile_picture_id");    
 
-        builder.HasOne(up => up.ProfilePicture).WithOne(u => u.UserProfile)
-            .HasForeignKey<UserProfile>(up => up.ProfilePictureId)
-            .OnDelete(DeleteBehavior.Restrict)
+        builder.HasOne(up => up.ProfilePicture).WithMany(u => u.UserProfile)
+            .HasForeignKey(up => up.ProfilePictureId)
+            .OnDelete(DeleteBehavior.SetNull)
             .HasConstraintName("FK_picture_profiles_picture");
     }
 }

@@ -192,7 +192,7 @@ public class ChatsController : ControllerBase
             var updatedChat = await _chatService.ChangeChat(chatId, chatPatchRequestDto);
             return Ok(updatedChat);
         }
-        catch (Exception ex)
+        catch (ArgumentException ex)
         {
             return BadRequest(ex.Message);
         }

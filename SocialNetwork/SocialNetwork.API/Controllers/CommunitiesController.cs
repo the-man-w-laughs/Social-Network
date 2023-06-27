@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Linq.Expressions;
 using System.Security.Claims;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication;
@@ -13,6 +14,7 @@ using SocialNetwork.BLL.DTO.Medias.Response;
 using SocialNetwork.BLL.DTO.Messages.Response;
 using SocialNetwork.BLL.DTO.Posts.Request;
 using SocialNetwork.BLL.DTO.Posts.Response;
+using SocialNetwork.BLL.Exceptions;
 using SocialNetwork.BLL.Services;
 using SocialNetwork.DAL.Entities.Communities;
 using SocialNetwork.DAL.Entities.Posts;
@@ -56,32 +58,15 @@ public class CommunitiesController : ControllerBase
     public virtual async Task<ActionResult<CommunityResponseDto>> PostCommunities(
         [FromBody, Required] CommunityRequestDto communityRequestDto)
     {
-        var isUserAuthenticated =
-            await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
-        var userId = uint.Parse(isUserAuthenticated.Principal!.Claims
-            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultNameClaimType)?.Value!);
-
-        var newCommunity = new Community()
-        {
-            CreatedAt = DateTime.Now,
-            Name = communityRequestDto.Name,            
-            IsPrivate = communityRequestDto.IsPrivate,                        
-        };
-        
-        var addedCommunity  = await _communityService.AddCommunity(newCommunity);
-
-        var communityOwner = new CommunityMember()
-        {
-            CommunityId = addedCommunity.Id,
-            CreatedAt = DateTime.Now,
-            TypeId = CommunityMemberType.Owner,
-            UserId = userId
-        };
-
-        await _communityService.AddCommunityMember(communityOwner);
-        
-        return Ok(_mapper.Map<CommunityResponseDto>(addedCommunity));
+        var userId = (uint)HttpContext.Items["UserId"]!;
+        try {
+            var addedCommunity = await _communityService.AddCommunity(communityRequestDto);
+            await _communityService.AddCommunityMember(addedCommunity.Id, userId, CommunityMemberType.Owner);
+            return Ok(_mapper.Map<CommunityResponseDto>(addedCommunity));
+        }
+        catch (ArgumentException ex){
+            return BadRequest(ex.Message);
+        }                          
     }
 
     /// <summary>
@@ -96,11 +81,11 @@ public class CommunitiesController : ControllerBase
     [ProducesResponseType(typeof(List<CommunityResponseDto>), StatusCodes.Status200OK)]
     public virtual async Task<ActionResult<List<CommunityResponseDto>>> GetCommunities(
         [FromQuery, Required] int limit,
-        [FromQuery, Required] int currCursor)
+        [FromQuery] int currCursor)
     {
         var communities = await _communityService.GetCommunities(limit, currCursor);
-        
-        return Ok(communities.Select(c => _mapper.Map<CommunityResponseDto>(c)));
+
+        return Ok(communities);
     }
 
     /// <summary>
@@ -122,40 +107,21 @@ public class CommunitiesController : ControllerBase
         [FromRoute, Required] uint communityId,
         [FromBody, Required] CommunityPatchRequestDto communityPatchRequestDto)
     {
-        var community = await _communityService.GetCommunityById(communityId);
-
-        var isCommunityExists = community != null;
-
-        if (!isCommunityExists)
-        {
-            return BadRequest("Community with this id doesnt exist");
-        }
-
-        var isUserAuthenticated =
-            await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
-        var userRole = isUserAuthenticated.Principal!.Claims
-            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultRoleClaimType)?.Value;
-
-        var userId = int.Parse(isUserAuthenticated.Principal!.Claims
-            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultNameClaimType)?.Value!);
-
-        if (userRole == UserType.User.ToString())
-        {
-            var communityOwner = await _communityService.GetCommunityOwner(communityId);
-            var isUserCommunityOwner = userId == communityOwner.UserId;
-            if (!isUserCommunityOwner)
-            {
-                return Forbid("You are not Community Owner");
-            }
-        }
+        var userId = (uint)HttpContext.Items["UserId"]!;
         try
         {
-            var updatedCommunity = await _communityService.ChangeCommunity(communityId, communityPatchRequestDto);
-
+            var updatedCommunity = await _communityService.ChangeCommunity(userId, communityId, communityPatchRequestDto);
             return Ok(updatedCommunity);
         }
-        catch (Exception ex)
+        catch (NotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (OwnershipException ex)
+        {
+            return Forbid(ex.Message);
+        }
+        catch (ArgumentException ex)
         {
             return BadRequest(ex.Message);
         }
@@ -177,37 +143,25 @@ public class CommunitiesController : ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
     public virtual async Task<ActionResult<CommunityResponseDto>> DeleteCommunitiesCommunityId([FromRoute, Required] uint communityId)
     {
-        var community = await _communityService.GetCommunityById(communityId);
-
-        var isCommunityExists = community != null;
-
-        if (!isCommunityExists)
+        var userId = (uint)HttpContext.Items["UserId"]!;
+        try
         {
-            return BadRequest("Community with this id doesnt exist");
+            var deletedCommunity = await _communityService.DeleteCommunity(userId, communityId);
+
+            return Ok(deletedCommunity);
         }
-        
-        var isUserAuthenticated =
-            await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
-        var userRole = isUserAuthenticated.Principal!.Claims
-            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultRoleClaimType)?.Value;
-
-        var userId = int.Parse(isUserAuthenticated.Principal!.Claims
-            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultNameClaimType)?.Value!);
-
-        if (userRole == UserType.User.ToString())
+        catch (NotFoundException ex)
         {
-            var communityOwner = await _communityService.GetCommunityOwner(communityId);
-            var isUserCommunityOwner = userId == communityOwner.UserId;
-            if (!isUserCommunityOwner)
-            {
-                return Forbid("You are not Community Owner");
-            }
+            return NotFound(ex.Message);
         }
-
-        var deletedCommunity = await _communityService.DeleteCommunity(communityId);
-        
-        return Ok(_mapper.Map<CommunityResponseDto>(deletedCommunity));
+        catch (OwnershipException ex)
+        {
+            return Forbid(ex.Message);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }        
     }
 
     /// <summary>
@@ -227,47 +181,27 @@ public class CommunitiesController : ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
     public virtual async Task<ActionResult<PostResponseDto>> PostCommunitiesCommunityIdPosts(
         [FromRoute, Required] uint communityId,
-        [FromBody, Required] PostRequestDto communityRequestDto)
+        [FromBody, Required] PostRequestDto postRequestDto)
     {
-        var community = await _communityService.GetCommunityById(communityId);
-
-        var isCommunityExisted = community != null;
-
-        if (!isCommunityExisted)
+        var userId = (uint)HttpContext.Items["UserId"]!;
+        try
         {
-            return BadRequest("Community doesn't exist");
+            var addedPost = await _communityService.AddCommunityPost(userId, communityId, postRequestDto);
+
+            return Ok(addedPost);
         }
-        
-        var isUserAuthenticated =
-            await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
-        var userRole = isUserAuthenticated.Principal!.Claims
-            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultRoleClaimType)?.Value;
-
-        var userId = uint.Parse(isUserAuthenticated.Principal!.Claims
-            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultNameClaimType)?.Value!);
-
-        if (userRole == UserType.User.ToString())
+        catch (NotFoundException ex)
         {
-            if (community!.IsPrivate)
-            {
-                var isUserCommunityMember = await _communityService.IsUserCommunityMember(communityId, userId);
-                if (!isUserCommunityMember)
-                {
-                    return Forbid("Community is Private, you are not a member");
-                }
-            }
+            return NotFound(ex.Message);
         }
-
-        var post = new Post()
+        catch (OwnershipException ex)
         {
-            Content = communityRequestDto.Content,
-            CreatedAt = DateTime.Now
-        };
-
-        var addedPost = await _communityService.AddCommunityPost(communityId, post, userId);
-        
-        return Ok(_mapper.Map<PostResponseDto>(addedPost));
+            return Forbid(ex.Message);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     /// <summary>
@@ -287,68 +221,22 @@ public class CommunitiesController : ControllerBase
     public virtual async Task<ActionResult<List<CommunityPostResponseDto>>> GetCommunitiesPosts(
         [FromRoute, Required] uint communityId,
         [FromQuery, Required] int limit,
-        [FromQuery, Required] int currCursor)
-    {
-        var communityPosts = await _communityService.GetCommunityPosts(communityId, limit, currCursor);
-        
-        return Ok(communityPosts.Select(cp=>_mapper.Map<CommunityPostResponseDto>(cp)));
-    }
-
-    /// <summary>
-    /// CreateCommunityMedia
-    /// </summary>
-    /// <remarks>Create community media.</remarks>    
-    /// <param name="communityId">The ID of the community.</param>
-    /// <param name="files">The media files to upload.</param>    
-    /// <response code="200">Indicates that the upload was successful.</response>
-    /// <response code="400">If no files are provided.</response>
-    [HttpPost]
-    [Route("{communityId}/medias")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-    public virtual ActionResult<List<MediaResponseDto>> PostcommunityscommunityIdMedias([FromRoute][Required] uint communityId, [Required] List<IFormFile> files)
-    {
-        if (files == null)
-        {
-            return BadRequest();
-        }
-        
-        string directoryPath = Path.Combine(_webHostEnvironment.ContentRootPath, "UploadedFiles");
-        if (!Directory.Exists(directoryPath))
-        {
-            Directory.CreateDirectory(directoryPath);
-        }
-        foreach (var file in files)
-        {
-            string filePath = Path.Combine(directoryPath, file.FileName);
-            string modifiedFilePath = _fileService.ModifyFilePath(filePath);
-            using (var stream = new FileStream(modifiedFilePath, FileMode.Create))
-            {
-                file.CopyTo(stream);
-            }
-            _mediaService.AddCommunityMedia(modifiedFilePath, communityId, file.FileName);
-        }
-
-        return Ok("Uploaded Successful");
-    }
-
-    /// <summary>
-    /// GetAllCommunityMedias
-    /// </summary>
-    /// <remarks>Get all community's media using pagination. (only for community or admin)</remarks>
-    /// <param name="communityId">The ID of the community.</param>
-    /// <param name="limit">The maximum number of media items to retrieve.</param>
-    /// <param name="currCursor">The cursor for pagination.</param>   
-    /// <response code="200">Returns the list of community media.</response>
-    [HttpGet]
-    [Route("{communityId}/medias")]
-    [ProducesResponseType(typeof(List<MediaResponseDto>), StatusCodes.Status200OK)]
-    public async virtual Task<ActionResult<List<MediaResponseDto>>> GetcommunityscommunityIdMedias(
-        [FromRoute, Required] uint communityId,
-        [FromQuery, Required] int limit,
         [FromQuery] int currCursor)
     {
-        var result = await _mediaService.GetCommunityMediaList(communityId, limit, currCursor);
-        return Ok(result);
+        var userId = (uint)HttpContext.Items["UserId"]!;
+        try
+        {
+            var communityPosts = await _communityService.GetCommunityPosts(userId,communityId, limit, currCursor);
+
+            return Ok(communityPosts);
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (OwnershipException ex)
+        {
+            return Forbid(ex.Message);
+        }        
     }
 }

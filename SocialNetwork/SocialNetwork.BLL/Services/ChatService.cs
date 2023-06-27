@@ -150,7 +150,7 @@ public class ChatService : IChatService
         {   
             var media = await _mediaRepository.GetByIdAsync((uint)chatPatchRequestDto.ChatPictureId);
             if (media == null)
-                throw new Exception($"Media with id equal {chatPatchRequestDto.ChatPictureId} doesn't exist.");
+                throw new ArgumentException($"Media with id equal {chatPatchRequestDto.ChatPictureId} doesn't exist.");
             else
             {
                 if (chat.ChatPictureId != chatPatchRequestDto.ChatPictureId)
@@ -163,7 +163,7 @@ public class ChatService : IChatService
         if (chatPatchRequestDto.Name != null)
         {
             if (chatPatchRequestDto.Name.Length == 0)
-                throw new Exception($"Chat name should have at east one character.");
+                throw new ArgumentException($"Chat name should have at east one character.");
             else
             {
                 if (chat.Name != chatPatchRequestDto.Name)
