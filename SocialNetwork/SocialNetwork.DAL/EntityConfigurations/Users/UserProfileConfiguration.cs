@@ -41,6 +41,8 @@ public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
         builder.Property(e => e.UserId)
             .HasColumnName("user_id")
             .IsRequired();
+        builder.Property(e => e.ProfilePictureId)
+            .HasColumnName("profile_picture_id");
     
         builder.HasOne(up => up.User).WithOne(u => u.UserProfile)
             .HasForeignKey<UserProfile>(up => up.UserId)

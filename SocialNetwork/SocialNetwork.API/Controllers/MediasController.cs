@@ -163,7 +163,7 @@ public class MediasController : ControllerBase
     [Route("{mediaId}/likes")]
     [ProducesResponseType(typeof(List<MediaLikeResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-    public async virtual Task<ActionResult<List<MediaLikeResponseDto>>> GetMediasMediaId([FromRoute][Required] uint mediaId, [FromQuery][Required] int limit, [FromQuery] int currCursor)
+    public virtual async Task<ActionResult<List<MediaLikeResponseDto>>> GetMediasMediaId([FromRoute][Required] uint mediaId, [FromQuery][Required] int limit, [FromQuery] int currCursor)
     {
         try
         {
@@ -188,6 +188,7 @@ public class MediasController : ControllerBase
     [Route("{mediaId}/likes")]
     [ProducesResponseType(typeof(MediaLikeResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+
     public async virtual Task<ActionResult<MediaLikeResponseDto>> DeleteMediasMediaIdLikes([FromRoute][Required] uint mediaId)
     {        
         var userId = (uint)HttpContext.Items["UserId"]!;        

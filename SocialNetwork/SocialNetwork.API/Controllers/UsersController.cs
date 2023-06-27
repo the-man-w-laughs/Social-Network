@@ -27,8 +27,8 @@ public class UsersController : ControllerBase
 {
     private readonly IWebHostEnvironment _webHostEnvironment;
     private readonly IMapper _mapper;
-    private IMediaService _mediaService;
-    private IFileService _fileService;
+    private readonly IMediaService _mediaService;
+    private readonly IFileService _fileService;
     private readonly IUserService _userService;
     private readonly IPostService _postService;
 
@@ -306,7 +306,7 @@ await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationS
             return BadRequest();
         }
 
-        string directoryPath = Path.Combine(_webHostEnvironment.ContentRootPath, "UploadedFiles");
+        var directoryPath = Path.Combine(_webHostEnvironment.ContentRootPath, "UploadedFiles");
         if (!Directory.Exists(directoryPath))
         {
             Directory.CreateDirectory(directoryPath);
@@ -315,11 +315,11 @@ await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationS
 
         foreach (var file in files)
         {
-            string filePath = Path.Combine(directoryPath, file.FileName);
-            string modifiedFilePath = _fileService.ModifyFilePath(filePath);
-            using (var stream = new FileStream(modifiedFilePath, FileMode.Create))
+            var filePath = Path.Combine(directoryPath, file.FileName);
+            var modifiedFilePath = _fileService.ModifyFilePath(filePath);
+            await using (var stream = new FileStream(modifiedFilePath, FileMode.Create))
             {
-                file.CopyTo(stream);
+                await file.CopyToAsync(stream);
             }
             medias.Add(await _mediaService.AddUserMedia(modifiedFilePath, claimUserId, file.FileName));
         }
@@ -347,4 +347,146 @@ await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationS
         var result = await _mediaService.GetUserMediaList(claimUserId, limit, currCursor);
         return Ok(result);
     }
+
+    [HttpPost]
+    [Authorize(Roles = "Admin, User")]
+    [Route("{userId}/friends")]
+    public virtual async Task<ActionResult<UserProfileResponseDto>> PostUserFriends(
+        [FromRoute, Required] uint userId,
+        UserFriendRequestDto userFriendRequestDto)
+    {
+        var user = await _userService.GetUserById(userId);
+
+        var isUserExist = user != null;
+        
+        if (!isUserExist)
+        {
+            return BadRequest("Request user doesn't exist");
+        }
+        
+        var friend = await _userService.GetUserById(userFriendRequestDto.Id);
+
+        var isFriendExist = friend != null;
+
+        if (!isFriendExist)
+        {
+            return BadRequest("Friend with this id doesn't exist");
+        }
+
+        if (userId == userFriendRequestDto.Id)
+        {
+            return BadRequest("Can't add yourself to friends");
+        }
+
+        var isUserYourFriend = await _userService.IsUserYourFriend(userId, userFriendRequestDto.Id);
+
+        if (isUserYourFriend)
+        {
+            return BadRequest("User is already your friend");
+        }
+        
+        var isUserYourFollower = await _userService.IsUserYourFollower(userId, userFriendRequestDto.Id);
+
+        if (isUserYourFollower)
+        {
+            await _userService.DeleteFollower(userId, userFriendRequestDto.Id);
+            var addedFriend = await _userService.AddFriend(userId, userFriendRequestDto.Id);
+            return Ok(_mapper.Map<UserProfileResponseDto>(addedFriend.User2.UserProfile));
+        }
+
+        var addedFollower = await _userService.Follow(userId, userFriendRequestDto.Id);
+
+        return Ok(_mapper.Map<UserProfileResponseDto>(addedFollower.Source.UserProfile));
+    }
+
+    [HttpDelete]
+    [Authorize(Roles = "Admin, User")]
+    [Route("{userId}/friends")]
+    public virtual async Task<ActionResult<UserProfileResponseDto>> DeleteUserFriends(
+        [FromRoute, Required] uint userId,
+        UserFriendRequestDto userFriendRequestDto)
+    {
+        var user = await _userService.GetUserById(userId);
+
+        var isUserExist = user != null;
+        
+        if (!isUserExist)
+        {
+            return BadRequest("Request user doesn't exist");
+        }
+        
+        var exFriend = await _userService.GetUserById(userFriendRequestDto.Id);
+
+        var isExFriendExist = exFriend != null;
+
+        if (!isExFriendExist)
+        {
+            return BadRequest("Friend with this id doesn't exist");
+        }
+
+        var isUserYourFriend = await _userService.IsUserYourFriend(userId, userFriendRequestDto.Id);
+
+        if (!isUserYourFriend)
+        {
+            return BadRequest("User is not your Friend");
+        }
+
+        await _userService.DeleteFriendship(userId, userFriendRequestDto.Id);
+
+        var follower = await _userService.Follow(userFriendRequestDto.Id, userId);
+
+        return Ok(_mapper.Map<UserProfileResponseDto>(follower.Source.UserProfile));
+        
+    }
+
+    [HttpDelete]
+    [Authorize(Roles = "Admin, User")]
+    [Route("{userId}/followers")]
+    public virtual async Task<ActionResult<UserProfileResponseDto>> DeleteUserFollowers(
+        [FromRoute, Required] uint userId,
+        UserFriendRequestDto userFriendRequestDto)
+    {
+        var user = await _userService.GetUserById(userId);
+
+        var isUserExist = user != null;
+        
+        if (!isUserExist)
+        {
+            return BadRequest("Request user doesn't exist");
+        }
+        
+        var exFriend = await _userService.GetUserById(userFriendRequestDto.Id);
+
+        var isExFriendExist = exFriend != null;
+
+        if (!isExFriendExist)
+        {
+            return BadRequest("Follower with this id doesn't exist");
+        }
+
+        var isUserYourFollower = await _userService.IsUserYourFollower(userId, userFriendRequestDto.Id);
+
+        if (!isUserYourFollower)
+        {
+            return BadRequest("User is not your Follower");
+        }
+
+        var deletedFollower = await _userService.DeleteFollower(userId, userFriendRequestDto.Id);
+
+        return Ok(_mapper.Map<UserProfileResponseDto>(deletedFollower.Source.UserProfile));
+    }
+
+    [HttpGet]
+    [Authorize(Roles = "Admin, User")]
+    [Route("{userId}/followers")]
+    public virtual async Task<ActionResult<List<UserResponseDto>>> GetUserFollowers(
+        [FromRoute, Required] uint userId,
+        [FromQuery, Required] int limit,
+        [FromQuery] int currCursor)
+    {
+        var userFollowers = await _userService.GetUserFollowers(userId, limit, currCursor);
+
+        return Ok(userFollowers.Select(followers => _mapper.Map<UserResponseDto>(followers)));
+    }
+
 }
