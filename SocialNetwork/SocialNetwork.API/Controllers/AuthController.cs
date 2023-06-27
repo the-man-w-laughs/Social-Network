@@ -37,21 +37,11 @@ public sealed class AuthController : ControllerBase
     [ProducesResponseType(typeof(UserResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<UserResponseDto>> SignUp([FromBody, Required] UserSignUpRequestDto userSignUpRequestDto)
+    public async Task<ActionResult<UserResponseDto>> SignUp(
+        [FromBody, Required] UserSignUpRequestDto userSignUpRequestDto)
     {
-        try
-        {
-            var addedUser = await _authService.SignUpUser(userSignUpRequestDto);
-            return Ok(addedUser);
-        }
-        catch (ArgumentException argumentException)
-        {
-            return BadRequest(argumentException.Message);
-        }
-        catch (DuplicateEntryException duplicateEntryException)
-        {
-            return Conflict(duplicateEntryException.Message);
-        }
+        var addedUser = await _authService.SignUpUser(userSignUpRequestDto);
+        return Ok(addedUser);
     }
 
     /// <summary>
@@ -71,35 +61,24 @@ public sealed class AuthController : ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
     public async Task<ActionResult<UserResponseDto>> Login([FromBody, Required] UserLoginRequestDto userLoginRequestDto)
     {
-        try
+        var isUserAuthenticated =
+            await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        if (isUserAuthenticated.Succeeded)
+            throw new LoggedInUserAccessException("User is already authenticated");
+
+        var authenticatedUser = await _authService.LoginUser(userLoginRequestDto);
+
+        var claims = new List<Claim>
         {
-            var isUserAuthenticated =
-                await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            if (isUserAuthenticated.Succeeded)
-                throw new LoggedInUserAccessException("User is already authenticated");
+            new(ClaimsIdentity.DefaultNameClaimType, authenticatedUser.Id.ToString()),
+            new(ClaimsIdentity.DefaultRoleClaimType, authenticatedUser.TypeId.ToString()),
+        };
+        var claimsIdentity = new ClaimsIdentity(claims, "Cookies");
+        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-            var authenticatedUser = await _authService.LoginUser(userLoginRequestDto);
+        await HttpContext.SignInAsync(claimsPrincipal);
 
-            var claims = new List<Claim>
-            {
-                new(ClaimsIdentity.DefaultNameClaimType, authenticatedUser.Id.ToString()),
-                new(ClaimsIdentity.DefaultRoleClaimType, authenticatedUser.TypeId.ToString()),
-            };
-            var claimsIdentity = new ClaimsIdentity(claims, "Cookies");
-            var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-
-            await HttpContext.SignInAsync(claimsPrincipal);
-
-            return Ok(authenticatedUser);
-        }
-        catch (WrongCredentialsException wrongCredentialsException)
-        {
-            return BadRequest(wrongCredentialsException.Message);
-        }
-        catch (LoggedInUserAccessException loggedInUserAccessException)
-        {
-            return Conflict(loggedInUserAccessException.Message);
-        }
+        return Ok(authenticatedUser);
     }
 
     /// <summary>

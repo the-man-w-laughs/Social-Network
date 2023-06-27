@@ -60,7 +60,6 @@ public class UsersController : ControllerBase
         [FromQuery, Required] int currCursor)
     {
         var users = await _userService.GetUsers(limit, currCursor);
-
         return Ok(users.Select(up => _mapper.Map<UserResponseDto>(up)));
     }
 

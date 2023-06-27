@@ -26,7 +26,7 @@ public sealed class AdminController : ControllerBase
     public AdminController(IMapper mapper, IMediaService mediaService)
     {
         _mapper = mapper;
-        _mediaService = mediaService;        
+        _mediaService = mediaService;
     }
 
     /// <summary>
@@ -38,27 +38,13 @@ public sealed class AdminController : ControllerBase
     [Route("medias/{mediaId}")]
     public async Task<ActionResult<UserResponseDto>> DeleteAdminMedias([FromRoute, Required] uint mediaId)
     {
-        try
+        var deletedMedia = await _mediaService.DeleteMedia(mediaId);
+        if (System.IO.File.Exists(deletedMedia.FilePath))
         {
-            var deletedMedia = await _mediaService.DeleteMedia(mediaId);
-            if (System.IO.File.Exists(deletedMedia.FilePath))
-            {
-                System.IO.File.Delete(deletedMedia.FilePath);
-                return Ok(_mapper.Map<MediaLikeResponseDto>(deletedMedia));
-            }
-            else
-            {
-                return NotFound("No media with this id.");
-            }
+            System.IO.File.Delete(deletedMedia.FilePath);
+            return Ok(_mapper.Map<MediaLikeResponseDto>(deletedMedia));
         }
-        catch (NotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (Exception)
-        {
-            return StatusCode((int)HttpStatusCode.InternalServerError);
-        }
+        return NotFound("No media with this id.");
     }
 
     /// <summary>

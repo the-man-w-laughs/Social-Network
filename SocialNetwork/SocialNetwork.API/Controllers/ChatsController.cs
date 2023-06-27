@@ -41,7 +41,8 @@ public class ChatsController : ControllerBase
     [Authorize(Roles = "User")]
     [ProducesResponseType(typeof(ChatResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
-    public virtual async Task<ActionResult<ChatResponseDto>> PostChats([FromBody, Required] ChatRequestDto chatRequestDto)
+    public virtual async Task<ActionResult<ChatResponseDto>> PostChats(
+        [FromBody, Required] ChatRequestDto chatRequestDto)
     {
         var userId = (uint)HttpContext.Items["UserId"]!;
         var addedChat = await _chatService.CreateChat(chatRequestDto, userId);
@@ -65,19 +66,8 @@ public class ChatsController : ControllerBase
     public virtual async Task<ActionResult<ChatResponseDto>> GetChatsChatId([FromRoute, Required] uint chatId)
     {
         var userId = (uint)HttpContext.Items["UserId"]!;
-        try
-        {
-            var chatInfo = await _chatService.GetChatInfo(chatId, userId);
-            return Ok(chatInfo);
-        }
-        catch (NotFoundException notFoundException)
-        {
-            return NotFound(notFoundException.Message);
-        }
-        catch (AccessDeniedException accessDeniedException)
-        {
-            return Forbid(accessDeniedException.Message);
-        }
+        var chatInfo = await _chatService.GetChatInfo(chatId, userId);
+        return Ok(chatInfo);
     }
 
     /// <summary>
@@ -102,19 +92,8 @@ public class ChatsController : ControllerBase
         [FromQuery] int nextCursor)
     {
         var userId = (uint)HttpContext.Items["UserId"]!;
-        try
-        {
-            var chatMedias = await _chatService.GetChatMedias(userId, chatId, limit, nextCursor);
-            return Ok(chatMedias);
-        }
-        catch (NotFoundException notFoundException)
-        {
-            return NotFound(notFoundException.Message);
-        }
-        catch (AccessDeniedException accessDeniedException)
-        {
-            return Forbid(accessDeniedException.Message);
-        }
+        var chatMedias = await _chatService.GetChatMedias(userId, chatId, limit, nextCursor);
+        return Ok(chatMedias);
     }
 
     /// <summary>
@@ -137,19 +116,8 @@ public class ChatsController : ControllerBase
         [FromBody, Required] ChatPatchRequestDto chatPatchRequestDto)
     {
         var userId = (uint)HttpContext.Items["UserId"]!;
-        try
-        {
-            var updatedChat = await _chatService.UpdateChat(chatId, userId, chatPatchRequestDto);
-            return Ok(updatedChat);
-        }
-        catch (NotFoundException notFoundException)
-        {
-            return NotFound(notFoundException.Message);
-        }
-        catch (OwnershipException ownershipException)
-        {
-            return Forbid(ownershipException.Message);
-        }
+        var updatedChat = await _chatService.UpdateChat(chatId, userId, chatPatchRequestDto);
+        return Ok(updatedChat);
     }
 
     /// <summary>
@@ -169,19 +137,8 @@ public class ChatsController : ControllerBase
     public virtual async Task<ActionResult<ChatResponseDto>> DeleteChatsChatId([FromRoute, Required] uint chatId)
     {
         var userId = (uint)HttpContext.Items["UserId"]!;
-        try
-        {
-            var deletedChat = await _chatService.DeleteChat(chatId, userId);
-            return Ok(deletedChat);
-        }
-        catch (NotFoundException notFoundException)
-        {
-            return NotFound(notFoundException.Message);
-        }
-        catch (OwnershipException ownershipException)
-        {
-            return Forbid(ownershipException.Message);
-        }
+        var deletedChat = await _chatService.DeleteChat(chatId, userId);
+        return Ok(deletedChat);
     }
 
     /// <summary>
@@ -206,23 +163,8 @@ public class ChatsController : ControllerBase
         [FromBody, Required] ChatMemberRequestDto postChatMemberDto)
     {
         var userId = (uint)HttpContext.Items["UserId"]!;
-        try
-        {
-            var addedChatMember = await _chatService.AddChatMember(userId, chatId, postChatMemberDto);
-            return Ok(addedChatMember);
-        }
-        catch (NotFoundException notFoundException)
-        {
-            return NotFound(notFoundException.Message);
-        }
-        catch (AccessDeniedException accessDeniedException)
-        {
-            return Forbid(accessDeniedException.Message);
-        }
-        catch (DuplicateEntryException duplicateEntryException)
-        {
-            return Conflict(duplicateEntryException.Message);
-        }
+        var addedChatMember = await _chatService.AddChatMember(userId, chatId, postChatMemberDto);
+        return Ok(addedChatMember);
     }
 
     /// <summary>
@@ -247,19 +189,8 @@ public class ChatsController : ControllerBase
         [FromQuery] int nextCursor)
     {
         var userId = (uint)HttpContext.Items["UserId"]!;
-        try
-        {
-            var chatMembers = await _chatService.GetChatMembers(userId, chatId, limit, nextCursor);
-            return Ok(chatMembers);
-        }
-        catch (NotFoundException notFoundException)
-        {
-            return NotFound(notFoundException.Message);
-        }
-        catch (AccessDeniedException accessDeniedException)
-        {
-            return Forbid(accessDeniedException.Message);
-        }
+        var chatMembers = await _chatService.GetChatMembers(userId, chatId, limit, nextCursor);
+        return Ok(chatMembers);
     }
 
     /// <summary>
@@ -285,19 +216,9 @@ public class ChatsController : ControllerBase
     {
         //TODO РАЗОБРАТЬСЯ С ЛОГИКОЙ!!!!
         var userId = (uint)HttpContext.Items["UserId"]!;
-        try
-        {
-            var updatedChatMember = await _chatService.UpdateChatMember(chatId, userId, memberId, changeChatMemberRequestDto);
-            return Ok(updatedChatMember);
-        }
-        catch (NotFoundException notFoundException)
-        {
-            return NotFound(notFoundException.Message);
-        }
-        catch (OwnershipException ownershipException)
-        {
-            return Forbid(ownershipException.Message);
-        }
+        var updatedChatMember = await _chatService
+            .UpdateChatMember(chatId, userId, memberId, changeChatMemberRequestDto);
+        return Ok(updatedChatMember);
     }
 
     /// <summary>
@@ -323,19 +244,8 @@ public class ChatsController : ControllerBase
     {
         //TODO РАЗОБРАТЬСЯ С ЛОГИКОЙ!!!!
         var userId = (uint)HttpContext.Items["UserId"]!;
-        try
-        {
-            var deletedMember = await _chatService.DeleteChatMember(userId, userToDeleteId, chatId);
-            return Ok(deletedMember);
-        }
-        catch (NotFoundException notFoundException)
-        {
-            return NotFound(notFoundException.Message);
-        }
-        catch (AccessDeniedException accessDeniedException)
-        {
-            return Forbid(accessDeniedException.Message);
-        }
+        var deletedMember = await _chatService.DeleteChatMember(userId, userToDeleteId, chatId);
+        return Ok(deletedMember);
     }
 
     /// <summary>
@@ -358,19 +268,8 @@ public class ChatsController : ControllerBase
         [FromBody, Required] MessageRequestDto postChatMemberDto)
     {
         var userId = (uint)HttpContext.Items["UserId"]!;
-        try
-        {
-            var addedMessage = await _chatService.SendMessage(chatId, userId, postChatMemberDto);
-            return Ok(addedMessage);
-        }
-        catch (NotFoundException notFoundException)
-        {
-            return NotFound(notFoundException.Message);
-        }
-        catch (AccessDeniedException accessDeniedException)
-        {
-            return Forbid(accessDeniedException.Message);
-        }
+        var addedMessage = await _chatService.SendMessage(chatId, userId, postChatMemberDto);
+        return Ok(addedMessage);
     }
 
     /// <summary>
@@ -395,18 +294,7 @@ public class ChatsController : ControllerBase
         [FromQuery] int nextCursor)
     {
         var userId = (uint)HttpContext.Items["UserId"]!;
-        try
-        {
-            var chatMessages = await _chatService.GetChatMessages(chatId, userId, limit, nextCursor);
-            return Ok(chatMessages);
-        }
-        catch (NotFoundException notFoundException)
-        {
-            return NotFound(notFoundException.Message);
-        }
-        catch (AccessDeniedException accessDeniedException)
-        {
-            return Forbid(accessDeniedException.Message);
-        }
+        var chatMessages = await _chatService.GetChatMessages(chatId, userId, limit, nextCursor);
+        return Ok(chatMessages);
     }
 }
