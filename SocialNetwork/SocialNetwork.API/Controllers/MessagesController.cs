@@ -17,7 +17,7 @@ public class MessagesController : ControllerBase
     {
         _messageService = messageService;
     }
-    
+
     /// <summary>Reply Message</summary>
     /// <remarks>Reply chat message (for chat members).</remarks>
     /// <param name="messageId">The ID of the message to reply.</param>
@@ -33,21 +33,10 @@ public class MessagesController : ControllerBase
         [FromBody, Required] MessageRequestDto messageRequestDto)
     {
         var userId = (uint)HttpContext.Items["UserId"]!;
-        try
-        {
-            var repliedMessageDto = await _messageService.ReplyMessage(userId, messageId, messageRequestDto);
-            return Ok(repliedMessageDto);
-        }
-        catch (NotFoundException notFoundException)
-        {
-            return NotFound(notFoundException.Message);
-        }
-        catch (AccessDeniedException accessDeniedException)
-        {
-            return Forbid(accessDeniedException.Message);
-        }
+        var repliedMessageDto = await _messageService.ReplyMessage(userId, messageId, messageRequestDto);
+        return Ok(repliedMessageDto);
     }
-    
+
     /// <summary>Get Message</summary>
     /// <remarks>Get information about chat message.</remarks>
     /// <param name="messageId">The ID of the chat message.</param>
@@ -58,15 +47,8 @@ public class MessagesController : ControllerBase
     [HttpGet, Route("{messageId}")]
     public virtual async Task<ActionResult<MessageResponseDto>> GetMessagesMessageId([FromRoute, Required] uint messageId)
     {
-        try
-        {
-            var messageDto = await _messageService.GetMessage(messageId);
-            return Ok(messageDto);
-        }
-        catch (NotFoundException notFoundException)
-        {
-            return NotFound(notFoundException.Message);
-        }
+        var messageDto = await _messageService.GetMessage(messageId);
+        return Ok(messageDto);
     }
 
     /// <summary>Change Message</summary>
@@ -83,17 +65,10 @@ public class MessagesController : ControllerBase
         [FromBody, Required] MessagePatchRequestDto messagePatchRequestDto)
     {
         var userId = (uint)HttpContext.Items["UserId"]!;
-        try
-        {
-            var changedMessageDto = await _messageService.ChangeMessage(userId, messageId, messagePatchRequestDto);
-            return Ok(changedMessageDto);
-        }
-        catch (NotFoundException notFoundException)
-        {
-            return NotFound(notFoundException.Message);
-        }
+        var changedMessageDto = await _messageService.ChangeMessage(userId, messageId, messagePatchRequestDto);
+        return Ok(changedMessageDto);
     }
-    
+
     /// <summary>Delete Chat Message</summary>
     /// <remarks>Delete chat message (for message senders, chat admins, admins).</remarks>
     /// <param name="messageId">The ID of the message to delete.</param>
@@ -106,21 +81,10 @@ public class MessagesController : ControllerBase
     public virtual async Task<ActionResult<MessageResponseDto>> DeleteMessagesMessageId([FromRoute, Required] uint messageId)
     {
         var userId = (uint)HttpContext.Items["UserId"]!;
-        try
-        {
-            var deletedMessageDto = await _messageService.DeleteMessage(userId, messageId);
-            return Ok(deletedMessageDto);
-        }
-        catch (NotFoundException notFoundException)
-        {
-            return NotFound(notFoundException.Message);
-        }
-        catch (AccessDeniedException accessDeniedException)
-        {
-            return Forbid(accessDeniedException.Message);
-        }
+        var deletedMessageDto = await _messageService.DeleteMessage(userId, messageId);
+        return Ok(deletedMessageDto);
     }
-    
+
     /// <summary>Get All Message Likes</summary>
     /// <remarks>Get all likes of the message using pagination (for chat members).</remarks>
     /// <param name="messageId">The ID of the message to retrieve message likes for.</param>
@@ -136,15 +100,8 @@ public class MessagesController : ControllerBase
         [FromQuery, Required] int limit,
         [FromQuery, Required] int nextCursor)
     {
-        try
-        {
-            var messageLikesDto = await _messageService.GetAllMessageLikesPaginated(messageId, limit, nextCursor);
-            return Ok(messageLikesDto);
-        }
-        catch (NotFoundException notFoundException)
-        {
-            return NotFound(notFoundException.Message);
-        }
+        var messageLikesDto = await _messageService.GetAllMessageLikesPaginated(messageId, limit, nextCursor);
+        return Ok(messageLikesDto);
     }
 
     /// <summary>Like Message</summary>
@@ -157,29 +114,13 @@ public class MessagesController : ControllerBase
     /// <response code="404">Returns a string message if the chat message not founded.</response>
     [Authorize(Roles = "User")]
     [HttpPost, Route("{messageId}/likes")]
-    public virtual async Task<ActionResult<MessageLikeResponseDto>> PostMessagesMessageIdLikes(
-        [FromRoute, Required] uint messageId)
+    public virtual async Task<ActionResult<MessageLikeResponseDto>> PostMessagesMessageIdLikes([FromRoute, Required] uint messageId)
     {
         var userId = (uint)HttpContext.Items["UserId"]!;
-        try
-        {
-            var likedMessageDto = await _messageService.LikeMessage(userId, messageId);
-            return Ok(likedMessageDto);
-        }
-        catch (NotFoundException notFoundException)
-        {
-            return NotFound(notFoundException.Message);
-        }
-        catch (AccessDeniedException accessDeniedException)
-        {
-            return Forbid(accessDeniedException.Message);
-        }
-        catch (DuplicateEntryException duplicateEntryException)
-        {
-            return BadRequest(duplicateEntryException.Message);
-        }
+        var likedMessageDto = await _messageService.LikeMessage(userId, messageId);
+        return Ok(likedMessageDto);
     }
-    
+
     /// <summary>Unlike Message</summary>
     /// <remarks>Unlike chat message (for like owner).</remarks>
     /// <param name="messageId">The ID of the message to unlike.</param>
@@ -193,22 +134,7 @@ public class MessagesController : ControllerBase
     public virtual async Task<ActionResult<MessageLikeResponseDto>> DeleteMessagesMessageIdLikes([FromRoute, Required] uint messageId)
     {
         var userId = (uint)HttpContext.Items["UserId"]!;
-        try
-        {
-            var unlikedMessageDto = await _messageService.UnlikeMessage(userId, messageId);
-            return Ok(unlikedMessageDto);
-        }
-        catch (NotFoundException notFoundException)
-        {
-            return NotFound(notFoundException.Message);
-        }
-        catch (AccessDeniedException accessDeniedException)
-        {
-            return Forbid(accessDeniedException.Message);
-        }
-        catch (DuplicateEntryException duplicateEntryException)
-        {
-            return BadRequest(duplicateEntryException.Message);
-        }
+        var unlikedMessageDto = await _messageService.UnlikeMessage(userId, messageId);
+        return Ok(unlikedMessageDto);
     }
 }
