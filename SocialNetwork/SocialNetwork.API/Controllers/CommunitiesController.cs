@@ -51,7 +51,7 @@ public class CommunitiesController : ControllerBase
     /// <param name="communityRequestDto">The information of the community to create.</param>    
     /// <response code="200">Returns the created community.</response>
     [HttpPost]
-    [Authorize(Roles = "Admin, User")]
+    [Authorize(Roles = "User")]
     [ProducesResponseType(typeof(CommunityResponseDto), StatusCodes.Status200OK)]
     public virtual async Task<ActionResult<CommunityResponseDto>> PostCommunities(
         [FromBody, Required] CommunityRequestDto communityRequestDto)
@@ -92,7 +92,7 @@ public class CommunitiesController : ControllerBase
     /// <param name="currCursor">The current cursor position for pagination.</param>    
     /// <response code="200">Returns the list of communities.</response>
     [HttpGet]
-    [Authorize(Roles = "Admin, User")]
+    [Authorize(Roles = "User")]
     [ProducesResponseType(typeof(List<CommunityResponseDto>), StatusCodes.Status200OK)]
     public virtual async Task<ActionResult<List<CommunityResponseDto>>> GetCommunities(
         [FromQuery, Required] int limit,
@@ -113,7 +113,7 @@ public class CommunitiesController : ControllerBase
     /// <response code="400">If the community with the specified ID doesn't exist or an error occurs during the update.</response>
     /// <response code="403">If the user is not authorized to update the community.</response>
     [HttpPatch]
-    [Authorize(Roles = "Admin, User")]
+    [Authorize(Roles = "User")]
     [Route("{communityId}")]
     [ProducesResponseType(typeof(CommunityResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
@@ -170,7 +170,7 @@ public class CommunitiesController : ControllerBase
     /// <response code="400">If the community with the specified ID doesn't exist.</response>
     /// <response code="403">If the user is not authorized to delete the community.</response>
     [HttpDelete]
-    [Authorize(Roles = "Admin, User")]
+    [Authorize(Roles = "User")]
     [Route("{communityId}")]
     [ProducesResponseType(typeof(CommunityResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
@@ -220,7 +220,7 @@ public class CommunitiesController : ControllerBase
     /// <response code="400">If the community with the specified ID doesn't exist.</response>
     /// <response code="403">If the user is not authorized to create a post in the community.</response>
     [HttpPost]
-    [Authorize(Roles = "Admin, User")]
+    [Authorize(Roles = "User")]
     [Route("{communityId}/posts")]
     [ProducesResponseType(typeof(PostResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
@@ -280,7 +280,7 @@ public class CommunitiesController : ControllerBase
     /// <response code="200">Returns the list of community posts.</response>
     /// <response code="400">If the community with the specified ID doesn't exist.</response>
     [HttpGet]
-    [Authorize(Roles = "Admin, User")]
+    [Authorize(Roles = "User")]
     [Route("{communityId}/posts")]
     [ProducesResponseType(typeof(List<CommunityPostResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]

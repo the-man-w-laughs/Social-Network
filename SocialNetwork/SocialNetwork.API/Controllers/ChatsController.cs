@@ -38,7 +38,7 @@ public class ChatsController : ControllerBase
     /// <response code="200">Returns a <see cref="ChatResponseDto"/> with the details of the newly created chat.</response>
     /// <response code="401">Returns a string message if the user is unauthorized.</response>
     [HttpPost]
-    [Authorize(Roles = "Admin, User")]
+    [Authorize(Roles = "User")]
     [ProducesResponseType(typeof(ChatResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
     public virtual async Task<ActionResult<ChatResponseDto>> PostChats([FromBody, Required] ChatRequestDto chatRequestDto)
@@ -74,7 +74,7 @@ public class ChatsController : ControllerBase
     /// <response code="400">Returns a string message if the chat does not exist.</response>
     /// <response code="401">Returns a string message if the user is unauthorized or not a chat member.</response>
     [HttpGet]
-    [Authorize(Roles = "Admin, User")]
+    [Authorize(Roles = "User")]
     [Route("{chatId}")]
     [ProducesResponseType(typeof(ChatResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
@@ -115,7 +115,7 @@ public class ChatsController : ControllerBase
     /// <response code="400">Returns a string message if the chat does not exist.</response>
     /// <response code="401">Returns a string message if the user is unauthorized or not a chat member.</response>
     [HttpGet]
-    [Authorize(Roles = "Admin, User")]
+    [Authorize(Roles = "User")]
     [Route("{chatId}/medias")]
     [ProducesResponseType(typeof(List<MediaResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
@@ -158,7 +158,7 @@ public class ChatsController : ControllerBase
     /// <response code="400">Returns a string message if the chat does not exist or an error occurred during the update.</response>
     /// <response code="401">Returns a string message if the user is unauthorized or not a chat owner.</response>
     [HttpPatch]
-    [Authorize(Roles = "Admin, User")]
+    [Authorize(Roles = "User")]
     [Route("{chatId}")]
     [ProducesResponseType(typeof(ChatResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
@@ -208,7 +208,7 @@ public class ChatsController : ControllerBase
     /// <response code="400">Returns a string message if the chat does not exist.</response>
     /// <response code="403">Returns a string message if the user is unauthorized or not a chat owner.</response>
     [HttpDelete]
-    [Authorize(Roles = "Admin, User")]
+    [Authorize(Roles = "User")]
     [Route("{chatId}")]
     [ProducesResponseType(typeof(ChatResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
@@ -258,6 +258,7 @@ public class ChatsController : ControllerBase
     /// <response code="403">Returns a string message if the user is unauthorized or not a chat member.</response>
     /// <response code="409">Returns a string message if the user is already a member of the chat.</response>
     [HttpPost]
+    [Authorize(Roles = "User")]
     [Route("{chatId}/members")]
     [ProducesResponseType(typeof(ChatMemberResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
@@ -314,7 +315,7 @@ public class ChatsController : ControllerBase
     /// <response code="400">Returns a string message if the chat does not exist.</response>
     /// <response code="403">Returns a string message if the user is unauthorized or not a chat member.</response>
     [HttpGet]
-    [Authorize(Roles = "Admin, User")]
+    [Authorize(Roles = "User")]
     [Route("{chatId}/members")]
     [ProducesResponseType(typeof(List<ChatMemberResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
@@ -364,6 +365,7 @@ public class ChatsController : ControllerBase
     /// <response code="400">Returns a string message if the chat or chat member does not exist.</response>
     /// <response code="403">Returns a string message if the user is unauthorized or does not have permission.</response>
     [HttpPut]
+    [Authorize(Roles = "User")]
     [Route("{chatId}/members/{memberId}")]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
@@ -420,7 +422,7 @@ public class ChatsController : ControllerBase
     /// <response code="403">Returns a string message if the user is unauthorized or does not have permission.</response>
     /// <response code="404">Returns a string message if the chat member is not found.</response>
     [HttpDelete]
-    [Authorize(Roles = "Admin, User")]
+    [Authorize(Roles = "User")]
     [Route("{chatId}/members/{userToDeleteId}")]
     [ProducesResponseType(typeof(ChatMemberResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
@@ -472,6 +474,7 @@ public class ChatsController : ControllerBase
     /// <response code="400">Returns a string message if the chat does not exist.</response>
     /// <response code="403">Returns a string message if the user is unauthorized or is not a chat member.</response>
     [HttpPost]
+    [Authorize(Roles = "User")]
     [Route("{chatId}/messages")]
     [ProducesResponseType(typeof(MessageResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
@@ -524,7 +527,7 @@ public class ChatsController : ControllerBase
     /// <response code="400">Returns a string message if the chat does not exist.</response>
     /// <response code="403">Returns a string message if the user is unauthorized or is not a chat member.</response>
     [HttpGet]
-    [Authorize(Roles = "Admin, User")]
+    [Authorize(Roles = "User")]
     [Route("{chatId}/messages")]
     [ProducesResponseType(typeof(List<MessageResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]

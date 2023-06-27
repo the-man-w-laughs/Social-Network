@@ -33,7 +33,7 @@ public class MessagesController : ControllerBase
     /// </summary>
     /// <remarks>Reply chat message (for chat members).</remarks>
     [HttpPost]
-    [Authorize(Roles = "Admin, User")]
+    [Authorize(Roles = "User")]
     [Route("{messageId}")]
     public virtual async Task<ActionResult<MessageResponseDto>> PostMessagesMessageId(
         [FromRoute, Required] uint messageId,
@@ -78,7 +78,7 @@ public class MessagesController : ControllerBase
     /// </summary>
     /// <remarks>Get information about chat message.</remarks>
     [HttpGet]
-    [Authorize(Roles = "Admin, User")]
+    [Authorize(Roles = "User")]
     [Route("{messageId}")]
     public virtual async Task<ActionResult<MessageResponseDto>> GetMessagesMessageId([FromRoute, Required] uint messageId)
     {
@@ -108,7 +108,7 @@ public class MessagesController : ControllerBase
     /// </summary>
     /// <remarks>Delete chat message (for message senders, chat admins, admins).</remarks>
     [HttpDelete]
-    [Authorize(Roles = "Admin, User")]
+    [Authorize(Roles = "User")]
     [Route("{messageId}")]
     public virtual async Task<ActionResult<MessageResponseDto>> DeleteMessagesMessageId([FromRoute, Required] uint messageId)
     {
@@ -141,7 +141,7 @@ public class MessagesController : ControllerBase
     /// </summary>
     /// <remarks>Like chat message (for chat members).</remarks>
     [HttpPost]
-    [Authorize(Roles = "Admin, User")]
+    [Authorize(Roles = "User")]
     [Route("{messageId}/likes")]
     public virtual async Task<ActionResult<MessageLikeResponseDto>> PostMessagesMessageIdLikes([FromRoute, Required] uint messageId)
     {
@@ -184,7 +184,7 @@ public class MessagesController : ControllerBase
     /// </summary>
     /// <remarks>Get all message likes using pagination (for chat members).</remarks>
     [HttpGet]
-    [Authorize(Roles = "Admin, User")]
+    [Authorize(Roles = "User")]
     [Route("{messageId}/likes")]
     public virtual async Task<ActionResult<List<MessageLikeResponseDto>>> GetMessagesMessageId(
         [FromRoute, Required] uint messageId,
@@ -201,7 +201,7 @@ public class MessagesController : ControllerBase
     /// </summary>
     /// <remarks>Unlike chat message (for like owner).</remarks>
     [HttpDelete]
-    [Authorize(Roles = "Admin, User")]
+    [Authorize(Roles = "User")]
     [Route("{messageId}/likes")]
     public virtual async Task<ActionResult<MessageLikeResponseDto>> DeleteMessagesMessageIdLikes([FromRoute, Required] uint messageId)
     {

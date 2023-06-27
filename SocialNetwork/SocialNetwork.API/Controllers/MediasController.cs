@@ -80,21 +80,18 @@ public class MediasController : ControllerBase
     /// <response code="404">If the media is not found.</response>
     /// <response code="500">If an error occurs during the deletion process.</response>
     [HttpDelete]
-    [Authorize(Roles = "Admin, User")]
+    [Authorize(Roles = "User")]
     [Route("{mediaId}")]
     [ProducesResponseType(typeof(MediaResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
     public async virtual Task<ActionResult<MediaResponseDto>> DeleteMediasMediaId([FromRoute][Required] uint mediaId)
-    {
-        var isUserAuthenticated = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
-        var claimUserId = uint.Parse(isUserAuthenticated.Principal!.Claims
-            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultNameClaimType)?.Value!);
+    {        
+        var userId = (uint)HttpContext.Items["UserId"]!;
 
         try
         {
-            var deletedMedia = await _mediaService.DeleteMedia(claimUserId, mediaId);
+            var deletedMedia = await _mediaService.DeleteMedia(userId, mediaId);
             if (System.IO.File.Exists(deletedMedia.FilePath))
             {
                 System.IO.File.Delete(deletedMedia.FilePath);
@@ -134,15 +131,12 @@ public class MediasController : ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
     public virtual async Task<ActionResult<MediaLikeResponseDto>> PostMediasMediaIdLikes([FromRoute][Required] uint mediaId)
-    {
-        var isUserAuthenticated = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
-        var claimUserId = uint.Parse(isUserAuthenticated.Principal!.Claims
-            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultNameClaimType)?.Value!);
+    {        
+        var userId = (uint)HttpContext.Items["UserId"]!;
         try
         {
             await _mediaService.GetLocalMedia(mediaId);            
-            return Ok(await _mediaService.LikeMedia(claimUserId, mediaId));
+            return Ok(await _mediaService.LikeMedia(userId, mediaId));
         }
         catch (NotFoundException ex)
         {
@@ -165,7 +159,7 @@ public class MediasController : ControllerBase
     /// <response code="200">Returns the list of media likes.</response>
     /// <response code="404">If the media is not found.</response>
     [HttpGet]
-    [Authorize(Roles = "Admin, User")]
+    [Authorize(Roles = "User")]
     [Route("{mediaId}/likes")]
     [ProducesResponseType(typeof(List<MediaLikeResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
@@ -195,15 +189,13 @@ public class MediasController : ControllerBase
     [ProducesResponseType(typeof(MediaLikeResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     public async virtual Task<ActionResult<MediaLikeResponseDto>> DeleteMediasMediaIdLikes([FromRoute][Required] uint mediaId)
-    {
-        var isUserAuthenticated = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        var claimUserId = uint.Parse(isUserAuthenticated.Principal!.Claims
-            .FirstOrDefault(c => c.Type == ClaimsIdentity.DefaultNameClaimType)?.Value!);
+    {        
+        var userId = (uint)HttpContext.Items["UserId"]!;        
 
         try
         {
             await _mediaService.GetLocalMedia(mediaId);
-            return Ok(await _mediaService.UnLikeMedia(claimUserId, mediaId));
+            return Ok(await _mediaService.UnLikeMedia(userId, mediaId));
         }
         catch (NotFoundException ex)
         {

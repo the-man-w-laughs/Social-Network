@@ -54,7 +54,7 @@ public class UsersController : ControllerBase
     /// </summary>
     /// <remarks>Returns all users using pagination.</remarks>
     [HttpGet]
-    [Authorize(Roles = "Admin, User")]
+    [Authorize(Roles = "User")]
     public virtual async Task<ActionResult<List<UserResponseDto>>> GetUsers(
         [FromQuery, Required] int limit,
         [FromQuery, Required] int currCursor)
@@ -217,7 +217,7 @@ public class UsersController : ControllerBase
     /// </summary>
     /// <remarks>Change user profile(status, sex).</remarks>
     [HttpPatch]
-    [Authorize(Roles = "Admin, User")]
+    [Authorize(Roles = "User")]
     [Route("profile")]
     public async virtual Task<ActionResult<UserProfileResponseDto>> PutUsersUserIdProfile(        
         [FromBody, Required] UserProfilePatchRequestDto userProfilePatchRequestDto)
@@ -288,7 +288,7 @@ await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationS
     /// </summary>
     /// <remarks>Create user media.</remarks>    
     [HttpPost]
-    [Authorize(Roles = "Admin, User")]
+    [Authorize(Roles = "User")]
     [Route("medias")]
     public async virtual Task<ActionResult<List<MediaResponseDto>>> PostUsersUserIdMedias([Required] List<IFormFile> files)
     {
@@ -332,7 +332,7 @@ await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationS
     /// </summary>
     /// <remarks>Get all user's posts using pagination. (only for user or admin)</remarks>
     [HttpGet]
-    [Authorize(Roles = "Admin, User")]
+    [Authorize(Roles = "User")]
     [Route("medias")]
     public async virtual Task<ActionResult<List<MediaResponseDto>>> GetUsersUserIdMedias(        
         [FromQuery, Required] int limit,

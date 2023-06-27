@@ -11,9 +11,6 @@ public class UserResponseDto
 
     public string Login { get; set; } = null!;
     public DateTime? LoginUpdatedAt { get; set; }
-
-    public byte[] PasswordHash { get; set; } = null!;
-    public string Salt { get; set; } = null!;
     public DateTime? PasswordUpdatedAt { get; set; }
 
     public UserType TypeId { get; set; }
