@@ -1,5 +1,6 @@
 using AutoMapper;
 using SocialNetwork.BLL.Contracts;
+using SocialNetwork.BLL.DTO.Auth.Request;
 using SocialNetwork.BLL.DTO.Users.Request;
 using SocialNetwork.BLL.DTO.Users.Response;
 using SocialNetwork.BLL.Exceptions;
@@ -11,23 +12,20 @@ namespace SocialNetwork.BLL.Services.Auth;
 
 public class AuthService : IAuthService
 {
-    private readonly IUserRepository _userRepository;
-
-    private readonly IUserProfileRepository _userProfileRepository;
-
-    private readonly ISaltService _saltService;
-
-    private readonly IPasswordHashService _passwordHashService;
     private readonly IMapper _mapper;
+    private readonly IUserRepository _userRepository;
+    private readonly IUserProfileRepository _userProfileRepository;
+    private readonly IPasswordHashService _passwordHashService;
 
-    public AuthService(IUserRepository userRepository, IUserProfileRepository userProfileRepository,
-        ISaltService saltService, IPasswordHashService passwordHashService, IMapper mapper)
+    public AuthService(IMapper mapper,
+        IUserRepository userRepository,
+        IUserProfileRepository userProfileRepository,
+        IPasswordHashService passwordHashService)
     {
+        _mapper = mapper;
         _userRepository = userRepository;
         _userProfileRepository = userProfileRepository;
-        _saltService = saltService;
         _passwordHashService = passwordHashService;
-        _mapper = mapper;
     }
 
     public async Task<bool> IsLoginAlreadyExists(string login)
@@ -54,11 +52,6 @@ public class AuthService : IAuthService
         return login.Length is <= Constants.UserLoginMaxLength and >= Constants.UserLoginMinLength;
     }
 
-    public bool IsPasswordValid(string password)
-    {
-        return password.Length >= Constants.UserPasswordMinLength;
-    }
-
     public async Task<UserProfile> AddUserProfile(UserProfile userProfile)
     {
         var addedProfile = await _userProfileRepository.AddAsync(userProfile);
@@ -66,21 +59,21 @@ public class AuthService : IAuthService
         return addedProfile;
     }
 
-    public async Task<UserResponseDto> SignUpUser(UserSignUpRequestDto userSignUpRequestDto)
+    public async Task<UserResponseDto> SignUpUser(SignUpRequestDto userSignUpRequestDto)
     { 
         // сначала проверяем все поля на валидность 
         // далее нужно проверить еслть ли пользователь с таким логином если есть возвращаем Conflict
         // иначе генерируем соль, формируем хэш пароля записываем все в бд возвращаем ok с dto
         if (!IsLoginValid(userSignUpRequestDto.Login))
             throw new ArgumentException("Login must be between 3 and 20 characters");
-        if (!IsPasswordValid(userSignUpRequestDto.Password))
+        if (!_passwordHashService.IsPasswordValid(userSignUpRequestDto.Password))
             throw new ArgumentException("password must be at least 6 characters");
 
         var isLoginExisted = await IsLoginAlreadyExists(userSignUpRequestDto.Login);
         if (isLoginExisted) 
             throw new DuplicateEntryException("This login already exists");
 
-        var salt = _saltService.GenerateSalt();
+        var salt = _passwordHashService.GenerateSalt();
         var hashedPassword = _passwordHashService.HashPassword(userSignUpRequestDto.Password, salt);
        
         var newUser = new User
@@ -106,13 +99,13 @@ public class AuthService : IAuthService
        return _mapper.Map<UserResponseDto>(addedUser);
     }
 
-    public async Task<UserResponseDto> LoginUser(UserLoginRequestDto userLoginRequestDto)
+    public async Task<UserResponseDto> LoginUser(LoginRequestDto userLoginRequestDto)
     {
         var user = await GetUserByLogin(userLoginRequestDto.Login);
         if (user == null) 
             throw new WrongCredentialsException("User with this login Doesn't exist");
         
-        var salt = user!.Salt;
+        var salt = user.Salt;
         var hashedPassword = user.PasswordHash;
 
         var isPasswordCorrect = _passwordHashService.VerifyPassword(userLoginRequestDto.Password, salt, hashedPassword);

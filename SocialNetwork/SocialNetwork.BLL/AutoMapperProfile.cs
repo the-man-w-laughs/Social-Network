@@ -56,7 +56,7 @@ public class AutoMapperProfile : Profile
 
 
         // Users
-        CreateMap<UserChangeLoginRequestDto, User>();
+        CreateMap<UserLoginRequestDto, User>();
         CreateMap<UserProfilePatchRequestDto, UserProfile>();
 
         CreateMap<User, UserActivityResponseDto>();

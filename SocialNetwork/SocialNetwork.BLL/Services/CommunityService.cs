@@ -1,10 +1,5 @@
 using AutoMapper;
-using AutoMapper.Execution;
-using DocumentFormat.OpenXml.Drawing.Charts;
-using DocumentFormat.OpenXml.Spreadsheet;
 using SocialNetwork.BLL.Contracts;
-using SocialNetwork.BLL.DTO.Chats.Request;
-using SocialNetwork.BLL.DTO.Chats.Response;
 using SocialNetwork.BLL.DTO.Communities.Request;
 using SocialNetwork.BLL.DTO.Communities.Response;
 using SocialNetwork.BLL.DTO.Posts.Request;
@@ -14,8 +9,6 @@ using SocialNetwork.DAL.Contracts.Medias;
 using SocialNetwork.DAL.Contracts.Posts;
 using SocialNetwork.DAL.Entities.Communities;
 using SocialNetwork.DAL.Entities.Posts;
-using SocialNetwork.DAL.Entities.Users;
-using SocialNetwork.DAL.Repositories.Communities;
 
 namespace SocialNetwork.BLL.Services;
 

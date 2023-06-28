@@ -1,6 +1,4 @@
 ﻿using SocialNetwork.BLL.DTO.Posts.Response;
-using SocialNetwork.DAL.Entities.Communities;
-using SocialNetwork.DAL.Entities.Posts;
 
 namespace SocialNetwork.BLL.DTO.Communities.Response;
 

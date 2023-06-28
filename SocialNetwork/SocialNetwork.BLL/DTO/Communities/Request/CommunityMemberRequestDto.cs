@@ -1,10 +1,4 @@
-﻿using SocialNetwork.DAL.Entities.Chats;
-using SocialNetwork.DAL.Entities.Communities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SocialNetwork.DAL.Entities.Communities;
 
 namespace SocialNetwork.BLL.DTO.Communities.Request
 {

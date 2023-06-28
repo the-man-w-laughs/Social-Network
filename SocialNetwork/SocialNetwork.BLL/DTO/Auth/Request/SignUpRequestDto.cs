@@ -1,6 +1,6 @@
-﻿namespace SocialNetwork.BLL.DTO.Users.Request;
+﻿namespace SocialNetwork.BLL.DTO.Auth.Request;
 
-public class UserSignUpRequestDto
+public class SignUpRequestDto
 {        
     public string Email { get; set; }        
     public string Login { get; set; } = null!;

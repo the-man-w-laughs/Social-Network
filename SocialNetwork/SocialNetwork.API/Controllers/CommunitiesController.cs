@@ -1,14 +1,12 @@
 using System.ComponentModel.DataAnnotations;
-using System.Linq.Expressions;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SocialNetwork.API.Middlewares;
 using SocialNetwork.BLL.Contracts;
 using SocialNetwork.BLL.DTO.Communities.Request;
 using SocialNetwork.BLL.DTO.Communities.Response;
 using SocialNetwork.BLL.DTO.Posts.Request;
 using SocialNetwork.BLL.DTO.Posts.Response;
-using SocialNetwork.BLL.Exceptions;
 
 namespace SocialNetwork.API.Controllers;
 
@@ -38,7 +36,7 @@ public class CommunitiesController : ControllerBase
     public virtual async Task<ActionResult<CommunityResponseDto>> PostCommunities(
         [FromBody, Required] CommunityRequestDto communityRequestDto)
     {
-        var userId = (uint)HttpContext.Items["UserId"]!;
+        var userId = HttpContext.GetAuthenticatedUserId();
         var addedCommunity = await _communityService.AddCommunity(communityRequestDto);
         await _communityService.AddCommunityOwner(addedCommunity.Id, userId);
         return Ok(addedCommunity);
@@ -62,7 +60,7 @@ public class CommunitiesController : ControllerBase
     public virtual async Task<ActionResult<CommunityResponseDto>> GetCommunitiesCommunityId(
         [FromRoute, Required] uint communityId)
     {
-        var userId = (uint)HttpContext.Items["UserId"]!;
+        var userId = HttpContext.GetAuthenticatedUserId();
         var community = await _communityService.GetCommunity(userId, communityId);
         return Ok(community);
     }
@@ -106,7 +104,7 @@ public class CommunitiesController : ControllerBase
         [FromRoute, Required] uint communityId,
         [FromBody, Required] CommunityPatchRequestDto communityPatchRequestDto)
     {
-        var userId = (uint)HttpContext.Items["UserId"]!;
+        var userId = HttpContext.GetAuthenticatedUserId();
         var updatedCommunity =
             await _communityService.ChangeCommunity(userId, communityId, communityPatchRequestDto);
         return Ok(updatedCommunity);
@@ -129,7 +127,7 @@ public class CommunitiesController : ControllerBase
     public virtual async Task<ActionResult<CommunityResponseDto>> DeleteCommunitiesCommunityId(
         [FromRoute, Required] uint communityId)
     {
-        var userId = (uint)HttpContext.Items["UserId"]!;
+        var userId = HttpContext.GetAuthenticatedUserId();
         var deletedCommunity = await _communityService.DeleteCommunity(userId, communityId);
         return Ok(deletedCommunity);
     }
@@ -155,7 +153,7 @@ public class CommunitiesController : ControllerBase
         [FromRoute, Required] uint communityId,
         [FromBody, Required] PostRequestDto postRequestDto)
     {
-        var userId = (uint)HttpContext.Items["UserId"]!;
+        var userId = HttpContext.GetAuthenticatedUserId();
         var addedPost = await _communityService.AddCommunityPost(userId, communityId, postRequestDto);
         return Ok(addedPost);
     }
@@ -180,7 +178,7 @@ public class CommunitiesController : ControllerBase
         [FromQuery, Required] int limit,
         [FromQuery] int currCursor)
     {
-        var userId = (uint)HttpContext.Items["UserId"]!;
+        var userId = HttpContext.GetAuthenticatedUserId();
         var communityPosts = await _communityService
             .GetCommunityPosts(userId, communityId, limit, currCursor);
         return Ok(communityPosts);
@@ -199,7 +197,7 @@ public class CommunitiesController : ControllerBase
         [FromQuery] int currCursor,
         [FromQuery] uint? communityMemberTypeId)
     {
-        var userId = (uint)HttpContext.Items["UserId"]!;
+        var userId = HttpContext.GetAuthenticatedUserId();
         var communityPosts = await _communityService
             .GetCommunityMembers(userId, communityId, communityMemberTypeId, limit, currCursor);
         return Ok(communityPosts);
@@ -216,7 +214,7 @@ public class CommunitiesController : ControllerBase
         [FromRoute, Required] uint userIdToAdd,
         [FromRoute, Required] uint communityId)
     {
-        var userId = (uint)HttpContext.Items["UserId"]!;
+        var userId = HttpContext.GetAuthenticatedUserId();
         var addedMember = await _communityService.AddCommunityMember(userId, communityId, userIdToAdd);
         return Ok(addedMember);
     }
@@ -233,7 +231,7 @@ public class CommunitiesController : ControllerBase
         [FromRoute, Required] uint communityId,
         [FromBody, Required] CommunityMemberRequestDto communityMemberRequestDto)
     {
-        var userId = (uint)HttpContext.Items["UserId"]!;
+        var userId = HttpContext.GetAuthenticatedUserId();
         var deletedMember = await _communityService
             .ChangeCommunityMember(userId, communityId, userIdToAdd, communityMemberRequestDto);
         return Ok(deletedMember);
@@ -250,7 +248,7 @@ public class CommunitiesController : ControllerBase
         [FromRoute, Required] uint userIdToAdd,
         [FromRoute, Required] uint communityId)
     {
-        var userId = (uint)HttpContext.Items["UserId"]!;
+        var userId = HttpContext.GetAuthenticatedUserId();
         var deletedMember = await _communityService.DeleteCommunityMember(userId, communityId, userIdToAdd);
         return Ok(deletedMember);
     }

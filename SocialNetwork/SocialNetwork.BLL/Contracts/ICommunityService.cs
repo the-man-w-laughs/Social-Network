@@ -1,8 +1,6 @@
 using SocialNetwork.BLL.DTO.Communities.Request;
 using SocialNetwork.BLL.DTO.Communities.Response;
 using SocialNetwork.BLL.DTO.Posts.Request;
-using SocialNetwork.DAL.Entities.Communities;
-using SocialNetwork.DAL.Entities.Posts;
 
 namespace SocialNetwork.BLL.Contracts;
 

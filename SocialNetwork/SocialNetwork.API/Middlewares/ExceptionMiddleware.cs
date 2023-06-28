@@ -43,6 +43,11 @@ namespace SocialNetwork.API.Middlewares
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 await context.Response.WriteAsync(ex.Message);
             }
+            catch (ArgumentException ex)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                await context.Response.WriteAsync(ex.Message);
+            }
             catch (NotFoundException ex)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.NotFound;

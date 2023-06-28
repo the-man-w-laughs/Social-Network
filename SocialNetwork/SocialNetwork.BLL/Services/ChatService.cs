@@ -11,7 +11,6 @@ using SocialNetwork.DAL.Contracts.Medias;
 using SocialNetwork.DAL.Contracts.Messages;
 using SocialNetwork.DAL.Entities.Chats;
 using SocialNetwork.DAL.Entities.Messages;
-using SocialNetwork.DAL.Repositories.Chats;
 
 namespace SocialNetwork.BLL.Services;
 

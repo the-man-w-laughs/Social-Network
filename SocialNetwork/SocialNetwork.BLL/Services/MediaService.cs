@@ -1,16 +1,9 @@
 ﻿using AutoMapper;
-using DocumentFormat.OpenXml.Spreadsheet;
 using SocialNetwork.BLL.Contracts;
 using SocialNetwork.BLL.DTO.Medias.Response;
-using SocialNetwork.BLL.DTO.Messages.Response;
 using SocialNetwork.BLL.Exceptions;
 using SocialNetwork.DAL.Contracts.Medias;
-using SocialNetwork.DAL.Contracts.Messages;
-using SocialNetwork.DAL.Entities.Chats;
 using SocialNetwork.DAL.Entities.Medias;
-using SocialNetwork.DAL.Entities.Messages;
-using SocialNetwork.DAL.Entities.Users;
-using System.Collections.Generic;
 
 namespace SocialNetwork.BLL.Services
 {

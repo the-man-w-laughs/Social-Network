@@ -1,10 +1,8 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using SocialNetwork.DAL;
 using SocialNetwork.BLL;
-using SocialNetwork.DAL.Context;
 using System.Reflection;
 using SocialNetwork.API.Middlewares;
-using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 
 var builder = WebApplication.CreateBuilder(args);
 

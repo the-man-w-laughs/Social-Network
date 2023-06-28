@@ -1,12 +1,8 @@
-using DocumentFormat.OpenXml.Office2010.ExcelAc;
-using DocumentFormat.OpenXml.Office2010.PowerPoint;
 using SocialNetwork.BLL.DTO.Chats.Request;
 using SocialNetwork.BLL.DTO.Chats.Response;
 using SocialNetwork.BLL.DTO.Medias.Response;
 using SocialNetwork.BLL.DTO.Messages.Request;
 using SocialNetwork.BLL.DTO.Messages.Response;
-using SocialNetwork.DAL.Entities.Chats;
-using SocialNetwork.DAL.Entities.Messages;
 
 namespace SocialNetwork.BLL.Contracts;
 

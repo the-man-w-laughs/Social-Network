@@ -1,9 +1,9 @@
-using SocialNetwork.DAL.Entities.Posts;
-using SocialNetwork.DAL.Entities.Users;
+using SocialNetwork.BLL.DTO.Posts.Request;
+using SocialNetwork.BLL.DTO.Posts.Response;
 
 namespace SocialNetwork.BLL.Contracts;
 
 public interface IPostService
 {
-    public Task<UserProfilePost> CreateUserProfilePost(uint UserId, Post post);
+    public Task<UserProfilePostResponseDto> CreateUserProfilePost(uint userId, PostRequestDto postRequestDto);
 }

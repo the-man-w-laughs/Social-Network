@@ -1,18 +1,11 @@
 using System.ComponentModel.DataAnnotations;
-using System.Net;
-using System.Security.Claims;
 using AutoMapper;
-using DocumentFormat.OpenXml.Spreadsheet;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialNetwork.BLL.Contracts;
 using SocialNetwork.BLL.DTO.Medias.Response;
-using SocialNetwork.BLL.DTO.Users.Request;
 using SocialNetwork.BLL.DTO.Users.Response;
 using SocialNetwork.BLL.Exceptions;
-using SocialNetwork.DAL.Entities.Users;
 
 namespace SocialNetwork.API.Controllers;
 

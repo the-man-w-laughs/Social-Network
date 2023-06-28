@@ -1,8 +1,8 @@
 using SocialNetwork.DAL.Context;
+using SocialNetwork.DAL.Contracts.Medias;
 using SocialNetwork.DAL.Entities.Medias;
-using SocialNetwork.DAL.Repositories;
 
-namespace SocialNetwork.DAL.Contracts.Medias;
+namespace SocialNetwork.DAL.Repositories.Medias;
 public class MediaLikeRepository : Repository<MediaLike>, IMediaLikeRepository
 {
     public MediaLikeRepository(SocialNetworkContext socialNetworkContext) : base(socialNetworkContext) { }

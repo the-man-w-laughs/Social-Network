@@ -1,21 +1,13 @@
 using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
-using AutoMapper;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Org.BouncyCastle.Bcpg;
+using SocialNetwork.API.Middlewares;
 using SocialNetwork.BLL.Contracts;
 using SocialNetwork.BLL.DTO.Chats.Request;
 using SocialNetwork.BLL.DTO.Chats.Response;
 using SocialNetwork.BLL.DTO.Medias.Response;
 using SocialNetwork.BLL.DTO.Messages.Request;
 using SocialNetwork.BLL.DTO.Messages.Response;
-using SocialNetwork.BLL.Exceptions;
-using SocialNetwork.DAL.Entities.Chats;
-using SocialNetwork.DAL.Entities.Messages;
-using SocialNetwork.DAL.Entities.Users;
 
 namespace SocialNetwork.API.Controllers;
 
@@ -44,7 +36,7 @@ public class ChatsController : ControllerBase
     public virtual async Task<ActionResult<ChatResponseDto>> PostChats(
         [FromBody, Required] ChatRequestDto chatRequestDto)
     {
-        var userId = (uint)HttpContext.Items["UserId"]!;
+        var userId = HttpContext.GetAuthenticatedUserId();
         var addedChat = await _chatService.CreateChat(chatRequestDto, userId);
         return Ok(addedChat);
     }
@@ -65,7 +57,7 @@ public class ChatsController : ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
     public virtual async Task<ActionResult<ChatResponseDto>> GetChatsChatId([FromRoute, Required] uint chatId)
     {
-        var userId = (uint)HttpContext.Items["UserId"]!;
+        var userId = HttpContext.GetAuthenticatedUserId();
         var chatInfo = await _chatService.GetChatInfo(chatId, userId);
         return Ok(chatInfo);
     }
@@ -91,7 +83,7 @@ public class ChatsController : ControllerBase
         [FromQuery, Required] int limit,
         [FromQuery] int nextCursor)
     {
-        var userId = (uint)HttpContext.Items["UserId"]!;
+        var userId = HttpContext.GetAuthenticatedUserId();
         var chatMedias = await _chatService.GetChatMedias(userId, chatId, limit, nextCursor);
         return Ok(chatMedias);
     }
@@ -115,7 +107,7 @@ public class ChatsController : ControllerBase
         [FromRoute, Required] uint chatId,
         [FromBody, Required] ChatPatchRequestDto chatPatchRequestDto)
     {
-        var userId = (uint)HttpContext.Items["UserId"]!;
+        var userId = HttpContext.GetAuthenticatedUserId();
         var updatedChat = await _chatService.UpdateChat(chatId, userId, chatPatchRequestDto);
         return Ok(updatedChat);
     }
@@ -136,7 +128,7 @@ public class ChatsController : ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
     public virtual async Task<ActionResult<ChatResponseDto>> DeleteChatsChatId([FromRoute, Required] uint chatId)
     {
-        var userId = (uint)HttpContext.Items["UserId"]!;
+        var userId = HttpContext.GetAuthenticatedUserId();
         var deletedChat = await _chatService.DeleteChat(chatId, userId);
         return Ok(deletedChat);
     }
@@ -162,7 +154,7 @@ public class ChatsController : ControllerBase
         [FromRoute, Required] uint chatId,
         [FromBody, Required] ChatMemberRequestDto postChatMemberDto)
     {
-        var userId = (uint)HttpContext.Items["UserId"]!;
+        var userId = HttpContext.GetAuthenticatedUserId();
         var addedChatMember = await _chatService.AddChatMember(userId, chatId, postChatMemberDto);
         return Ok(addedChatMember);
     }
@@ -188,7 +180,7 @@ public class ChatsController : ControllerBase
         [FromQuery, Required] int limit,
         [FromQuery] int nextCursor)
     {
-        var userId = (uint)HttpContext.Items["UserId"]!;
+        var userId = HttpContext.GetAuthenticatedUserId();
         var chatMembers = await _chatService.GetChatMembers(userId, chatId, limit, nextCursor);
         return Ok(chatMembers);
     }
@@ -215,7 +207,7 @@ public class ChatsController : ControllerBase
         [FromBody, Required] ChangeChatMemberRequestDto changeChatMemberRequestDto)
     {
         //TODO РАЗОБРАТЬСЯ С ЛОГИКОЙ!!!!
-        var userId = (uint)HttpContext.Items["UserId"]!;
+        var userId = HttpContext.GetAuthenticatedUserId();
         var updatedChatMember = await _chatService
             .UpdateChatMember(chatId, userId, memberId, changeChatMemberRequestDto);
         return Ok(updatedChatMember);
@@ -243,7 +235,7 @@ public class ChatsController : ControllerBase
         [FromRoute, Required] uint userToDeleteId)
     {
         //TODO РАЗОБРАТЬСЯ С ЛОГИКОЙ!!!!
-        var userId = (uint)HttpContext.Items["UserId"]!;
+        var userId = HttpContext.GetAuthenticatedUserId();
         var deletedMember = await _chatService.DeleteChatMember(userId, userToDeleteId, chatId);
         return Ok(deletedMember);
     }
@@ -267,7 +259,7 @@ public class ChatsController : ControllerBase
         [FromRoute, Required] uint chatId,
         [FromBody, Required] MessageRequestDto postChatMemberDto)
     {
-        var userId = (uint)HttpContext.Items["UserId"]!;
+        var userId = HttpContext.GetAuthenticatedUserId();
         var addedMessage = await _chatService.SendMessage(chatId, userId, postChatMemberDto);
         return Ok(addedMessage);
     }
@@ -293,7 +285,7 @@ public class ChatsController : ControllerBase
         [FromQuery, Required] int limit,
         [FromQuery] int nextCursor)
     {
-        var userId = (uint)HttpContext.Items["UserId"]!;
+        var userId = HttpContext.GetAuthenticatedUserId();
         var chatMessages = await _chatService.GetChatMessages(chatId, userId, limit, nextCursor);
         return Ok(chatMessages);
     }

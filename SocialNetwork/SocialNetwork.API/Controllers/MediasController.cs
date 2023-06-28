@@ -1,11 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Net;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SocialNetwork.API.Middlewares;
 using SocialNetwork.BLL.Contracts;
 using SocialNetwork.BLL.DTO.Medias.Response;
-using SocialNetwork.BLL.Exceptions;
 
 namespace SocialNetwork.API.Controllers;
 
@@ -74,7 +73,7 @@ public class MediasController : ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
     public virtual async Task<ActionResult<MediaResponseDto>> DeleteMediasMediaId([FromRoute] [Required] uint mediaId)
     {
-        var userId = (uint)HttpContext.Items["UserId"]!;
+        var userId = HttpContext.GetAuthenticatedUserId();
         var deletedMedia = await _mediaService.DeleteMedia(userId, mediaId);
         if (System.IO.File.Exists(deletedMedia.FilePath))
         {
@@ -102,7 +101,7 @@ public class MediasController : ControllerBase
     public virtual async Task<ActionResult<MediaLikeResponseDto>> PostMediasMediaIdLikes(
         [FromRoute] [Required] uint mediaId)
     {
-        var userId = (uint)HttpContext.Items["UserId"]!;
+        var userId = HttpContext.GetAuthenticatedUserId();
         await _mediaService.GetLocalMedia(mediaId);
         return Ok(await _mediaService.LikeMedia(userId, mediaId));
     }
@@ -144,7 +143,7 @@ public class MediasController : ControllerBase
     public virtual async Task<ActionResult<MediaLikeResponseDto>> DeleteMediasMediaIdLikes(
         [FromRoute] [Required] uint mediaId)
     {
-        var userId = (uint)HttpContext.Items["UserId"]!;
+        var userId = HttpContext.GetAuthenticatedUserId();
         await _mediaService.GetLocalMedia(mediaId);
         return Ok(await _mediaService.UnLikeMedia(userId, mediaId));
     }

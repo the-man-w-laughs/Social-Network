@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SocialNetwork.DAL.Entities.Communities;
-using SocialNetwork.DAL.Entities.Users;
 
 namespace SocialNetwork.DAL.EntityConfigurations.Communities;
 

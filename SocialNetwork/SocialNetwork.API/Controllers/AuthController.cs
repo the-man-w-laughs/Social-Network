@@ -1,16 +1,14 @@
 using System.ComponentModel.DataAnnotations;
-using System.Runtime.CompilerServices;
 using System.Security.Claims;
-using AutoMapper;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialNetwork.BLL.Contracts;
+using SocialNetwork.BLL.DTO.Auth.Request;
 using SocialNetwork.BLL.DTO.Users.Request;
 using SocialNetwork.BLL.DTO.Users.Response;
 using SocialNetwork.BLL.Exceptions;
-using SocialNetwork.DAL.Entities.Users;
 
 namespace SocialNetwork.API.Controllers;
 
@@ -38,7 +36,7 @@ public sealed class AuthController : ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
     public async Task<ActionResult<UserResponseDto>> SignUp(
-        [FromBody, Required] UserSignUpRequestDto userSignUpRequestDto)
+        [FromBody, Required] SignUpRequestDto userSignUpRequestDto)
     {
         var addedUser = await _authService.SignUpUser(userSignUpRequestDto);
         return Ok(addedUser);
@@ -59,7 +57,7 @@ public sealed class AuthController : ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<UserResponseDto>> Login([FromBody, Required] UserLoginRequestDto userLoginRequestDto)
+    public async Task<ActionResult<UserResponseDto>> Login([FromBody, Required] LoginRequestDto userLoginRequestDto)
     {
         var isUserAuthenticated =
             await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);

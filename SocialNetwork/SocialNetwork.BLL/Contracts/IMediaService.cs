@@ -1,8 +1,5 @@
 using SocialNetwork.BLL.DTO.Medias.Response;
-using SocialNetwork.BLL.DTO.Messages.Response;
-using SocialNetwork.DAL.Entities.Chats;
 using SocialNetwork.DAL.Entities.Medias;
-using SocialNetwork.DAL.Entities.Messages;
 
 namespace SocialNetwork.BLL.Contracts;
 

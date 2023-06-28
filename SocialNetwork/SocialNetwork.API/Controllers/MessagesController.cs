@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SocialNetwork.API.Middlewares;
 using SocialNetwork.BLL.Contracts;
 using SocialNetwork.BLL.DTO.Messages.Request;
 using SocialNetwork.BLL.DTO.Messages.Response;
-using SocialNetwork.BLL.Exceptions;
 
 namespace SocialNetwork.API.Controllers;
 
@@ -32,7 +32,7 @@ public class MessagesController : ControllerBase
         [FromRoute, Required] uint messageId,
         [FromBody, Required] MessageRequestDto messageRequestDto)
     {
-        var userId = (uint)HttpContext.Items["UserId"]!;
+        var userId = HttpContext.GetAuthenticatedUserId();
         var repliedMessageDto = await _messageService.ReplyMessage(userId, messageId, messageRequestDto);
         return Ok(repliedMessageDto);
     }
@@ -64,7 +64,7 @@ public class MessagesController : ControllerBase
         [FromRoute, Required] uint messageId,
         [FromBody, Required] MessagePatchRequestDto messagePatchRequestDto)
     {
-        var userId = (uint)HttpContext.Items["UserId"]!;
+        var userId = HttpContext.GetAuthenticatedUserId();
         var changedMessageDto = await _messageService.ChangeMessage(userId, messageId, messagePatchRequestDto);
         return Ok(changedMessageDto);
     }
@@ -80,7 +80,7 @@ public class MessagesController : ControllerBase
     [HttpDelete, Route("{messageId}")]
     public virtual async Task<ActionResult<MessageResponseDto>> DeleteMessagesMessageId([FromRoute, Required] uint messageId)
     {
-        var userId = (uint)HttpContext.Items["UserId"]!;
+        var userId = HttpContext.GetAuthenticatedUserId();
         var deletedMessageDto = await _messageService.DeleteMessage(userId, messageId);
         return Ok(deletedMessageDto);
     }
@@ -116,7 +116,7 @@ public class MessagesController : ControllerBase
     [HttpPost, Route("{messageId}/likes")]
     public virtual async Task<ActionResult<MessageLikeResponseDto>> PostMessagesMessageIdLikes([FromRoute, Required] uint messageId)
     {
-        var userId = (uint)HttpContext.Items["UserId"]!;
+        var userId = HttpContext.GetAuthenticatedUserId();
         var likedMessageDto = await _messageService.LikeMessage(userId, messageId);
         return Ok(likedMessageDto);
     }
@@ -133,7 +133,7 @@ public class MessagesController : ControllerBase
     [HttpDelete, Route("{messageId}/likes")]
     public virtual async Task<ActionResult<MessageLikeResponseDto>> DeleteMessagesMessageIdLikes([FromRoute, Required] uint messageId)
     {
-        var userId = (uint)HttpContext.Items["UserId"]!;
+        var userId = HttpContext.GetAuthenticatedUserId();
         var unlikedMessageDto = await _messageService.UnlikeMessage(userId, messageId);
         return Ok(unlikedMessageDto);
     }

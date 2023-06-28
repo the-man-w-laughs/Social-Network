@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SocialNetwork.DAL.Entities.Medias;
-using System.Reflection.Emit;
 
 namespace SocialNetwork.DAL.EntityConfigurations.Medias;
 

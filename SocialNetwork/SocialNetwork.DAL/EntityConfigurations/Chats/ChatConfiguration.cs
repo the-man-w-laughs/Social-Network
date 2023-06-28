@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SocialNetwork.DAL.Entities.Chats;
-using SocialNetwork.DAL.Entities.Communities;
 
 namespace SocialNetwork.DAL.EntityConfigurations.Chats;
 

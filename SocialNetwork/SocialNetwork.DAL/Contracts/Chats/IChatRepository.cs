@@ -1,5 +1,4 @@
 using SocialNetwork.DAL.Entities.Chats;
-using SocialNetwork.DAL.Entities.Messages;
 
 namespace SocialNetwork.DAL.Contracts.Chats;
 

@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using SocialNetwork.DAL.Context;
 using SocialNetwork.DAL.Contracts.Chats;
 using SocialNetwork.DAL.Entities.Chats;

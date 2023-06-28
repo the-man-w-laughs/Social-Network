@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SocialNetwork.DAL.Context;
+﻿using SocialNetwork.DAL.Context;
 using SocialNetwork.DAL.Contracts.Users;
 using SocialNetwork.DAL.Entities.Users;
 

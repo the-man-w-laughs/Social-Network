@@ -1,14 +1,19 @@
 using System.Text;
 using Konscious.Security.Cryptography;
 using SocialNetwork.BLL.Contracts;
+using SocialNetwork.DAL;
 using BCryptNet = BCrypt.Net.BCrypt;
 
 
-namespace SocialNetwork.BLL.Services;
+namespace SocialNetwork.BLL.Services.Auth;
 
 public class PasswordHashService : IPasswordHashService
 {
     private const string Pepper = "LG2jj21ma1OPnqizQbjBpq14B1l1zM";
+    private const int SaltWorkFactor = 8;
+    
+    public string GenerateSalt() => BCryptNet.GenerateSalt(SaltWorkFactor)[..Constants.SaltMaxLength];
+    
     public byte[] HashPassword(string password, string salt)
     {
         var pepperedPassword = password + Pepper;
@@ -29,5 +34,11 @@ public class PasswordHashService : IPasswordHashService
         argon2.Iterations = 4; 
         var newHash = argon2.GetBytes(hashedPassword.Length);
         return hashedPassword.SequenceEqual(newHash);
+    }
+
+    public bool IsPasswordValid(string password)
+    {
+        if (string.IsNullOrWhiteSpace(password)) return false;
+        return password.Length >= Constants.UserPasswordMinLength;
     }
 }

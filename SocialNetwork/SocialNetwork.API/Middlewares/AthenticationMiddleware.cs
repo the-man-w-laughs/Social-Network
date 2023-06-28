@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
-using System.Threading.Tasks;
+
 namespace SocialNetwork.API.Middlewares
 {
     public class AuthenticationMiddleware
     {
+        public const string UserIdContextItem = "UserId";
+
         private readonly RequestDelegate _next;
 
         public AuthenticationMiddleware(RequestDelegate next)
@@ -25,7 +26,7 @@ namespace SocialNetwork.API.Middlewares
 
                 if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
                 {
-                    context.Items["UserId"] = (uint)userId;
+                    context.Items[UserIdContextItem] = (uint)userId;
                 }
             }
 
@@ -33,4 +34,9 @@ namespace SocialNetwork.API.Middlewares
         }
     }
 
+    public static class AuthenticationExtensions
+    {
+        public static uint GetAuthenticatedUserId(this HttpContext context) => 
+            (uint)context.Items[AuthenticationMiddleware.UserIdContextItem]!;
+    }
 }
