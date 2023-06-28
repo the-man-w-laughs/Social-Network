@@ -20,7 +20,8 @@ public static class BllRegistrationExtensions
         services.AddAutoMapper(typeof(MessagesProfile));
         services.AddAutoMapper(typeof(PostsProfile));
         services.AddAutoMapper(typeof(UsersProfile));
-        
+
+        services.AddScoped<ICommentService, CommentService>();        
         services.AddScoped<IPasswordHashService, PasswordHashService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IChatService,ChatService>();

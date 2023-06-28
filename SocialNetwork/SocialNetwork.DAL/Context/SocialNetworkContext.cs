@@ -15,8 +15,7 @@ public class SocialNetworkContext : DbContext
     public DbSet<Chat> Chats { get; set; } = null!;
     public DbSet<ChatMember> ChatMembers { get; set; } = null!;
     public DbSet<Comment> Comments { get; set; } = null!;
-    public DbSet<CommentLike> CommentLikes { get; set; } = null!;
-    public DbSet<CommentMedia> CommentMedias { get; set; } = null!;
+    public DbSet<CommentLike> CommentLikes { get; set; } = null!;    
     public DbSet<Community> Communities { get; set; } = null!;
     public DbSet<CommunityMember> CommunityMembers { get; set; } = null!;
     public DbSet<CommunityPost> CommunityPosts { get; set; } = null!;

@@ -97,32 +97,6 @@ public class UsersController : ControllerBase
         var managedCommunitiesDto = await _userService.GetUserManagedCommunities(userId, limit, nextCursor);
         return Ok(managedCommunitiesDto);
     }
-
-    /// <summary>Get User Friends</summary>
-    /// <remarks>Get all user's friends using pagination.</remarks>
-    [Authorize(Roles = "User")]
-    [HttpGet, Route("{userId}/friends")]
-    public virtual async Task<ActionResult<List<UserResponseDto>>> GetUsersUserIdFriends(
-        [FromRoute, Required] uint userId,
-        [FromQuery, Required] int limit,
-        [FromQuery] int nextCursor)
-    {
-        var userFriendsDto = await _userService.GetUserFriends(userId, limit, nextCursor);
-        return Ok(userFriendsDto);
-    }
-
-    /// <summary>Get User Posts</summary>
-    /// <remarks>Get all user's posts using pagination.</remarks>
-    [Authorize(Roles = "User")]
-    [HttpGet, Route("{userId}/posts")]
-    public virtual async Task<ActionResult<List<PostResponseDto>>> GetUsersUserIdPosts(
-        [FromRoute, Required] uint userId,
-        [FromQuery, Required] int limit,
-        [FromQuery] int nextCursor)
-    {
-        var userPosts = await _userService.GetUserPosts(userId, limit, nextCursor);
-        return Ok(userPosts);
-    }
         
     /// <summary>Get User Profile</summary>
     /// <remarks>Get user's profile.</remarks>
@@ -208,6 +182,19 @@ public class UsersController : ControllerBase
         return Ok(_mapper.Map<UserProfilePostResponseDto>(userProfilePost));
     }
 
+    /// <summary>Get User Posts</summary>
+    /// <remarks>Get all user's posts using pagination.</remarks>
+    [Authorize(Roles = "User")]
+    [HttpGet, Route("{userId}/posts")]
+    public virtual async Task<ActionResult<List<PostResponseDto>>> GetUsersUserIdPosts(
+        [FromRoute, Required] uint userId,
+        [FromQuery, Required] int limit,
+        [FromQuery] int nextCursor)
+    {
+        var userPosts = await _userService.GetUserPosts(userId, limit, nextCursor);
+        return Ok(userPosts);
+    }
+
     /// <summary>Create User Media</summary>
     /// <remarks>Create user media.</remarks>    
     [Authorize(Roles = "User")]
@@ -264,6 +251,19 @@ public class UsersController : ControllerBase
         return Ok(friendProfileDto);
     }
 
+    /// <summary>Get User Friends</summary>
+    /// <remarks>Get all user's friends using pagination.</remarks>
+    [Authorize(Roles = "User")]
+    [HttpGet, Route("{userId}/friends")]
+    public virtual async Task<ActionResult<List<UserResponseDto>>> GetUsersUserIdFriends(
+        [FromRoute, Required] uint userId,
+        [FromQuery, Required] int limit,
+        [FromQuery] int nextCursor)
+    {
+        var userFriendsDto = await _userService.GetUserFriends(userId, limit, nextCursor);
+        return Ok(userFriendsDto);
+    }
+
     // DeleteFriend
     [Authorize(Roles = "User, Admin")]
     [HttpDelete, Route("{userId}/friends/{friendId}")]
@@ -273,17 +273,6 @@ public class UsersController : ControllerBase
     {
         var deletedUserDto = await _userService.DeleteFriend(userId, friendId);
         return Ok(deletedUserDto);
-    }
-
-    // DeleteFollower
-    [Authorize(Roles = "User, Admin")]
-    [HttpDelete, Route("{userId}/followers/{followerId}")]
-    public virtual async Task<ActionResult<UserProfileResponseDto>> DeleteUserFollowers(
-        [FromRoute, Required] uint userId,
-        [FromRoute, Required] uint followerId)
-    {
-        var deletedFollowerDto = await _userService.DeleteFollower(userId, followerId);
-        return Ok(deletedFollowerDto);
     }
 
     // GetFollowers
@@ -297,4 +286,16 @@ public class UsersController : ControllerBase
         var userFollowersDto = await _userService.GetUserFollowers(userId, limit, currCursor);
         return Ok(userFollowersDto);
     }
+
+    // DeleteFollower
+    [Authorize(Roles = "User, Admin")]
+    [HttpDelete, Route("{userId}/followers/{followerId}")]
+    public virtual async Task<ActionResult<UserProfileResponseDto>> DeleteUserFollowers(
+        [FromRoute, Required] uint userId,
+        [FromRoute, Required] uint followerId)
+    {
+        var deletedFollowerDto = await _userService.DeleteFollower(userId, followerId);
+        return Ok(deletedFollowerDto);
+    }
+
 }

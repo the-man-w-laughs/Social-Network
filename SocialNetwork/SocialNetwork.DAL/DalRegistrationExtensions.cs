@@ -37,8 +37,7 @@ public static class DalRegistrationExtensions
 
         // Comments
         services.AddScoped<ICommentRepository, CommentRepository>();
-        services.AddScoped<ICommentLikeRepository, CommentLikeRepository>();
-        services.AddScoped<ICommentMediaRepository, CommentMediaRepository>();
+        services.AddScoped<ICommentLikeRepository, CommentLikeRepository>();        
         
         // Communities
         services.AddScoped<ICommunityRepository, CommunityRepository>();

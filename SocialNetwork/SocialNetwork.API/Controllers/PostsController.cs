@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using SocialNetwork.API.Middlewares;
 using SocialNetwork.BLL.Contracts;
 using SocialNetwork.BLL.DTO.Comments.Request;
 using SocialNetwork.BLL.DTO.Comments.Response;
@@ -18,11 +19,13 @@ public class PostsController : ControllerBase
     private readonly IMapper _mapper;
 
     private readonly IPostService _postService;
+    private readonly ICommentService _commentService;
 
-    public PostsController(IMapper mapper, IPostService postService)
+    public PostsController(IMapper mapper, IPostService postService, ICommentService commentService)
     {
         _mapper = mapper;
         _postService = postService;
+        _commentService = commentService;
     }
 
     /// <summary>
@@ -120,13 +123,14 @@ public class PostsController : ControllerBase
     /// <remarks>Comment post.</remarks>
     [HttpPost]
     [Route("{postId}/comments")]
-    public virtual ActionResult<CommentResponseDto> PostPostsPostIdComments(
+    public virtual async Task<ActionResult<CommentResponseDto>> PostPostsPostIdComments(
         [FromRoute, Required] uint postId,
         [FromBody, Required] CommentRequestDto commentRequestDto)
     {
-        var comment = new Comment { Id = 200, Content = "TestComment", CreatedAt = DateTime.Now };
-
-        return Ok(_mapper.Map<CommentResponseDto>(comment));
+        var userId = HttpContext.GetAuthenticatedUserId();
+        var comment = await _commentService.AddComment(userId, postId, commentRequestDto);
+        
+        return Ok(comment);
     }
 
     /// <summary>
