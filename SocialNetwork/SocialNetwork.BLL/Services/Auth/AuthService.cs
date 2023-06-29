@@ -1,7 +1,6 @@
 using AutoMapper;
 using SocialNetwork.BLL.Contracts;
 using SocialNetwork.BLL.DTO.Auth.Request;
-using SocialNetwork.BLL.DTO.Users.Request;
 using SocialNetwork.BLL.DTO.Users.Response;
 using SocialNetwork.BLL.Exceptions;
 using SocialNetwork.DAL;
@@ -27,51 +26,18 @@ public class AuthService : IAuthService
         _userProfileRepository = userProfileRepository;
         _passwordHashService = passwordHashService;
     }
-
-    public async Task<bool> IsLoginAlreadyExists(string login)
+    
+    public async Task<UserResponseDto> SignUp(SignUpRequestDto userSignUpRequestDto)
     {
-        var users = await _userRepository.GetAllAsync(u => u.Login == login);
-        return users.Any();
-    }
-
-    public async Task<User> AddUser(User newUser)
-    {
-        var user = await _userRepository.AddAsync(newUser);
-        await _userRepository.SaveAsync();
-        return user;
-    }
-
-    public async Task<User?> GetUserByLogin(string login)
-    {
-        var users = await _userRepository.GetAllAsync(u => u.Login == login);
-        return users.FirstOrDefault();
-    }
-
-    public bool IsLoginValid(string login)
-    {
-        return login.Length is <= Constants.UserLoginMaxLength and >= Constants.UserLoginMinLength;
-    }
-
-    public async Task<UserProfile> AddUserProfile(UserProfile userProfile)
-    {
-        var addedProfile = await _userProfileRepository.AddAsync(userProfile);
-        await _userProfileRepository.SaveAsync();
-        return addedProfile;
-    }
-
-    public async Task<UserResponseDto> SignUpUser(SignUpRequestDto userSignUpRequestDto)
-    { 
-        // сначала проверяем все поля на валидность 
-        // далее нужно проверить еслть ли пользователь с таким логином если есть возвращаем Conflict
-        // иначе генерируем соль, формируем хэш пароля записываем все в бд возвращаем ok с dto
         if (!IsLoginValid(userSignUpRequestDto.Login))
-            throw new ArgumentException("Login must be between 3 and 20 characters");
+            throw new ArgumentException($"Login must be between {Constants.UserLoginMinLength} and {Constants.UserLoginMaxLength} characters");
+        
         if (!_passwordHashService.IsPasswordValid(userSignUpRequestDto.Password))
-            throw new ArgumentException("password must be at least 6 characters");
+            throw new ArgumentException($"Password must be at least {Constants.UserPasswordMinLength} characters");
 
         var isLoginExisted = await IsLoginAlreadyExists(userSignUpRequestDto.Login);
         if (isLoginExisted) 
-            throw new DuplicateEntryException("This login already exists");
+            throw new DuplicateEntryException($"Login \"{userSignUpRequestDto.Login}\" already exists");
 
         var salt = _passwordHashService.GenerateSalt();
         var hashedPassword = _passwordHashService.HashPassword(userSignUpRequestDto.Password, salt);
@@ -86,24 +52,26 @@ public class AuthService : IAuthService
             CreatedAt = DateTime.Now
         };       
        
-       var addedUser = await AddUser(newUser);
-
+        var addedUser = await _userRepository.AddAsync(newUser);
+        await _userRepository.SaveAsync();
+        
        var userProfile = new UserProfile
        {
            CreatedAt = DateTime.Now,
            UserId = addedUser.Id
        };
 
-       await AddUserProfile(userProfile);
+       await _userProfileRepository.AddAsync(userProfile);
+       await _userProfileRepository.SaveAsync();
 
        return _mapper.Map<UserResponseDto>(addedUser);
     }
 
-    public async Task<UserResponseDto> LoginUser(LoginRequestDto userLoginRequestDto)
+    public async Task<UserResponseDto> Login(LoginRequestDto userLoginRequestDto)
     {
-        var user = await GetUserByLogin(userLoginRequestDto.Login);
+        var user = await _userRepository.GetAsync(u => u.Login == userLoginRequestDto.Login);
         if (user == null) 
-            throw new WrongCredentialsException("User with this login Doesn't exist");
+            throw new WrongCredentialsException($"User with login \"{userLoginRequestDto.Login}\" doesn't exist");
         
         var salt = user.Salt;
         var hashedPassword = user.PasswordHash;
@@ -113,5 +81,16 @@ public class AuthService : IAuthService
             throw new WrongCredentialsException("Incorrect password");
         
         return _mapper.Map<UserResponseDto>(user);
+    }
+
+    private async Task<bool> IsLoginAlreadyExists(string login)
+    {
+        var user = await _userRepository.GetAsync(u => u.Login == login);
+        return user != null;
+    }
+
+    private bool IsLoginValid(string login)
+    {
+        return login.Length is <= Constants.UserLoginMaxLength and >= Constants.UserLoginMinLength;
     }
 }
