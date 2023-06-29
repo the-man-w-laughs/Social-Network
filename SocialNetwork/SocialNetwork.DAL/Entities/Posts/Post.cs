@@ -10,14 +10,14 @@ public partial class Post
     public uint Id { get; set; }
     public uint AuthorId { get; set; }
     public uint? CommunityId { get; set; }
-    public bool IsCommunityPost { get; set; }
+    public bool? IsCommunityPost { get; set; }
     public string? Content { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public uint? RepostId { get; set; }
 
     public virtual User Author { get; set; } = null!;
-    public virtual Community Community { get; set; } = null!;
+    public virtual Community? Community { get; set; }
     public virtual Post? Repost { get; set; }
     public virtual ICollection<Post> InverseRepost { get; set; } = new List<Post>();
     public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();

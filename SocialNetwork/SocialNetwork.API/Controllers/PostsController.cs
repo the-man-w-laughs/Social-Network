@@ -79,7 +79,7 @@ public class PostsController : ControllerBase
         [FromBody, Required] PostPatchRequestDto postPatchRequestDto)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
-        var updatedPost = await _postService.ChangePost(userId, postPatchRequestDto);
+        var updatedPost = await _postService.ChangePost(userId, postId, postPatchRequestDto);
         return Ok(updatedPost);
     }
 
