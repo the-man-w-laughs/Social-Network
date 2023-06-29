@@ -1,11 +1,8 @@
-using SocialNetwork.BLL.DTO.Communities.Response;
 using SocialNetwork.BLL.DTO.Posts.Request;
 using SocialNetwork.BLL.DTO.Posts.Response;
-using SocialNetwork.DAL.Entities.Communities;
 using SocialNetwork.DAL.Entities.Posts;
-using SocialNetwork.DAL.Entities.Users;
 
-namespace SocialNetwork.BLL.AutoMapper;
+namespace SocialNetwork.BLL.AutoMapperProfiles;
 
 public class PostsProfile : BaseProfile
 {
@@ -14,6 +11,8 @@ public class PostsProfile : BaseProfile
         CreateMap<PostRequestDto, Post>();
 
         CreateMap<PostLike, PostLikeResponseDto>();
-        CreateMap<Post, PostResponseDto>();                
+        CreateMap<Post, PostResponseDto>().ForMember(
+            dto => dto.LikeCount, 
+            expression => expression.MapFrom(post => post.PostLikes.Count));                
     }
 }

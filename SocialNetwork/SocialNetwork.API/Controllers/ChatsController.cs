@@ -11,8 +11,8 @@ using SocialNetwork.BLL.DTO.Messages.Response;
 
 namespace SocialNetwork.API.Controllers;
 
-[ApiController]
-[Route("[controller]")]
+[Authorize(Roles = "User")]
+[ApiController, Route("[controller]")]
 public class ChatsController : ControllerBase
 {
     private readonly IChatService _chatService;
@@ -22,39 +22,34 @@ public class ChatsController : ControllerBase
         _chatService = chatService;
     }
 
-    /// <summary>
-    /// CreateChat.
-    /// </summary>
+    /// <summary>Create Chat</summary>
     /// <remarks>Create a new chat.</remarks>    
     /// <param name="chatRequestDto">The chat request data transfer object.</param>    
     /// <response code="200">Returns a <see cref="ChatResponseDto"/> with the details of the newly created chat.</response>
-    /// <response code="401">Returns a string message if the user is unauthorized.</response>
+    /// <response code="401">Returns a string message if the user unauthorized.</response>
     [HttpPost]
-    [Authorize(Roles = "User")]
     [ProducesResponseType(typeof(ChatResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
     public virtual async Task<ActionResult<ChatResponseDto>> PostChats(
         [FromBody, Required] ChatRequestDto chatRequestDto)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
-        var addedChat = await _chatService.CreateChat(chatRequestDto, userId);
+        var addedChat = await _chatService.CreateChat(userId, chatRequestDto);
         return Ok(addedChat);
     }
 
-    /// <summary>
-    /// GetChatInfo.
-    /// </summary>
-    /// <remarks>Get chat information (name, photo) for chat members.</remarks>
-    /// <param name="chatId">The ID of the chat to retrieve information for.</param>    
-    /// <response code="200">Returns the chat information.</response>
-    /// <response code="400">Returns a string message if the chat does not exist.</response>
-    /// <response code="401">Returns a string message if the user is unauthorized or not a chat member.</response>
-    [HttpGet]
-    [Authorize(Roles = "User")]
-    [Route("{chatId}")]
+    /// <summary>Get Chat</summary>
+    /// <remarks>Get chat information (name, photo) by chat ID (for chat members).</remarks>
+    /// <param name="chatId">The ID of the chat to retrieve information for.</param>
+    /// <response code="200">Returns a <see cref="ChatResponseDto"/> with details of the chat.</response>
+    /// <response code="400">Returns a string message if the chat doesn't exist.</response>
+    /// <response code="401">Returns a string message if the user unauthorized.</response>
+    /// <response code="403">Returns a string message if the user not a chat member.</response>
+    [HttpGet, Route("{chatId}")]
     [ProducesResponseType(typeof(ChatResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
     public virtual async Task<ActionResult<ChatResponseDto>> GetChatsChatId([FromRoute, Required] uint chatId)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
@@ -62,22 +57,20 @@ public class ChatsController : ControllerBase
         return Ok(chatInfo);
     }
 
-    /// <summary>
-    /// GetAllChatMedias.
-    /// </summary>
-    /// <remarks>Get all chat medias for chat members.</remarks>
+    /// <summary>Get Chat Medias</summary>
+    /// <remarks>Get all chat medias by chat ID (for chat members).</remarks>
     /// <param name="chatId">The ID of the chat to retrieve medias for.</param>
     /// <param name="limit">The maximum number of medias to retrieve.</param>
     /// <param name="nextCursor">The cursor value for pagination.</param>    
-    /// <response code="200">Returns the list of chat medias.</response>
-    /// <response code="400">Returns a string message if the chat does not exist.</response>
-    /// <response code="401">Returns a string message if the user is unauthorized or not a chat member.</response>
-    [HttpGet]
-    [Authorize(Roles = "User")]
-    [Route("{chatId}/medias")]
+    /// <response code="200">Returns a list of <see cref="MediaResponseDto"/> with details of each chat media.</response>
+    /// <response code="400">Returns a string message if the chat doesn't exist.</response>
+    /// <response code="401">Returns a string message if the user unauthorized.</response>
+    /// <response code="403">Returns a string message if the user not a chat member.</response>
+    [HttpGet, Route("{chatId}/medias")]
     [ProducesResponseType(typeof(List<MediaResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
     public virtual async Task<ActionResult<List<MediaResponseDto>>> GetChatChatIdMedias(
         [FromRoute, Required] uint chatId,
         [FromQuery, Required] int limit,
@@ -88,21 +81,19 @@ public class ChatsController : ControllerBase
         return Ok(chatMedias);
     }
 
-    /// <summary>
-    /// ChangeChatInfo.
-    /// </summary>
-    /// <remarks>Change chat information (name, photo) for chat admins.</remarks>
+    /// <summary>Change Chat</summary>
+    /// <remarks>Change chat information (name, photo) by chat ID (for chat admins, owners).</remarks>
     /// <param name="chatId">The ID of the chat to change information for.</param>
     /// <param name="chatPatchRequestDto">The chat patch request data transfer object.</param>    
-    /// <response code="200">Returns the updated chat information.</response>
-    /// <response code="400">Returns a string message if the chat does not exist or an error occurred during the update.</response>
-    /// <response code="401">Returns a string message if the user is unauthorized or not a chat owner.</response>
-    [HttpPatch]
-    [Authorize(Roles = "User")]
-    [Route("{chatId}")]
+    /// <response code="200">Returns a <see cref="ChatResponseDto"/> with details of the updated chat information.</response>
+    /// <response code="400">Returns a string message if the chat doesn't exist or an error occurred during the update.</response>
+    /// <response code="401">Returns a string message if the user unauthorized.</response>
+    /// <response code="403">Returns a string message if the user not a chat owner.</response>
+    [HttpPatch, Route("{chatId}")]
     [ProducesResponseType(typeof(ChatResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
     public virtual async Task<ActionResult<ChatResponseDto>> PatchChatsChatId(
         [FromRoute, Required] uint chatId,
         [FromBody, Required] ChatPatchRequestDto chatPatchRequestDto)
@@ -112,19 +103,17 @@ public class ChatsController : ControllerBase
         return Ok(updatedChat);
     }
 
-    /// <summary>
-    /// DeleteChat.
-    /// </summary>
-    /// <remarks>Delete chat for chat admins.</remarks>
-    /// <param name="chatId">The ID of the chat to delete.</param>    
-    /// <response code="200">Returns the deleted chat information.</response>
-    /// <response code="400">Returns a string message if the chat does not exist.</response>
-    /// <response code="403">Returns a string message if the user is unauthorized or not a chat owner.</response>
-    [HttpDelete]
-    [Authorize(Roles = "User")]
-    [Route("{chatId}")]
+    /// <summary>Delete Chat</summary>
+    /// <remarks>Delete chat by ID (for owners).</remarks>
+    /// <param name="chatId">The ID of the chat to delete.</param>
+    /// <response code="200">Returns a <see cref="ChatResponseDto"/> with details of the deleted chat.</response>
+    /// <response code="400">Returns a string message if the chat doesn't exist.</response>
+    /// <response code="401">Returns a string message if the user is unauthorized.</response>
+    /// <response code="403">Returns a string message if the user not a chat owner.</response>
+    [HttpDelete, Route("{chatId}")]
     [ProducesResponseType(typeof(ChatResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
     public virtual async Task<ActionResult<ChatResponseDto>> DeleteChatsChatId([FromRoute, Required] uint chatId)
     {
@@ -133,47 +122,43 @@ public class ChatsController : ControllerBase
         return Ok(deletedChat);
     }
 
-    /// <summary>
-    /// AddChatMember.
-    /// </summary>
+    /// <summary>Add Chat Member</summary>
     /// <remarks>Adds a new member to the chat (for chat members).</remarks>
     /// <param name="chatId">The ID of the chat to add a member to.</param>
-    /// <param name="postChatMemberDto">The chat member request data transfer object.</param>    
-    /// <response code="200">Returns the added chat member information.</response>
-    /// <response code="400">Returns a string message if the chat does not exist.</response>
-    /// <response code="403">Returns a string message if the user is unauthorized or not a chat member.</response>
+    /// <param name="chatMemberRequestDto">The chat member request data transfer object.</param>    
+    /// <response code="200">Returns a <see cref="ChatMemberResponseDto"/> the added chat member information.</response>
+    /// <response code="400">Returns a string message if the chat doesn't exist.</response>
+    /// <response code="401">Returns a string message if the user unauthorized.</response>
+    /// <response code="403">Returns a string message if the user not a chat member.</response>
     /// <response code="409">Returns a string message if the user is already a member of the chat.</response>
-    [HttpPost]
-    [Authorize(Roles = "User")]
-    [Route("{chatId}/members")]
+    [HttpPost, Route("{chatId}/members")]
     [ProducesResponseType(typeof(ChatMemberResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
     public virtual async Task<ActionResult<ChatMemberResponseDto>> PostChatsChatIdMembers(
         [FromRoute, Required] uint chatId,
-        [FromBody, Required] ChatMemberRequestDto postChatMemberDto)
+        [FromBody, Required] ChatMemberRequestDto chatMemberRequestDto)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
-        var addedChatMember = await _chatService.AddChatMember(userId, chatId, postChatMemberDto);
+        var addedChatMember = await _chatService.AddChatMember(userId, chatId, chatMemberRequestDto);
         return Ok(addedChatMember);
     }
 
-    /// <summary>
-    /// GetAllChatMembers.
-    /// </summary>
-    /// <remarks>Get all chat members using pagination (for chat members).</remarks>
+    /// <summary>Get Chat Members</summary>
+    /// <remarks>Get all chat members by chat ID using pagination (for chat members).</remarks>
     /// <param name="chatId">The ID of the chat.</param>
     /// <param name="limit">The maximum number of chat members to retrieve.</param>
     /// <param name="nextCursor">The cursor for pagination to retrieve the next set of chat members.</param>    
-    /// <response code="200">Returns a list of chat members.</response>
-    /// <response code="400">Returns a string message if the chat does not exist.</response>
-    /// <response code="403">Returns a string message if the user is unauthorized or not a chat member.</response>
-    [HttpGet]
-    [Authorize(Roles = "User")]
-    [Route("{chatId}/members")]
+    /// <response code="200">Returns a list of <see cref="ChatMemberResponseDto"/> with details of each chat member.</response>
+    /// <response code="400">Returns a string message if the chat doesn't exist.</response>
+    /// <response code="401">Returns a string message if the user unauthorized.</response>
+    /// <response code="403">Returns a string message if the user not a chat member.</response>
+    [HttpGet, Route("{chatId}/members")]
     [ProducesResponseType(typeof(List<ChatMemberResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
     public virtual async Task<ActionResult<List<ChatMemberResponseDto>>> GetChatsChatIdMembers(
         [FromRoute, Required] uint chatId,
@@ -185,21 +170,19 @@ public class ChatsController : ControllerBase
         return Ok(chatMembers);
     }
 
-    /// <summary>
-    /// ChangeMemberStatus.
-    /// </summary>
+    /// <summary>Change Member Status</summary>
     /// <remarks>Updates the information about a chat member (for chat admins, admins).</remarks>
     /// <param name="chatId">The ID of the chat.</param>
     /// <param name="memberId">The ID of the chat member.</param>
     /// <param name="changeChatMemberRequestDto">The change chat member request data transfer object.</param>    
-    /// <response code="200">Returns a string message indicating the updated chat member status.</response>
-    /// <response code="400">Returns a string message if the chat or chat member does not exist.</response>
-    /// <response code="403">Returns a string message if the user is unauthorized or does not have permission.</response>
-    [HttpPut]
-    [Authorize(Roles = "User")]
-    [Route("{chatId}/members/{memberId}")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    /// <response code="200">Returns a <see cref="ChatMemberResponseDto"/> with details of the updated chat member status.</response>
+    /// <response code="400">Returns a string message if the chat or chat member doesn't exist.</response>
+    /// <response code="401">Returns a string message if the user unauthorized.</response>
+    /// <response code="403">Returns a string message if the user doesn't have permission.</response>
+    [HttpPut, Route("{chatId}/members/{memberId}")]
+    [ProducesResponseType(typeof(ChatMemberResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
     public virtual async Task<ActionResult<ChatMemberResponseDto>> PatchChatsChatIdMembersMemberId(
         [FromRoute, Required] uint chatId,
@@ -208,26 +191,23 @@ public class ChatsController : ControllerBase
     {
         //TODO РАЗОБРАТЬСЯ С ЛОГИКОЙ!!!!
         var userId = HttpContext.GetAuthenticatedUserId();
-        var updatedChatMember = await _chatService
-            .UpdateChatMember(chatId, userId, memberId, changeChatMemberRequestDto);
+        var updatedChatMember = await _chatService.UpdateChatMember(chatId, userId, memberId, changeChatMemberRequestDto);
         return Ok(updatedChatMember);
     }
 
-    /// <summary>
-    /// DeleteChatMember.
-    /// </summary>
-    /// <remarks>Delete a member from the chat (for chat admins, admins).</remarks>
+    /// <summary>Delete Chat Member</summary>
+    /// <remarks>Delete a member from the chat (for chat admins, owners).</remarks>
     /// <param name="chatId">The ID of the chat.</param>
     /// <param name="userToDeleteId">The ID of the user to delete from the chat.</param>    
     /// <response code="200">Returns the deleted chat member information.</response>
-    /// <response code="400">Returns a string message if the chat does not exist.</response>
-    /// <response code="403">Returns a string message if the user is unauthorized or does not have permission.</response>
+    /// <response code="400">Returns a string message if the chat doesn't exist.</response>
+    /// <response code="401">Returns a string message if the user unauthorized.</response>
+    /// <response code="403">Returns a string message if the user doesn't have permission.</response>
     /// <response code="404">Returns a string message if the chat member is not found.</response>
-    [HttpDelete]
-    [Authorize(Roles = "User")]
-    [Route("{chatId}/members/{userToDeleteId}")]
+    [HttpDelete, Route("{chatId}/members/{userToDeleteId}")]
     [ProducesResponseType(typeof(ChatMemberResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     public virtual async Task<ActionResult<ChatMemberResponseDto>> DeleteChatsChatIdMembersParticipantId(
@@ -240,45 +220,19 @@ public class ChatsController : ControllerBase
         return Ok(deletedMember);
     }
 
-    /// <summary>
-    /// SendMessage.
-    /// </summary>
-    /// <remarks>Send a message to the chat.</remarks>
-    /// <param name="chatId">The ID of the chat.</param>
-    /// <param name="messageRequestDto">The message request data transfer object.</param>    
-    /// <response code="200">Returns the sent message information.</response>
-    /// <response code="400">Returns a string message if the chat does not exist.</response>
-    /// <response code="403">Returns a string message if the user is unauthorized or is not a chat member.</response>
-    [HttpPost]
-    [Authorize(Roles = "User")]
-    [Route("{chatId}/messages")]
-    [ProducesResponseType(typeof(MessageResponseDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
-    public virtual async Task<ActionResult<MessageResponseDto>> PostChatsChatIdMessages(
-        [FromRoute, Required] uint chatId,
-        [FromBody, Required] MessageRequestDto messageRequestDto)
-    {
-        var userId = HttpContext.GetAuthenticatedUserId();
-        var addedMessage = await _chatService.SendMessage(chatId, userId, messageRequestDto);
-        return Ok(addedMessage);
-    }
-
-    /// <summary>
-    /// GetAllChatMessages.
-    /// </summary>
+    /// <summary>Get Chat Messages</summary>
     /// <remarks>Get all chat messages using pagination (for chat members).</remarks>
     /// <param name="chatId">The ID of the chat.</param>
     /// <param name="limit">The maximum number of messages to retrieve.</param>
     /// <param name="nextCursor">The cursor value for pagination.</param>    
     /// <response code="200">Returns a list of chat messages.</response>
     /// <response code="400">Returns a string message if the chat does not exist.</response>
-    /// <response code="403">Returns a string message if the user is unauthorized or is not a chat member.</response>
-    [HttpGet]
-    [Authorize(Roles = "User")]
-    [Route("{chatId}/messages")]
+    /// <response code="401">Returns a string message if the user unauthorized.</response>
+    /// <response code="403">Returns a string message if the user not a chat member.</response>
+    [HttpGet, Route("{chatId}/messages")]
     [ProducesResponseType(typeof(List<MessageResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
     public virtual async Task<ActionResult<List<MessageResponseDto>>> GetChatsChatIdMessages(
         [FromRoute, Required] uint chatId,
@@ -286,7 +240,7 @@ public class ChatsController : ControllerBase
         [FromQuery] int nextCursor)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
-        var chatMessages = await _chatService.GetChatMessages(chatId, userId, limit, nextCursor);
+        var chatMessages = await _chatService.GetChatMessages(userId, chatId, limit, nextCursor);
         return Ok(chatMessages);
     }
 }

@@ -17,24 +17,25 @@ public class MessagesController : ControllerBase
     {
         _messageService = messageService;
     }
-
-    /// <summary>Reply Message</summary>
-    /// <remarks>Reply chat message (for chat members).</remarks>
-    /// <param name="messageId">The ID of the message to reply.</param>
-    /// <param name="messageRequestDto">The message request data transfer object.</param>
-    /// <response code="200">Returns a <see cref="MessageResponseDto"/> with the details of the newly created replied message.</response>
-    /// <response code="401">Returns a string message if the user is unauthorized.</response>
-    /// <response code="403">Returns a string message if the user isn't chat member.</response>
-    /// <response code="404">Returns a string message if the message not founded.</response>
-    [Authorize(Roles = "User")]
-    [HttpPost, Route("{messageId}")]
-    public virtual async Task<ActionResult<MessageResponseDto>> PostMessagesMessageId(
-        [FromRoute, Required] uint messageId,
+    
+    /// <summary>Send Message.</summary>
+    /// <remarks>Send a message to the chat.</remarks>
+    /// <param name="chatId">The ID of the chat.</param>
+    /// <param name="messageRequestDto">The message request data transfer object.</param>    
+    /// <response code="200">Returns a <see cref="MessageResponseDto"/> with details of the sent message.</response>
+    /// <response code="400">Returns a string message if the chat does not exist.</response>
+    /// <response code="403">Returns a string message if the user is unauthorized or is not a chat member.</response>
+    [HttpPost, Route("{chatId}/messages")]
+    [ProducesResponseType(typeof(MessageResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
+    public virtual async Task<ActionResult<MessageResponseDto>> PostChatsChatIdMessages(
+        [FromRoute, Required] uint chatId,
         [FromBody, Required] MessageRequestDto messageRequestDto)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
-        var repliedMessageDto = await _messageService.ReplyMessage(userId, messageId, messageRequestDto);
-        return Ok(repliedMessageDto);
+        var addedMessage = await _messageService.SendMessage(userId, chatId, messageRequestDto);
+        return Ok(addedMessage);
     }
 
     /// <summary>Get Message</summary>

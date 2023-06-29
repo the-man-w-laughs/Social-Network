@@ -8,7 +8,7 @@ namespace SocialNetwork.BLL.Contracts;
 
 public interface IChatService
 {
-    Task<ChatResponseDto> CreateChat(ChatRequestDto chatRequestDto, uint userId);
+    Task<ChatResponseDto> CreateChat(uint userId, ChatRequestDto chatRequestDto);
     Task<ChatResponseDto> GetChatInfo(uint chatId, uint userId);
     Task<List<MediaResponseDto>> GetChatMedias(uint userId, uint chatId, int limit, int nextCursor);
     Task<ChatResponseDto> UpdateChat(uint chatId, uint userId, ChatPatchRequestDto chatPatchRequestDto);
@@ -18,6 +18,5 @@ public interface IChatService
     Task<ChatMemberResponseDto> UpdateChatMember(uint chatId, uint userId,uint memberId,
         ChangeChatMemberRequestDto changeChatMemberRequestDto);
     Task<ChatMemberResponseDto> DeleteChatMember(uint userId, uint userToDeleteId, uint chatId);
-    Task<MessageResponseDto> SendMessage(uint chatId, uint userId, MessageRequestDto postChatMemberDto);
-    Task<List<MessageResponseDto>> GetChatMessages(uint chatId, uint userId, int limit, int nextCursor);
+    Task<List<MessageResponseDto>> GetChatMessages(uint userId, uint chatId, int limit, int nextCursor);
 }

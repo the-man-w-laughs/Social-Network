@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using SocialNetwork.BLL.AutoMapper;
+using SocialNetwork.BLL.AutoMapperProfiles;
 using SocialNetwork.BLL.Contracts;
 using SocialNetwork.BLL.Services;
 using SocialNetwork.BLL.Services.Auth;

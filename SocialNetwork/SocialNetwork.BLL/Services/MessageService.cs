@@ -4,6 +4,7 @@ using SocialNetwork.BLL.DTO.Messages.Request;
 using SocialNetwork.BLL.DTO.Messages.Response;
 using SocialNetwork.BLL.Exceptions;
 using SocialNetwork.DAL.Contracts.Chats;
+using SocialNetwork.DAL.Contracts.Medias;
 using SocialNetwork.DAL.Contracts.Messages;
 using SocialNetwork.DAL.Entities.Chats;
 using SocialNetwork.DAL.Entities.Messages;
@@ -13,19 +14,23 @@ namespace SocialNetwork.BLL.Services;
 public class MessageService : IMessageService
 {
     private readonly IMapper _mapper;
-    private readonly IMessageRepository _messageRepository;
+    private readonly IChatRepository _chatRepository;
     private readonly IChatMemberRepository _chatMemberRepository;
+    private readonly IMessageRepository _messageRepository;
     private readonly IMessageLikeRepository _messageLikeRepository;
+    private readonly IMediaRepository _mediaRepository;
 
     public MessageService(
         IMapper mapper,
-        IMessageRepository messageRepository,
+        IChatRepository chatRepository,
         IChatMemberRepository chatMemberRepository,
+        IMessageRepository messageRepository,
         IMessageLikeRepository messageLikeRepository)
     {
         _mapper = mapper;
-        _messageRepository = messageRepository;
+        _chatRepository = chatRepository;
         _chatMemberRepository = chatMemberRepository;
+        _messageRepository = messageRepository;
         _messageLikeRepository = messageLikeRepository;
     }
 
@@ -37,20 +42,38 @@ public class MessageService : IMessageService
         return _mapper.Map<MessageResponseDto>(message);
     }
 
-    public async Task<MessageResponseDto> ReplyMessage(uint userId, uint messageId, MessageRequestDto messageRequestDto)
+    public async Task<MessageResponseDto> SendMessage(uint userId, uint chatId, MessageRequestDto messageRequestDto)
     {
-        var message = await GetMessageById(messageId);
-        var chatMember = await GetChatMember(userId, message.ChatId);
-
+        var chat = await _chatRepository.GetByIdAsync(chatId);
+        if (chat == null)
+            throw new NotFoundException($"Chat (ID: {chatId}) doesn't exist");
+        
+        var isUserChatMember = await _chatMemberRepository.GetAsync(cm => cm.ChatId == chatId && cm.UserId == userId);
+        if (isUserChatMember == null)
+            throw new AccessDeniedException("User isn't chat member");
+        
         var newMessage = new Message
         {
+            ChatId = chat.Id,
             Content = messageRequestDto.Content,
             CreatedAt = DateTime.Now,
-            ChatId = message.ChatId,
-            SenderId = chatMember.Id,
-            RepliedMessageId = messageId,
+            SenderId = userId,
+            RepliedMessageId = messageRequestDto.RepliedMessageId
         };
-        
+
+        if (messageRequestDto.Attachments != null)
+        {
+            foreach (var attachmentId in messageRequestDto.Attachments)
+            {
+                var media = await _mediaRepository.GetByIdAsync(attachmentId);
+                if (media != null)
+                    newMessage.Attachments.Add(new MessageMedia { MediaId = media.Id, ChatId = chatId });
+            }
+        }
+
+        if (newMessage.Attachments.Count == 0 && string.IsNullOrWhiteSpace(newMessage.Content))
+            throw new ArgumentException("You can't make comment without any attachments and content.");
+
         var addedMessage = await _messageRepository.AddAsync(newMessage);
         await _messageRepository.SaveAsync();
 
