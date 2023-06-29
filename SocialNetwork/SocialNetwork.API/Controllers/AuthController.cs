@@ -1,14 +1,13 @@
-using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialNetwork.BLL.Contracts;
-using SocialNetwork.BLL.DTO.Auth.Request;
-using SocialNetwork.BLL.DTO.Users.Request;
-using SocialNetwork.BLL.DTO.Users.Response;
 using SocialNetwork.BLL.Exceptions;
+using SocialNetwork.BLL.DTO.Auth.Request;
+using SocialNetwork.BLL.DTO.Users.Response;
 
 namespace SocialNetwork.API.Controllers;
 
@@ -22,49 +21,60 @@ public sealed class AuthController : ControllerBase
         _authService = authService;
     }
 
-    /// <summary>
-    /// Sign up.
-    /// </summary>
-    /// <remarks>Creates a new user using the provided login, email, and password.</remarks>
+    /// <summary>Sign Up</summary>
+    /// <remarks>Creates a new user and his profile using the provided email, login, and password.</remarks>
     /// <param name="userSignUpRequestDto">The user sign-up request data transfer object.</param>    
-    /// <response code="200">Returns a <see cref="UserResponseDto"/> if the user was successfully created.</response>
+    /// <response code="200">Returns a <see cref="UserResponseDto"/> with details of successfully created user.</response>
     /// <response code="400">Returns a string message if the login or password is invalid.</response>
-    /// <response code="409">Returns a string message if a user with the same login already exists.</response>
-    [HttpPost]
-    [Route("sign-up")]
+    /// <response code="409">Returns a string message if the user with the same login already exists.</response>
+    [HttpPost, Route("sign-up")]
     [ProducesResponseType(typeof(UserResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<UserResponseDto>> SignUp(
-        [FromBody, Required] SignUpRequestDto userSignUpRequestDto)
+    public async Task<ActionResult<UserResponseDto>> SignUp([FromBody, Required] SignUpRequestDto userSignUpRequestDto)
     {
-        var addedUser = await _authService.SignUpUser(userSignUpRequestDto);
-        return Ok(addedUser);
+        var addedUserDto = await _authService.SignUp(userSignUpRequestDto);
+        return Ok(addedUserDto);
     }
 
-    /// <summary>
-    /// Login.
-    /// </summary>
+    /// <summary>Login</summary>
     /// <remarks>Login user using login and password.</remarks>
     /// <param name="userLoginRequestDto">The user login request data transfer object.</param>    
-    /// <response code="200">Returns a <see cref="UserResponseDto"/> if the login was successful.</response>
-    /// <response code="400">Returns a string message if the login or password is invalid.</response>
-    /// <response code="401">Returns a string message if the password is incorrect.</response>
-    /// <response code="409">Returns a string message if a user is already authenticated.</response>    
-    [HttpPost]
-    [Route("login")]
+    /// <response code="200">Returns a <see cref="UserResponseDto"/> with details the user logged in.</response>
+    /// <response code="400">Returns a string message if the login or password is incorrect.</response>
+    /// <response code="409">Returns a string message if the user is already authenticated.</response>    
+    [HttpPost, Route("login")]
     [ProducesResponseType(typeof(UserResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
     public async Task<ActionResult<UserResponseDto>> Login([FromBody, Required] LoginRequestDto userLoginRequestDto)
+    {
+        var authenticatedUserDto = await AuthenticateUser(userLoginRequestDto);
+        return Ok(authenticatedUserDto);
+    }
+
+    /// <summary>Logout</summary>
+    /// <remarks>Logs out the current user.</remarks>
+    /// <response code="200">Returns a string message indicated successful logout.</response>
+    /// <response code="401">Returns a string message if the user unauthorized.</response>
+    [Authorize(Roles = "User")]
+    [HttpPost, Route("logout")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<string>> Logout()
+    {
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        return Ok("Logout was successful");
+    }
+    
+    private async Task<UserResponseDto> AuthenticateUser(LoginRequestDto userLoginRequestDto)
     {
         var isUserAuthenticated =
             await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         if (isUserAuthenticated.Succeeded)
             throw new LoggedInUserAccessException("User is already authenticated");
 
-        var authenticatedUser = await _authService.LoginUser(userLoginRequestDto);
+        var authenticatedUser = await _authService.Login(userLoginRequestDto);
 
         var claims = new List<Claim>
         {
@@ -75,22 +85,6 @@ public sealed class AuthController : ControllerBase
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
         await HttpContext.SignInAsync(claimsPrincipal);
-
-        return Ok(authenticatedUser);
-    }
-
-    /// <summary>
-    /// Logout.
-    /// </summary>
-    /// <remarks>Logs out the current user.</remarks>    
-    /// <response code="200">Returns a string message indicating successful logout.</response>S
-    [HttpPost]
-    [Authorize(Roles = "User")]
-    [Route("logout")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-    public async Task<ActionResult<string>> Logout()
-    {
-        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        return Ok("Logout");
+        return authenticatedUser;
     }
 }
