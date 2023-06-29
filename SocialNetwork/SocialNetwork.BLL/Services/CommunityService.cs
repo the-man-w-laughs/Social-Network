@@ -210,7 +210,7 @@ public class CommunityService : ICommunityService
         return _mapper.Map<CommunityResponseDto>(community);
     }
 
-    //public async Task<CommunityPostResponseDto> AddCommunityPost(uint proposerId, uint communityId, PostRequestDto postRequestDto)
+    //public async Task<PostResponseDto> AddCommunityPost(uint proposerId, uint communityId, PostRequestDto postRequestDto)
     //{
     //    var community = await _communityRepository.GetByIdAsync(communityId) ?? throw new NotFoundException("No community with this Id.");
     //    var communityMember = await GetCommunityMember(communityId, proposerId);
@@ -237,20 +237,19 @@ public class CommunityService : ICommunityService
 
     public async Task<List<PostResponseDto>> GetCommunityPosts(uint userId, uint communityId, int limit, int currCursor)
     {
-        //var community = await _communityRepository.GetByIdAsync(communityId) ??
-        //    throw new NotFoundException("No community with this Id.");
-        //var communityMember = await GetCommunityMember(communityId, userId);
-        //if (communityMember == null && community.IsPrivate)
-        //    throw new OwnershipException("Only community members can get private community posts.");
+        var community = await _communityRepository.GetByIdAsync(communityId) ??
+            throw new NotFoundException("No community with this Id.");
+        var communityMember = await GetCommunityMember(communityId, userId);
+        if (communityMember == null && community.IsPrivate)
+            throw new OwnershipException("Only community members can get private community posts.");
 
-        //var posts = await _communityRepository.GetByIdAsync(communityId);
-        //var pagenatedPosts = posts!.CommunityPosts
-        //    .OrderBy(cp => cp.Id)
-        //    .Skip(currCursor)
-        //    .Take(limit)
-        //    .ToList();
-        //return _mapper.Map<List<CommunityPostResponseDto>>(pagenatedPosts); ;
-        return new List<PostResponseDto>();
+        var posts = await _communityRepository.GetByIdAsync(communityId);
+        var pagenatedPosts = posts!.CommunityPosts
+            .OrderBy(cp => cp.Id)
+            .Skip(currCursor)
+            .Take(limit)
+            .ToList();
+        return _mapper.Map<List<PostResponseDto>>(pagenatedPosts);       
 
     }
     public async Task<CommunityResponseDto> ChangeCommunity(uint userId, uint communityId, CommunityPatchRequestDto communityPatchRequestDto)

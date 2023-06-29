@@ -81,7 +81,6 @@ public class MediasController : ControllerBase
             {
                 FileDownloadName = localMedia.FileName
             };
-
             return fileContentResult;
         }
 
@@ -106,13 +105,7 @@ public class MediasController : ControllerBase
     {
         var userId = HttpContext.GetAuthenticatedUserId();
         var deletedMedia = await _mediaService.DeleteMedia(userId, mediaId);
-        if (System.IO.File.Exists(deletedMedia.FilePath))
-        {
-            System.IO.File.Delete(deletedMedia.FilePath);
-            return Ok(_mapper.Map<MediaResponseDto>(deletedMedia));
-        }
-
-        return NotFound("No media with this id.");
+        return deletedMedia;
     }
 
     /// <summary>
@@ -132,8 +125,7 @@ public class MediasController : ControllerBase
     public virtual async Task<ActionResult<MediaLikeResponseDto>> PostMediasMediaIdLikes(
         [FromRoute] [Required] uint mediaId)
     {
-        var userId = HttpContext.GetAuthenticatedUserId();
-        await _mediaService.GetLocalMedia(mediaId);
+        var userId = HttpContext.GetAuthenticatedUserId();        
         return Ok(await _mediaService.LikeMedia(userId, mediaId));
     }
 
@@ -154,8 +146,7 @@ public class MediasController : ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     public virtual async Task<ActionResult<List<MediaLikeResponseDto>>> GetMediasMediaId(
         [FromRoute] [Required] uint mediaId, [FromQuery] [Required] int limit, [FromQuery] int currCursor)
-    {
-        await _mediaService.GetLocalMedia(mediaId);
+    {        
         return Ok(await _mediaService.GetMediaLikes(mediaId, limit, currCursor));
     }
 
@@ -175,7 +166,6 @@ public class MediasController : ControllerBase
         [FromRoute] [Required] uint mediaId)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
-        await _mediaService.GetLocalMedia(mediaId);
         return Ok(await _mediaService.UnLikeMedia(userId, mediaId));
     }
 }

@@ -196,7 +196,8 @@ public class UsersController : ControllerBase
         return Ok(userMediasDto);
     }
 
-    // AddFriend
+    /// <summary>AddFriend</summary>
+    /// <remarks>Add friend.</remarks>
     [Authorize(Roles = "User")]
     [HttpPost, Route("{userId}/friends/{friendId}")]
     public virtual async Task<ActionResult<UserProfileResponseDto>> PostUserFriendsFriendId(
@@ -220,7 +221,8 @@ public class UsersController : ControllerBase
         return Ok(userFriendsDto);
     }
 
-    // DeleteFriend
+    /// <summary>DeleteFriend</summary>
+    /// <remarks>Move friend to followers.</remarks>
     [Authorize(Roles = "User")]
     [HttpDelete, Route("{userId}/friends/{friendId}")]
     public virtual async Task<ActionResult<UserProfileResponseDto>> DeleteUserFriends(
@@ -231,7 +233,8 @@ public class UsersController : ControllerBase
         return Ok(deletedUserDto);
     }
 
-    // GetFollowers
+    /// <summary>GetFollowers</summary>
+    /// <remarks>Get followers.</remarks>
     [Authorize(Roles = "User")]
     [HttpGet, Route("{userId}/followers")]
     public virtual async Task<ActionResult<List<UserResponseDto>>> GetUserFollowers(
@@ -243,7 +246,8 @@ public class UsersController : ControllerBase
         return Ok(userFollowersDto);
     }
 
-    // DeleteFollower
+    /// <summary>DeleteFollower</summary>
+    /// <remarks>Delete follower.</remarks>
     [Authorize(Roles = "User")]
     [HttpDelete, Route("{userId}/followers/{followerId}")]
     public virtual async Task<ActionResult<UserProfileResponseDto>> DeleteUserFollowers(

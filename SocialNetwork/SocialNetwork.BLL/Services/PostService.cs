@@ -34,11 +34,16 @@ public class PostService : IPostService
         throw new NotImplementedException();
     }
 
+    public async Task<Post> GetLocalPost(uint postId)
+    {
+        var post = await _postRepository.GetByIdAsync(postId) ??
+            throw new NotFoundException($"Post (ID: {postId}) if not found."); ;
+        return post;
+    }
+
     public async Task<List<CommentResponseDto>> GetComments(uint postId, int limit, int currCursor)
     {
-        var post = await _postRepository.GetByIdAsync(postId);
-        if (post == null)
-            throw new NotFoundException($"Post (ID: {postId}) doesn't exist");        
+        var post = await GetLocalPost(postId);   
         var paginatedCommentList = post.Comments.OrderBy(cm => cm.Id)
         .Skip(currCursor)
         .Take(limit)
@@ -53,6 +58,8 @@ public class PostService : IPostService
 
     public async Task<PostLikeResponseDto> LikePost(uint userId, uint postId)
     {
+        await GetLocalPost(postId);
+
         if (await GetPostLike(userId, postId) != null) throw new DuplicateEntryException("User already liked this post.");
         var newLike = await _postLikeRepository.LikeComment(userId, postId);
         return _mapper.Map<PostLikeResponseDto>(newLike);
@@ -60,9 +67,8 @@ public class PostService : IPostService
 
     public async Task<List<PostLikeResponseDto>> GetLikes(uint postId, int limit, int currCursor)
     {
-        var post = await _postRepository.GetByIdAsync(postId);
-        if (post == null)
-            throw new NotFoundException($"Post (ID: {postId}) doesn't exist");
+        var post = await GetLocalPost(postId);
+
         var paginatedCommentLikesList = post.PostLikes.OrderBy(cm => cm.Id)
         .Skip(currCursor)
         .Take(limit)
@@ -73,6 +79,8 @@ public class PostService : IPostService
 
     public async Task<PostLikeResponseDto> UnlikePost(uint userId, uint postId)
     {
+        await GetLocalPost(postId);
+
         var postLIke = await GetPostLike(userId, postId);
         if (postLIke == null) throw new NotFoundException("User didn't like this post.");
 

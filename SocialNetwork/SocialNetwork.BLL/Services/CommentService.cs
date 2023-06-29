@@ -10,6 +10,7 @@ using SocialNetwork.DAL.Contracts.Medias;
 using SocialNetwork.DAL.Contracts.Posts;
 using SocialNetwork.DAL.Entities.Comments;
 using SocialNetwork.DAL.Entities.Medias;
+using SocialNetwork.DAL.Entities.Posts;
 using SocialNetwork.DAL.Entities.Users;
 using SocialNetwork.DAL.Repositories.Medias;
 using Comment = SocialNetwork.DAL.Entities.Comments.Comment;
@@ -85,10 +86,17 @@ public class CommentService : ICommentService
         commentResponseDto.LikeCount = (uint)comment.CommentLikes.Count;
         return commentResponseDto;
     }
-    
+
+    private async Task<Comment> GetLocalComment(uint commentId)
+    {
+        var comment = await _commentRepository.GetByIdAsync(commentId) ??
+            throw new NotFoundException($"Comment (ID: {commentId}) if not found."); ;
+        return comment;
+    }
+
     public async Task<CommentResponseDto> ChangeComment(uint userId, uint commentId, CommentPatchRequestDto commentPatchRequestDto)
     {
-        var comment = await _commentRepository.GetByIdAsync(commentId) ?? throw new NotFoundException("No comment with this Id.");
+        var comment = await GetLocalComment(commentId);
         if (comment.Author.Id != userId)
             throw new OwnershipException("Only comment owner can change it.");
 
@@ -131,9 +139,7 @@ public class CommentService : ICommentService
 
     public async Task<CommentResponseDto> DeleteComment(uint userId, uint commentId)
     {
-        var comment = await _commentRepository.GetByIdAsync(commentId);
-        if (comment == null)
-            throw new NotFoundException("Comment with this id is not found.");
+        var comment = await GetLocalComment(commentId);
         if (comment.AuthorId != userId)
             throw new OwnershipException("Only owner can delete comment.");
 
@@ -152,6 +158,8 @@ public class CommentService : ICommentService
     }
     public async Task<CommentLikeResponseDto> LikeComment(uint userId, uint commentId)
     {
+        await GetLocalComment(commentId);
+
         if (await GetCommentLike(userId, commentId) != null) throw new DuplicateEntryException("User already liked this comment.");
         var newLike = await _commentLikeRepository.LikeComment(userId, commentId);
         return _mapper.Map<CommentLikeResponseDto>(newLike);
@@ -159,6 +167,8 @@ public class CommentService : ICommentService
 
     public async Task<List<CommentLikeResponseDto>> GetCommentLikes(uint commentId, int limit, int currCursor)
     {
+        var comment = await GetLocalComment(commentId);
+
         var commentLikesList = await _commentLikeRepository.GetCommentLikes(commentId);
         var paginatedCommentLikesList = commentLikesList.OrderBy(cm => cm.Id)
         .Skip(currCursor)
@@ -169,6 +179,8 @@ public class CommentService : ICommentService
 
     public async Task<CommentLikeResponseDto> UnlikeComment(uint userId, uint commentId)
     {
+        await GetLocalComment(commentId);
+
         var commentLike = await GetCommentLike(userId, commentId);
         if (commentLike == null) throw new NotFoundException("User didn't like this comment.");
         _commentLikeRepository.Delete(commentLike);
