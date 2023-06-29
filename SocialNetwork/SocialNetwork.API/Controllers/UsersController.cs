@@ -58,45 +58,6 @@ public class UsersController : ControllerBase
         var usersDto = await _userService.GetUsers(limit, nextCursor);
         return Ok(usersDto);
     }
-
-    /// <summary>Get User Chats</summary>
-    /// <remarks>Get all users chats using pagination.</remarks>
-    [Authorize(Roles = "User")]
-    [HttpGet, Route("{userId}/chats")]
-    public virtual async Task<ActionResult<List<ChatResponseDto>>> GetUsersUserIdChats(      
-        [FromRoute, Required] uint userId,  
-        [FromQuery, Required] int limit,
-        [FromQuery] int nextCursor)
-    {
-        var userChatsDto = await _userService.GetUserChats(userId, limit, nextCursor);
-        return Ok(userChatsDto);
-    }
-
-    /// <summary>Get User Communities</summary>
-    /// <remarks>Get user's communities using pagination.</remarks>
-    [Authorize(Roles = "User")]
-    [HttpGet, Route("{userId}/communities")]
-    public virtual async Task<ActionResult<List<CommunityResponseDto>>> GetUsersUserIdCommunities(
-        [FromRoute, Required] uint userId,
-        [FromQuery, Required] int limit,
-        [FromQuery] int nextCursor)
-    {
-        var userCommunitiesDto = await _userService.GetUserCommunities(userId, limit, nextCursor);
-        return Ok(userCommunitiesDto);
-    }
-
-    /// <summary>Get Managed Communities</summary>
-    /// <remarks>Get user's communities where user is admin or owner using pagination.</remarks>
-    [Authorize(Roles = "User")]
-    [HttpGet, Route("{userId}/communities/managed")]
-    public virtual async Task<ActionResult<List<CommunityResponseDto>>> GetUsersUserIdCommunitiesManaged(
-        [FromRoute, Required] uint userId,
-        [FromQuery, Required] int limit,
-        [FromQuery] int nextCursor)
-    {
-        var managedCommunitiesDto = await _userService.GetUserManagedCommunities(userId, limit, nextCursor);
-        return Ok(managedCommunitiesDto);
-    }
         
     /// <summary>Get User Profile</summary>
     /// <remarks>Get user's profile.</remarks>
@@ -108,19 +69,42 @@ public class UsersController : ControllerBase
         return Ok(_mapper.Map<UserProfileResponseDto>(userProfile));
     }
 
-    /// <summary>Change Activity Of User Account</summary>
-    /// <remarks>Makes user's account activated / deactivated (for account owner).</remarks>
+    /// <summary>Change User Profile</summary>
+    /// <remarks>Change user profile(status, sex).</remarks>
     [Authorize(Roles = "User")]
-    [HttpPut, Route("{userId}/activity")]
-    public virtual ActionResult<UserActivityResponseDto> PutUsersUserId(
-        [FromRoute, Required] uint userId,
-        [FromBody, Required] UserActivityRequestDto userActivityRequestDto)
+    [HttpPatch, Route("profile")]
+    public virtual async Task<ActionResult<UserProfileResponseDto>> PutUsersUserIdProfile(
+        [FromBody, Required] UserProfilePatchRequestDto userProfilePatchRequestDto)
     {
-        // TODO
-        var user = new User { LastActiveAt = DateTime.Now };
-
-        return Ok(_mapper.Map<UserActivityResponseDto>(user));
+        var userId = HttpContext.GetAuthenticatedUserId();
+        var updatedUserProfile = await _userService.ChangeUserProfile(userId, userProfilePatchRequestDto);
+        return Ok(updatedUserProfile);
     }
+
+    /// <summary>Get User Account</summary>
+    /// <remarks>Get user's profile.</remarks>
+    [Authorize(Roles = "User")]
+    [HttpGet, Route("account")]
+    public virtual async Task<ActionResult<UserResponseDto>> GetUsersUserIdAccount()
+    {
+        var userId = HttpContext.GetAuthenticatedUserId();
+        var userAccount = await _userService.GetUserAccount(userId);
+        return Ok(userAccount);
+    }
+
+    ///// <summary>Change Activity Of User Account</summary>
+    ///// <remarks>Makes user's account activated / deactivated (for account owner).</remarks>
+    //[Authorize(Roles = "User")]
+    //[HttpPut, Route("{userId}/activity")]
+    //public virtual ActionResult<UserActivityResponseDto> PutUsersUserId(
+    //    [FromRoute, Required] uint userId,
+    //    [FromBody, Required] UserActivityRequestDto userActivityRequestDto)
+    //{
+    //    // TODO
+    //    var user = new User { LastActiveAt = DateTime.Now };
+
+    //    return Ok(_mapper.Map<UserActivityResponseDto>(user));
+    //}
 
     /// <summary>Change User Login</summary>
     /// <remarks>Change Login.</remarks>
@@ -157,17 +141,43 @@ public class UsersController : ControllerBase
         var changedUserEmailDto = await _userService.ChangeUserEmail(userId, userEmailRequestDto);
         return Ok(_mapper.Map<UserEmailResponseDto>(changedUserEmailDto));
     }
-
-    /// <summary>Change User Profile</summary>
-    /// <remarks>Change user profile(status, sex).</remarks>
+    /// <summary>Get User Chats</summary>
+    /// <remarks>Get all users chats using pagination.</remarks>
     [Authorize(Roles = "User")]
-    [HttpPatch, Route("profile")]
-    public virtual async Task<ActionResult<UserProfileResponseDto>> PutUsersUserIdProfile(
-        [FromBody, Required] UserProfilePatchRequestDto userProfilePatchRequestDto)
+    [HttpGet, Route("chats")]
+    public virtual async Task<ActionResult<List<ChatResponseDto>>> GetUsersUserIdChats(
+        [FromQuery, Required] int limit,
+        [FromQuery] int nextCursor)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
-        var updatedUserProfile = await _userService.ChangeUserProfile(userId, userProfilePatchRequestDto);
-        return Ok(updatedUserProfile);
+        var userChatsDto = await _userService.GetUserChats(userId, limit, nextCursor);
+        return Ok(userChatsDto);
+    }
+
+    /// <summary>Get User Communities</summary>
+    /// <remarks>Get user's communities using pagination.</remarks>
+    [Authorize(Roles = "User")]
+    [HttpGet, Route("{userId}/communities")]
+    public virtual async Task<ActionResult<List<CommunityResponseDto>>> GetUsersUserIdCommunities(
+        [FromRoute, Required] uint userId,
+        [FromQuery, Required] int limit,
+        [FromQuery] int nextCursor)
+    {
+        var userCommunitiesDto = await _userService.GetUserCommunities(userId, limit, nextCursor);
+        return Ok(userCommunitiesDto);
+    }
+
+    /// <summary>Get Managed Communities</summary>
+    /// <remarks>Get user's communities where user is admin or owner using pagination.</remarks>
+    [Authorize(Roles = "User")]
+    [HttpGet, Route("{userId}/communities/managed")]
+    public virtual async Task<ActionResult<List<CommunityResponseDto>>> GetUsersUserIdCommunitiesManaged(
+        [FromRoute, Required] uint userId,
+        [FromQuery, Required] int limit,
+        [FromQuery] int nextCursor)
+    {
+        var managedCommunitiesDto = await _userService.GetUserManagedCommunities(userId, limit, nextCursor);
+        return Ok(managedCommunitiesDto);
     }
 
     /// <summary>Get User Posts</summary>

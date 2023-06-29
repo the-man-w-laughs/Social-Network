@@ -115,8 +115,7 @@ public class CommentService : ICommentService
             }
         }
         if (commentPatchRequestDto.Attachments != null)
-        {
-            var newMediaList = new List<Media>();
+        {            
             comment.Attachments.Clear();
             foreach (var attachmentId in commentPatchRequestDto.Attachments)
             {

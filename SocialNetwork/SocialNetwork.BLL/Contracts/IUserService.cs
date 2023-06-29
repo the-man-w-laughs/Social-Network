@@ -23,4 +23,5 @@ public interface IUserService
     Task<UserResponseDto> ChangeUserLogin(uint userId, UserLoginRequestDto userLoginRequestDto);
     Task<UserResponseDto> ChangeUserPassword(uint userId, UserPasswordRequestDto userPasswordRequestDto);
     Task<UserResponseDto> ChangeUserEmail(uint userId, UserEmailRequestDto userEmailRequestDto);
+    Task<UserResponseDto> GetUserAccount(uint userId);
 }

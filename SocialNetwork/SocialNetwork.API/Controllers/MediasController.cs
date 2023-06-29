@@ -58,17 +58,35 @@ public class MediasController : ControllerBase
     }
 
     /// <summary>
-    /// GetMedia
+    /// GetMediaInfo
     /// </summary>
-    /// <remarks>Download media (complicated logic).</remarks>          
+    /// <remarks>Get media info.</remarks>          
     /// <param name="mediaId">The ID of the media.</param>    
     /// <response code="200">Returns the media file.</response>
     /// <response code="404">If the media file is not found.</response>
     [HttpGet]
-    [Route("{mediaId}")]
+    [Route("{mediaId}/info")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> GetMediasMediaId([FromRoute] [Required] uint mediaId)
+    public async Task<MediaResponseDto> GetMediasMediaIdInfo([FromRoute][Required] uint mediaId)
+    {
+        var userId = HttpContext.GetAuthenticatedUserId();
+        var media = await _mediaService.GetMedia(mediaId);
+        return media;
+    }
+
+    /// <summary>
+    /// DownloadMedia
+    /// </summary>
+    /// <remarks>Download media.</remarks>          
+    /// <param name="mediaId">The ID of the media.</param>    
+    /// <response code="200">Returns the media file.</response>
+    /// <response code="404">If the media file is not found.</response>
+    [HttpGet]
+    [Route("{mediaId}/download")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> GetMediasMediaIdDownload([FromRoute][Required] uint mediaId)
     {
         var localMedia = await _mediaService.GetLocalMedia(mediaId);
 

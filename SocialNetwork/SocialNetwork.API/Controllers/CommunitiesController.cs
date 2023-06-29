@@ -159,6 +159,22 @@ public class CommunitiesController : ControllerBase
     }
 
     /// <summary>
+    /// AddCommunityMember
+    /// </summary>
+    /// <remarks>Add member to the community.</remarks>
+    [HttpPost]
+    [Route("{communityId}/members/{userIdToAdd}")]
+    [Authorize(Roles = "User")]
+    public virtual async Task<ActionResult<CommunityMemberResponseDto>> PostCommunitiesCommunityIdMembersMemberId(
+        [FromRoute, Required] uint userIdToAdd,
+        [FromRoute, Required] uint communityId)
+    {
+        var userId = HttpContext.GetAuthenticatedUserId();
+        var addedMember = await _communityService.AddCommunityMember(userId, communityId, userIdToAdd);
+        return Ok(addedMember);
+    }
+
+    /// <summary>
     /// GetAllCommunityMembers
     /// </summary>
     /// <remarks>Retrieve all members of community.</remarks>
@@ -175,22 +191,6 @@ public class CommunitiesController : ControllerBase
         var communityPosts = await _communityService
             .GetCommunityMembers(userId, communityId, communityMemberTypeId, limit, currCursor);
         return Ok(communityPosts);
-    }
-
-    /// <summary>
-    /// AddCommunityMember
-    /// </summary>
-    /// <remarks>Add member to the community.</remarks>
-    [HttpPost]
-    [Route("{communityId}/members/{userIdToAdd}")]
-    [Authorize(Roles = "User")]
-    public virtual async Task<ActionResult<CommunityMemberResponseDto>> PostCommunitiesCommunityIdMembersMemberId(
-        [FromRoute, Required] uint userIdToAdd,
-        [FromRoute, Required] uint communityId)
-    {
-        var userId = HttpContext.GetAuthenticatedUserId();
-        var addedMember = await _communityService.AddCommunityMember(userId, communityId, userIdToAdd);
-        return Ok(addedMember);
     }
 
     /// <summary>

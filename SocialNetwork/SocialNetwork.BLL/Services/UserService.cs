@@ -118,7 +118,8 @@ public class UserService : IUserService
 
     public async Task<List<PostResponseDto>> GetUserPosts(uint userId, int limit, int currCursor)
     {
-        var posts = await _postRepository.GetAllAsync(post => post.AuthorId == userId && !post.IsCommunityPost);
+        var posts = await _postRepository.
+            GetAllAsync(post => post.AuthorId == userId && (post.IsCommunityPost == null || !(bool)post.IsCommunityPost));
         var paginatedPosts = posts.OrderBy(cm => cm.Id)
             .Skip(currCursor)
             .Take(limit)
@@ -426,6 +427,12 @@ public class UserService : IUserService
         _userRepository.Update(user);
         await _userRepository.SaveAsync();
 
+        return _mapper.Map<UserResponseDto>(user);
+    }
+
+    public async Task<UserResponseDto> GetUserAccount(uint userId)
+    {
+        var user = await GetUserById(userId);
         return _mapper.Map<UserResponseDto>(user);
     }
 }

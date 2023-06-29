@@ -44,8 +44,7 @@ public class CommentsController : ControllerBase
     [HttpGet]
     [Route("{commentId}")]
     public virtual async Task<ActionResult<CommentResponseDto>> GetCommentsCommentId(
-        [FromRoute, Required] uint commentId,
-        [FromBody, Required] CommentPatchRequestDto commentPatchRequestDto)
+        [FromRoute, Required] uint commentId)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
         var comment = await _commentService.GetComment(userId);

@@ -1,5 +1,7 @@
 using AutoMapper;
+using DocumentFormat.OpenXml.Office2019.Word.Cid;
 using SocialNetwork.BLL.Contracts;
+using SocialNetwork.BLL.DTO.Comments.Request;
 using SocialNetwork.BLL.DTO.Messages.Request;
 using SocialNetwork.BLL.DTO.Messages.Response;
 using SocialNetwork.BLL.Exceptions;
@@ -7,6 +9,7 @@ using SocialNetwork.DAL.Contracts.Chats;
 using SocialNetwork.DAL.Contracts.Medias;
 using SocialNetwork.DAL.Contracts.Messages;
 using SocialNetwork.DAL.Entities.Chats;
+using SocialNetwork.DAL.Entities.Medias;
 using SocialNetwork.DAL.Entities.Messages;
 
 namespace SocialNetwork.BLL.Services;
@@ -25,13 +28,15 @@ public class MessageService : IMessageService
         IChatRepository chatRepository,
         IChatMemberRepository chatMemberRepository,
         IMessageRepository messageRepository,
-        IMessageLikeRepository messageLikeRepository)
+        IMessageLikeRepository messageLikeRepository,
+        IMediaRepository mediaRepository)
     {
         _mapper = mapper;
         _chatRepository = chatRepository;
         _chatMemberRepository = chatMemberRepository;
         _messageRepository = messageRepository;
         _messageLikeRepository = messageLikeRepository;
+        _mediaRepository = mediaRepository;
     }
 
     #region Public Methods
@@ -78,6 +83,49 @@ public class MessageService : IMessageService
         await _messageRepository.SaveAsync();
 
         return _mapper.Map<MessageResponseDto>(addedMessage);
+    }
+
+    public async Task<MessageResponseDto> ChangeMessage(uint userId, uint messageId, MessagePatchRequestDto messagePatchRequestDto)
+    {
+        var message = await GetMessageById(messageId);
+
+        if (message.SenderId != userId)
+            throw new OwnershipException("Only message sender can change the message.");
+
+        bool updated = false;
+        if (messagePatchRequestDto.Content != null)
+        {
+            if (messagePatchRequestDto.Content.Length == 0)
+                throw new ArgumentException($"Content should have at least 1 character without whitespaces.");
+            else
+            {
+                if (messagePatchRequestDto.Content != messagePatchRequestDto.Content)
+                {
+                    messagePatchRequestDto.Content = messagePatchRequestDto.Content;
+                    updated = true;
+                }
+            }
+        }
+        if (messagePatchRequestDto.Attachments != null)
+        {            
+            message.Attachments.Clear();
+            foreach (var attachmentId in messagePatchRequestDto.Attachments)
+            {
+                var media = await _mediaRepository.GetByIdAsync(attachmentId);
+                if (media != null)
+                {
+                    message.Attachments.Add(new MessageMedia { MediaId = media.Id, ChatId = message.ChatId });
+                }
+            }
+            updated = true;
+        }
+        if (updated)
+        {
+            message!.UpdatedAt = DateTime.Now;
+            _messageRepository.Update(message!);
+            await _messageRepository.SaveAsync();
+        }
+        return _mapper.Map<MessageResponseDto>(message);
     }
 
     public async Task<MessageResponseDto> DeleteMessage(uint userId, uint messageId)
@@ -142,24 +190,7 @@ public class MessageService : IMessageService
         return _mapper.Map<MessageLikeResponseDto>(deletedLike);
     }
 
-    public async Task<MessageResponseDto> ChangeMessage(uint userId, uint messageId, MessagePatchRequestDto messagePatchRequestDto)
-    {
-        var message = await GetMessageById(messageId);
 
-        if (message.SenderId != userId)
-            throw new OwnershipException("Only message sender can change the message.");
-
-        if (messagePatchRequestDto.Content != null)
-        {
-            message.Content = messagePatchRequestDto.Content;
-            message.UpdatedAt = DateTime.Now;
-            
-            _messageRepository.Update(message);
-            await _messageRepository.SaveAsync();
-        }
-        
-        return _mapper.Map<MessageResponseDto>(message);
-    }
 
     #endregion
 

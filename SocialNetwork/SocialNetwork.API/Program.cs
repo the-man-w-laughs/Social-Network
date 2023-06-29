@@ -3,6 +3,7 @@ using SocialNetwork.DAL;
 using SocialNetwork.BLL;
 using System.Reflection;
 using SocialNetwork.API.Middlewares;
+using SocialNetwork.API.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,18 +13,11 @@ builder.Services.AddControllers();
 builder.Services.RegisterDalDependencies(builder.Configuration);
 builder.Services.RegisterBllDependencies(builder.Configuration);
 
-builder.Services.AddControllers().AddNewtonsoftJson(options =>
-    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
-);
+builder.Services.AddControllersWithNewtonsoftJson();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(config =>
-{
-    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-    config.IncludeXmlComments(xmlPath);
-});
+builder.Services.AddSwaggerWithXmlComments();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>

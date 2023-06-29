@@ -57,30 +57,6 @@ public class ChatsController : ControllerBase
         return Ok(chatInfo);
     }
 
-    /// <summary>Get Chat Medias</summary>
-    /// <remarks>Get all chat medias by chat ID (for chat members).</remarks>
-    /// <param name="chatId">The ID of the chat to retrieve medias for.</param>
-    /// <param name="limit">The maximum number of medias to retrieve.</param>
-    /// <param name="nextCursor">The cursor value for pagination.</param>    
-    /// <response code="200">Returns a list of <see cref="MediaResponseDto"/> with details of each chat media.</response>
-    /// <response code="400">Returns a string message if the chat doesn't exist.</response>
-    /// <response code="401">Returns a string message if the user unauthorized.</response>
-    /// <response code="403">Returns a string message if the user not a chat member.</response>
-    [HttpGet, Route("{chatId}/medias")]
-    [ProducesResponseType(typeof(List<MediaResponseDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
-    public virtual async Task<ActionResult<List<MediaResponseDto>>> GetChatChatIdMedias(
-        [FromRoute, Required] uint chatId,
-        [FromQuery, Required] int limit,
-        [FromQuery] int nextCursor)
-    {
-        var userId = HttpContext.GetAuthenticatedUserId();
-        var chatMedias = await _chatService.GetChatMedias(userId, chatId, limit, nextCursor);
-        return Ok(chatMedias);
-    }
-
     /// <summary>Change Chat</summary>
     /// <remarks>Change chat information (name, photo) by chat ID (for chat admins, owners).</remarks>
     /// <param name="chatId">The ID of the chat to change information for.</param>
@@ -188,8 +164,7 @@ public class ChatsController : ControllerBase
         [FromRoute, Required] uint chatId,
         [FromRoute, Required] uint memberId,
         [FromBody, Required] ChangeChatMemberRequestDto changeChatMemberRequestDto)
-    {
-        //TODO РАЗОБРАТЬСЯ С ЛОГИКОЙ!!!!
+    {        
         var userId = HttpContext.GetAuthenticatedUserId();
         var updatedChatMember = await _chatService.UpdateChatMember(chatId, userId, memberId, changeChatMemberRequestDto);
         return Ok(updatedChatMember);
@@ -213,11 +188,34 @@ public class ChatsController : ControllerBase
     public virtual async Task<ActionResult<ChatMemberResponseDto>> DeleteChatsChatIdMembersParticipantId(
         [FromRoute, Required] uint chatId,
         [FromRoute, Required] uint userToDeleteId)
-    {
-        //TODO РАЗОБРАТЬСЯ С ЛОГИКОЙ!!!!
+    {        
         var userId = HttpContext.GetAuthenticatedUserId();
         var deletedMember = await _chatService.DeleteChatMember(userId, userToDeleteId, chatId);
         return Ok(deletedMember);
+    }
+
+    /// <summary>Get Chat Medias</summary>
+    /// <remarks>Get all chat medias by chat ID (for chat members).</remarks>
+    /// <param name="chatId">The ID of the chat to retrieve medias for.</param>
+    /// <param name="limit">The maximum number of medias to retrieve.</param>
+    /// <param name="nextCursor">The cursor value for pagination.</param>    
+    /// <response code="200">Returns a list of <see cref="MediaResponseDto"/> with details of each chat media.</response>
+    /// <response code="400">Returns a string message if the chat doesn't exist.</response>
+    /// <response code="401">Returns a string message if the user unauthorized.</response>
+    /// <response code="403">Returns a string message if the user not a chat member.</response>
+    [HttpGet, Route("{chatId}/medias")]
+    [ProducesResponseType(typeof(List<MediaResponseDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
+    public virtual async Task<ActionResult<List<MediaResponseDto>>> GetChatChatIdMedias(
+        [FromRoute, Required] uint chatId,
+        [FromQuery, Required] int limit,
+        [FromQuery] int nextCursor)
+    {
+        var userId = HttpContext.GetAuthenticatedUserId();
+        var chatMedias = await _chatService.GetChatMedias(userId, chatId, limit, nextCursor);
+        return Ok(chatMedias);
     }
 
     /// <summary>Get Chat Messages</summary>
