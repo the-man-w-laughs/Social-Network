@@ -4,92 +4,88 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialNetwork.BLL.Contracts;
 using SocialNetwork.BLL.DTO.Comments.Response;
+using SocialNetwork.BLL.DTO.Communities.Response;
 using SocialNetwork.BLL.DTO.Medias.Response;
 using SocialNetwork.BLL.DTO.Posts.Response;
 using SocialNetwork.BLL.DTO.Users.Response;
-using SocialNetwork.BLL.Exceptions;
 
 namespace SocialNetwork.API.Controllers;
 
-[ApiController]
-[Route("[controller]")]
+[Authorize(Roles = "Admin")]
+[ApiController, Route("[controller]")]
 public sealed class AdminController : ControllerBase
 {
     private readonly IMapper _mapper;
-    private readonly IMediaService _mediaService;
     private readonly IAdminService _adminService;
 
-    public AdminController(IMapper mapper, IMediaService mediaService, IAdminService adminService)
+    public AdminController(IMapper mapper, IAdminService adminService)
     {
         _mapper = mapper;
-        _mediaService = mediaService;
         _adminService = adminService;
     }
 
-    /// <summary>
-    /// DeleteMedia
-    /// </summary>
-    /// <remarks>Delete media.</remarks>    
-    [HttpDelete]
-    [Authorize(Roles = "Admin")]
-    [Route("medias/{mediaId}")]
-    public async Task<ActionResult<UserResponseDto>> DeleteAdminMedias([FromRoute, Required] uint mediaId)
+    /// <summary>Delete Media</summary>
+    /// <remarks>Delete media by ID.</remarks>
+    /// <param name="mediaId">The ID of the media to delete</param>
+    /// <response code="200">Returns a <see cref="MediaResponseDto"/> with the details of the deleted media.</response>
+    /// <response code="401">Returns a string message if the user unauthorized or not admin.</response>
+    /// <response code="404">Returns a string message if the media not founded.</response>
+    [HttpDelete, Route("medias/{mediaId}")]
+    [ProducesResponseType(typeof(MediaResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<MediaResponseDto>> DeleteAdminMedias([FromRoute, Required] uint mediaId)
     {
-        var deletedMedia = await _mediaService.DeleteMedia(mediaId);
-        if (System.IO.File.Exists(deletedMedia.FilePath))
-        {
-            System.IO.File.Delete(deletedMedia.FilePath);
-            return Ok(_mapper.Map<MediaLikeResponseDto>(deletedMedia));
-        }
-        return NotFound("No media with this id.");
+        var deletedMedia = await _adminService.DeleteMedia(mediaId);
+        return Ok(_mapper.Map<MediaResponseDto>(deletedMedia));
     }
 
-    /// <summary>
-    /// DeleteCommunity
-    /// </summary>
-    /// <remarks>Delete community report.</remarks>    
-    [HttpDelete]
-    [Authorize(Roles = "Admin")]
-    [Route("communities/{communityId}")]
-    public async Task<ActionResult<UserResponseDto>> DeleteAdminCommunities([FromRoute, Required] uint communityId)
+    /// <summary>Delete Community</summary>
+    /// <remarks>Delete community by ID.</remarks>
+    /// <param name="communityId">The ID of the community to delete</param>
+    /// <response code="200">Returns a <see cref="CommunityResponseDto"/> with the details of the deleted community.</response>
+    /// <response code="401">Returns a string message if the user unauthorized or not admin.</response>
+    /// <response code="404">Returns a string message if the community not founded.</response>
+    [HttpDelete, Route("communities/{communityId}")]
+    public async Task<ActionResult<CommunityResponseDto>> DeleteAdminCommunities([FromRoute, Required] uint communityId)
     {
         var deletedCommunity = await _adminService.DeleteCommunity(communityId);
         return Ok(deletedCommunity);
     }
 
-    /// <summary>
-    /// DeleteUser
-    /// </summary>
-    /// <remarks>Delete user report.`</remarks>    
-    [HttpDelete]
-    [Authorize(Roles = "Admin")]
-    [Route("users/{userId}")]
+    /// <summary>Delete User</summary>
+    /// <remarks>Delete user by ID.</remarks>
+    /// <param name="userId">The ID of the user to delete</param>
+    /// <response code="200">Returns a <see cref="UserResponseDto"/> with the details of the deleted user.</response>
+    /// <response code="401">Returns a string message if the user unauthorized or not admin.</response>
+    /// <response code="404">Returns a string message if the user not founded.</response>
+    [HttpDelete, Route("users/{userId}")]
     public async Task<ActionResult<UserResponseDto>> DeleteAdminUsers([FromRoute, Required] uint userId)
     {
         var deletedUser = await _adminService.DeleteUser(userId);
         return Ok(deletedUser);
     }
 
-    /// <summary>
-    /// DeletePost
-    /// </summary>
-    /// <remarks>Creates a new user using the provided login, email, and password.</remarks>    
-    [HttpDelete]
-    [Authorize(Roles = "Admin")]
-    [Route("posts/postId")]
+    /// <summary>Delete Post</summary>
+    /// <remarks>Delete post by ID.</remarks>
+    /// <param name="postId">The ID of the post to delete</param>
+    /// <response code="200">Returns a <see cref="PostResponseDto"/> with the details of the deleted post.</response>
+    /// <response code="401">Returns a string message if the user unauthorized or not admin.</response>
+    /// <response code="404">Returns a string message if the post not founded.</response>
+    [HttpDelete, Route("posts/{postId}")]
     public async Task<ActionResult<PostResponseDto>> DeleteAdminPosts([FromRoute, Required] uint postId)
     {
         var deletedPost = await _adminService.DeletePost(postId);
         return Ok(deletedPost);
     }
 
-    /// <summary>
-    /// DeleteComment
-    /// </summary>
-    /// <remarks>Creates a new user using the provided login, email, and password.</remarks>    
-    [HttpDelete]
-    [Authorize(Roles = "Admin")]
-    [Route("comments/commentId")]
+    /// <summary>Delete Comment</summary>
+    /// <remarks>Delete comment by ID.</remarks>
+    /// <param name="commentId">The ID of the comment to delete</param>
+    /// <response code="200">Returns a <see cref="PostResponseDto"/> with the details of the deleted comment.</response>
+    /// <response code="401">Returns a string message if the user unauthorized or not admin.</response>
+    /// <response code="404">Returns a string message if the comment not founded.</response>
+    [HttpDelete, Route("comments/{commentId}")]
     public async Task<ActionResult<CommentResponseDto>> DeleteAdminComments([FromRoute, Required] uint commentId)
     {
         var deletedComment = await _adminService.DeleteComment(commentId);
