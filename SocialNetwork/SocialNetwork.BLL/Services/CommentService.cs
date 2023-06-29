@@ -42,9 +42,7 @@ public class CommentService : ICommentService
         var post = await _postRepository.GetByIdAsync(commentRequestDto.PostId);
         if (post == null)
             throw new NotFoundException("Post with this id is not found.");
-
-        if (string.IsNullOrWhiteSpace(commentRequestDto.Content))
-            throw new ArgumentException("Content should have at least 1 character without whitespaces.");
+        
         if (commentRequestDto.RepliedCommentId != null)
         {
             var repliedComment = await _commentRepository.GetByIdAsync((uint)commentRequestDto.RepliedCommentId);
@@ -56,9 +54,7 @@ public class CommentService : ICommentService
         newComment.AuthorId = userId;
         newComment.CreatedAt = DateTime.Now;
 
-        await _commentRepository.AddAsync(newComment);        
-
-        var validAttachments = new List<uint>();
+        await _commentRepository.AddAsync(newComment);                
 
         if (commentRequestDto.Attachments != null)
         {
@@ -67,11 +63,13 @@ public class CommentService : ICommentService
                 var media = await _mediaRepository.GetByIdAsync(attachmentId);
                 if (media != null)
                 {
-                    newComment.Attachments.Add(media);
-                    validAttachments.Add(media.Id);
+                    newComment.Attachments.Add(media);                    
                 }
             }
         }
+
+        if (newComment.Attachments.Count == 0 && string.IsNullOrWhiteSpace(commentRequestDto.Content))
+            throw new ArgumentException("You can't make comment without any attachments and content.");
 
         await _commentRepository.SaveAsync();
         var commentResponseDto = _mapper.Map<CommentResponseDto>(newComment);

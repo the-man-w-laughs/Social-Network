@@ -48,7 +48,7 @@ public class CommentConfiguration : IEntityTypeConfiguration<Comment>
             .WithMany(s => s.Comments)
             .UsingEntity(j =>
                 {
-                    j.ToTable("comment_attachments");
+                    j.ToTable("comments_attachments");
                 });
     }
 }

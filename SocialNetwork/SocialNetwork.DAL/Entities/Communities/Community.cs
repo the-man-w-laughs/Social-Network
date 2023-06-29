@@ -1,4 +1,5 @@
 ﻿using SocialNetwork.DAL.Entities.Medias;
+using SocialNetwork.DAL.Entities.Posts;
 
 namespace SocialNetwork.DAL.Entities.Communities;
 
@@ -14,5 +15,5 @@ public partial class Community
 
     public virtual Media? CommunityPicture { get; set; } = null;    
     public virtual ICollection<CommunityMember> CommunityMembers { get; set; } = new List<CommunityMember>();
-    public virtual ICollection<CommunityPost> CommunityPosts { get; set; } = new List<CommunityPost>();
+    public virtual ICollection<Post> CommunityPosts { get; set; } = new List<Post>();
 }

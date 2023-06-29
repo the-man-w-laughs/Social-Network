@@ -14,8 +14,6 @@ public class PostsProfile : BaseProfile
         CreateMap<PostRequestDto, Post>();
 
         CreateMap<PostLike, PostLikeResponseDto>();
-        CreateMap<Post, PostResponseDto>();
-        CreateMap<UserProfilePost, UserProfilePostResponseDto>();
-        CreateMap<CommunityPost, CommunityPostResponseDto>();
+        CreateMap<Post, PostResponseDto>();                
     }
 }

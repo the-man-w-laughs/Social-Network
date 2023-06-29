@@ -3,6 +3,7 @@ using SocialNetwork.BLL.Contracts;
 using SocialNetwork.BLL.DTO.Communities.Request;
 using SocialNetwork.BLL.DTO.Communities.Response;
 using SocialNetwork.BLL.DTO.Posts.Request;
+using SocialNetwork.BLL.DTO.Posts.Response;
 using SocialNetwork.BLL.Exceptions;
 using SocialNetwork.DAL.Contracts.Communities;
 using SocialNetwork.DAL.Contracts.Medias;
@@ -17,8 +18,7 @@ public class CommunityService : ICommunityService
     private readonly IMapper _mapper;
     private readonly IMediaRepository _mediaRepository;
     private readonly ICommunityRepository _communityRepository;
-    private readonly ICommunityMemberRepository _communityMemberRepository;
-    private readonly ICommunityPostRepository _communityPostRepository;
+    private readonly ICommunityMemberRepository _communityMemberRepository;    
     private readonly IPostRepository _postRepository;
 
     public CommunityService(
@@ -26,15 +26,13 @@ public class CommunityService : ICommunityService
         IMediaRepository mediaRepository,
         ICommunityRepository communityRepository,
         ICommunityMemberRepository communityMemberRepository,
-        IPostRepository postRepository,
-        ICommunityPostRepository communityPostRepository)
+        IPostRepository postRepository)
     {
         _mapper = mapper;
         _mediaRepository = mediaRepository;
         _communityRepository = communityRepository;
         _communityMemberRepository = communityMemberRepository;
-        _postRepository = postRepository;
-        _communityPostRepository = communityPostRepository;
+        _postRepository = postRepository;        
     }
 
     public async Task<CommunityResponseDto> AddCommunity(CommunityRequestDto communityRequestDto)
@@ -212,46 +210,47 @@ public class CommunityService : ICommunityService
         return _mapper.Map<CommunityResponseDto>(community);
     }
 
-    public async Task<CommunityPostResponseDto> AddCommunityPost(uint proposerId, uint communityId, PostRequestDto postRequestDto)
+    //public async Task<CommunityPostResponseDto> AddCommunityPost(uint proposerId, uint communityId, PostRequestDto postRequestDto)
+    //{
+    //    var community = await _communityRepository.GetByIdAsync(communityId) ?? throw new NotFoundException("No community with this Id.");
+    //    var communityMember = await GetCommunityMember(communityId, proposerId);
+
+    //    if (communityMember == null && community.IsPrivate) throw new OwnershipException("In private communities only members can propose posts.");
+
+    //    var post = _mapper.Map<Post>(postRequestDto);
+    //    post.CreatedAt = DateTime.Now;
+    //    var addedPost = await _postRepository.AddAsync(post);
+    //    await _postRepository.SaveAsync();
+
+    //    var communityPost = new CommunityPost()
+    //    {
+    //        PostId = addedPost.Id,
+    //        CommunityId = communityId,
+    //        ProposerId = proposerId
+    //    };
+
+    //    await _communityPostRepository.AddAsync(communityPost);
+    //    await _communityPostRepository.SaveAsync();
+
+    //    return _mapper.Map<CommunityPostResponseDto>(communityPost);
+    //}
+
+    public async Task<List<PostResponseDto>> GetCommunityPosts(uint userId, uint communityId, int limit, int currCursor)
     {
-        var community = await _communityRepository.GetByIdAsync(communityId) ?? throw new NotFoundException("No community with this Id.");
-        var communityMember = await GetCommunityMember(communityId, proposerId);
+        //var community = await _communityRepository.GetByIdAsync(communityId) ??
+        //    throw new NotFoundException("No community with this Id.");
+        //var communityMember = await GetCommunityMember(communityId, userId);
+        //if (communityMember == null && community.IsPrivate)
+        //    throw new OwnershipException("Only community members can get private community posts.");
 
-        if (communityMember == null && community.IsPrivate) throw new OwnershipException("In private communities only members can propose posts.");
-
-        var post = _mapper.Map<Post>(postRequestDto);
-        post.CreatedAt = DateTime.Now;
-        var addedPost = await _postRepository.AddAsync(post);
-        await _postRepository.SaveAsync();
-
-        var communityPost = new CommunityPost()
-        {
-            PostId = addedPost.Id,
-            CommunityId = communityId,
-            ProposerId = proposerId
-        };
-
-        await _communityPostRepository.AddAsync(communityPost);
-        await _communityPostRepository.SaveAsync();
-
-        return _mapper.Map<CommunityPostResponseDto>(communityPost);
-    }
-
-    public async Task<List<CommunityPostResponseDto>> GetCommunityPosts(uint userId, uint communityId, int limit, int currCursor)
-    {
-        var community = await _communityRepository.GetByIdAsync(communityId) ??
-            throw new NotFoundException("No community with this Id.");
-        var communityMember = await GetCommunityMember(communityId, userId);
-        if (communityMember == null && community.IsPrivate)
-            throw new OwnershipException("Only community members can get private community posts.");
-
-        var posts = await _communityRepository.GetByIdAsync(communityId);
-        var pagenatedPosts = posts!.CommunityPosts
-            .OrderBy(cp => cp.Id)
-            .Skip(currCursor)
-            .Take(limit)
-            .ToList();
-        return _mapper.Map<List<CommunityPostResponseDto>>(pagenatedPosts); ;
+        //var posts = await _communityRepository.GetByIdAsync(communityId);
+        //var pagenatedPosts = posts!.CommunityPosts
+        //    .OrderBy(cp => cp.Id)
+        //    .Skip(currCursor)
+        //    .Take(limit)
+        //    .ToList();
+        //return _mapper.Map<List<CommunityPostResponseDto>>(pagenatedPosts); ;
+        return new List<PostResponseDto>();
 
     }
     public async Task<CommunityResponseDto> ChangeCommunity(uint userId, uint communityId, CommunityPatchRequestDto communityPatchRequestDto)

@@ -133,32 +133,6 @@ public class CommunitiesController : ControllerBase
     }
 
     /// <summary>
-    /// CreateCommunityPost
-    /// </summary>
-    /// <remarks>Create community post (depending on the isPrivate field, it could be available for community members or for everybody).</remarks>         
-    /// <param name="communityId">The ID of the community where the post will be created.</param>
-    /// <param name="postRequestDto">The post data.</param>   
-    /// <response code="200">Returns the created post.</response>
-    /// <response code="400">Error during an addition.</response>
-    /// <response code="403">If the user is not authorized to create a post in the community.</response>
-    /// <response code="404">If there is no community with this id.</response>
-    [HttpPost]
-    [Authorize(Roles = "User")]
-    [Route("{communityId}/posts")]
-    [ProducesResponseType(typeof(PostResponseDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
-    public virtual async Task<ActionResult<PostResponseDto>> PostCommunitiesCommunityIdPosts(
-        [FromRoute, Required] uint communityId,
-        [FromBody, Required] PostRequestDto postRequestDto)
-    {
-        var userId = HttpContext.GetAuthenticatedUserId();
-        var addedPost = await _communityService.AddCommunityPost(userId, communityId, postRequestDto);
-        return Ok(addedPost);
-    }
-
-    /// <summary>
     /// GetAllCommunityPosts
     /// </summary>
     /// <remarks>Get all community posts using pagination.</remarks>    
@@ -171,9 +145,9 @@ public class CommunitiesController : ControllerBase
     [HttpGet]
     [Authorize(Roles = "User")]
     [Route("{communityId}/posts")]
-    [ProducesResponseType(typeof(List<CommunityPostResponseDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(List<PostResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-    public virtual async Task<ActionResult<List<CommunityPostResponseDto>>> GetCommunitiesCommunityIdPosts(
+    public virtual async Task<ActionResult<List<PostResponseDto>>> GetCommunitiesCommunityIdPosts(
         [FromRoute, Required] uint communityId,
         [FromQuery, Required] int limit,
         [FromQuery] int currCursor)

@@ -112,16 +112,17 @@ public class UserService : IUserService
 
     public async Task<List<PostResponseDto>> GetUserPosts(uint userId, int limit, int currCursor)
     {
-        var user = await _userRepository.GetByIdAsync(userId);
-        if (user == null)
-            throw new NotFoundException($"User (ID: {userId}) doesn't exist");
-        
-        return user.UserProfilePosts.Select(upp => upp.Post)
-            .OrderBy(p => p.Id)
-            .Skip(currCursor)
-            .Take(limit)
-            .Select(p => _mapper.Map<PostResponseDto>(p))
-            .ToList();
+        //    var user = await _userRepository.GetByIdAsync(userId);
+        //    if (user == null)
+        //        throw new NotFoundException($"User (ID: {userId}) doesn't exist");
+
+        //    return user.UserProfilePosts.Select(upp => upp.Post)
+        //        .OrderBy(p => p.Id)
+        //        .Skip(currCursor)
+        //        .Take(limit)
+        //        .Select(p => _mapper.Map<PostResponseDto>(p))
+        //        .ToList();
+        return new List<PostResponseDto>();
     }
 
     public async Task<UserProfileResponseDto> GetUserProfile(uint userId)

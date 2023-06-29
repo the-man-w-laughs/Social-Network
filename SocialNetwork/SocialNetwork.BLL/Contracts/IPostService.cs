@@ -5,5 +5,5 @@ namespace SocialNetwork.BLL.Contracts;
 
 public interface IPostService
 {
-    public Task<UserProfilePostResponseDto> CreateUserProfilePost(uint userId, PostRequestDto postRequestDto);
+    public Task<PostResponseDto> CreatePost(uint userId, PostRequestDto postRequestDto);
 }

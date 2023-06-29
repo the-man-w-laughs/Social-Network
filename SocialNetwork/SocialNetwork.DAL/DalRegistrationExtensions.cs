@@ -41,8 +41,7 @@ public static class DalRegistrationExtensions
         
         // Communities
         services.AddScoped<ICommunityRepository, CommunityRepository>();
-        services.AddScoped<ICommunityMemberRepository, CommunityMemberRepository>();
-        services.AddScoped<ICommunityPostRepository, CommunityPostRepository>();
+        services.AddScoped<ICommunityMemberRepository, CommunityMemberRepository>();        
         
         // Medias
         services.AddScoped<IMediaRepository, MediaRepository>();
@@ -55,15 +54,13 @@ public static class DalRegistrationExtensions
         
         // Posts
         services.AddScoped<IPostRepository, PostRepository>();
-        services.AddScoped<IPostLikeRepository, PostLikeRepository>();
-        services.AddScoped<IPostMediaRepository, PostMediaRepository>();
+        services.AddScoped<IPostLikeRepository, PostLikeRepository>();        
         
         // Users
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUserFollowerRepository, UserFollowerRepository>();
         services.AddScoped<IUserFriendRepository, UserFriendRepository>();
         services.AddScoped<IUserProfileRepository, UserProfileRepository>();
-        services.AddScoped<IUserProfileMediaRepository, UserProfileMediaRepository>();
-        services.AddScoped<IUserProfilePostRepository, UserProfilePostRepository>();
+        services.AddScoped<IUserProfileMediaRepository, UserProfileMediaRepository>();        
     }
 }

@@ -170,18 +170,6 @@ public class UsersController : ControllerBase
         return Ok(updatedUserProfile);
     }
 
-    /// <summary>Create User Post</summary>
-    /// <remarks>Create user's post.</remarks>
-    [Authorize(Roles = "User")]
-    [HttpPost, Route("posts")]
-    public virtual async Task<ActionResult<UserProfilePostResponseDto>> PostUsersUserIdPosts(        
-        [FromBody, Required] PostRequestDto postRequestDto)
-    {
-        var userId = HttpContext.GetAuthenticatedUserId();
-        var userProfilePost = await _postService.CreateUserProfilePost(userId, postRequestDto);
-        return Ok(_mapper.Map<UserProfilePostResponseDto>(userProfilePost));
-    }
-
     /// <summary>Get User Posts</summary>
     /// <remarks>Get all user's posts using pagination.</remarks>
     [Authorize(Roles = "User")]
@@ -191,8 +179,9 @@ public class UsersController : ControllerBase
         [FromQuery, Required] int limit,
         [FromQuery] int nextCursor)
     {
-        var userPosts = await _userService.GetUserPosts(userId, limit, nextCursor);
-        return Ok(userPosts);
+        //var userPosts = await _userService.GetUserPosts(userId, limit, nextCursor);
+        //return Ok(userPosts);
+        return Ok();
     }
 
     /// <summary>Get User Medias</summary>
@@ -209,7 +198,7 @@ public class UsersController : ControllerBase
     }
 
     // AddFriend
-    [Authorize(Roles = "User, Admin")]
+    [Authorize(Roles = "User")]
     [HttpPost, Route("{userId}/friends/{friendId}")]
     public virtual async Task<ActionResult<UserProfileResponseDto>> PostUserFriendsFriendId(
         [FromRoute, Required] uint userId,
@@ -233,7 +222,7 @@ public class UsersController : ControllerBase
     }
 
     // DeleteFriend
-    [Authorize(Roles = "User, Admin")]
+    [Authorize(Roles = "User")]
     [HttpDelete, Route("{userId}/friends/{friendId}")]
     public virtual async Task<ActionResult<UserProfileResponseDto>> DeleteUserFriends(
         [FromRoute, Required] uint userId,
@@ -244,7 +233,7 @@ public class UsersController : ControllerBase
     }
 
     // GetFollowers
-    [Authorize(Roles = "User, Admin")]
+    [Authorize(Roles = "User")]
     [HttpGet, Route("{userId}/followers")]
     public virtual async Task<ActionResult<List<UserResponseDto>>> GetUserFollowers(
         [FromRoute, Required] uint userId,
@@ -256,7 +245,7 @@ public class UsersController : ControllerBase
     }
 
     // DeleteFollower
-    [Authorize(Roles = "User, Admin")]
+    [Authorize(Roles = "User")]
     [HttpDelete, Route("{userId}/followers/{followerId}")]
     public virtual async Task<ActionResult<UserProfileResponseDto>> DeleteUserFollowers(
         [FromRoute, Required] uint userId,

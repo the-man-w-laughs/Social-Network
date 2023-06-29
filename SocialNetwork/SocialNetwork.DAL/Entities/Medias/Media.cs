@@ -20,7 +20,7 @@ public partial class Media
     public virtual ICollection<MediaLike> MediaLikes { get; set; } = new List<MediaLike>();
     public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
     public virtual ICollection<MessageMedia> MessageMedia { get; set; } = new List<MessageMedia>();
-    public virtual ICollection<PostMedia> PostMedia { get; set; } = new List<PostMedia>();
+    public virtual ICollection<Post> Posts { get; set; } = new List<Post>();
     public virtual ICollection<UserProfileMedia> UserProfileMedia { get; set; } = new List<UserProfileMedia>();
     public virtual ICollection<UserProfile> UserProfile { get; set; } = new List<UserProfile>();
     public virtual ICollection<Chat> Chat { get; set; } = new List<Chat>();

@@ -9,9 +9,7 @@ public class CommunitiesProfile : BaseProfile
     public CommunitiesProfile()
     {
         CreateMap<CommunityRequestDto, Community>();
-        CreateMap<CommunityMember, CommunityMemberResponseDto>();
-
-        CreateMap<CommunityPost, CommunityPostResponseDto>();
+        CreateMap<CommunityMember, CommunityMemberResponseDto>();        
         CreateMap<Community, CommunityResponseDto>();
     }
 }

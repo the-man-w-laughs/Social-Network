@@ -17,21 +17,17 @@ public class SocialNetworkContext : DbContext
     public DbSet<Comment> Comments { get; set; } = null!;
     public DbSet<CommentLike> CommentLikes { get; set; } = null!;    
     public DbSet<Community> Communities { get; set; } = null!;
-    public DbSet<CommunityMember> CommunityMembers { get; set; } = null!;
-    public DbSet<CommunityPost> CommunityPosts { get; set; } = null!;
+    public DbSet<CommunityMember> CommunityMembers { get; set; } = null!;   
     public DbSet<Media> Medias { get; set; } = null!;
     public DbSet<Message> Messages { get; set; } = null!;
     public DbSet<MessageLike> MessageLikes { get; set; } = null!;
     public DbSet<MessageMedia> MessageMedias { get; set; } = null!;
     public DbSet<Post> Posts { get; set; } = null!;
-    public DbSet<PostLike> PostLikes { get; set; } = null!;
-    public DbSet<PostMedia> PostMedias { get; set; } = null!;
+    public DbSet<PostLike> PostLikes { get; set; } = null!;    
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<UserFollower> UserFollowers { get; set; } = null!;
     public DbSet<UserFriend> UserFriends { get; set; } = null!;
-    public DbSet<UserProfile> UserProfiles { get; set; } = null!;
-    public DbSet<UserProfileMedia> UserProfileMedias { get; set; } = null!;
-    public DbSet<UserProfilePost> UserProfilePosts { get; set; } = null!;        
+    public DbSet<UserProfile> UserProfiles { get; set; } = null!;        
     public DbSet<MediaLike> MediaLikes { get; set; } = null!;
 
 
