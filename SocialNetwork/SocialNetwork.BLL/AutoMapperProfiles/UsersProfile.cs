@@ -2,7 +2,7 @@ using SocialNetwork.BLL.DTO.Users.Request;
 using SocialNetwork.BLL.DTO.Users.Response;
 using SocialNetwork.DAL.Entities.Users;
 
-namespace SocialNetwork.BLL.AutoMapper;
+namespace SocialNetwork.BLL.AutoMapperProfiles;
 
 public class UsersProfile: BaseProfile
 {

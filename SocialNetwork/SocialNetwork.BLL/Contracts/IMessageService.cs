@@ -5,8 +5,8 @@ namespace SocialNetwork.BLL.Contracts;
 
 public interface IMessageService
 {
+    Task<MessageResponseDto> SendMessage(uint userId, uint chatId, MessageRequestDto messageRequestDto);
     Task<MessageResponseDto> GetMessage(uint messageId);
-    Task<MessageResponseDto> ReplyMessage(uint userId, uint messageId, MessageRequestDto messageRequestDto);
     Task<MessageResponseDto> DeleteMessage(uint userId, uint messageId);
     Task<List<MessageLikeResponseDto>> GetAllMessageLikesPaginated(uint messageId, int limit, int currCursor);
     Task<MessageLikeResponseDto> LikeMessage(uint userId, uint messageId);
