@@ -1,19 +1,17 @@
 using System.ComponentModel.DataAnnotations;
 using AutoMapper;
-using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SocialNetwork.API.Middlewares;
 using SocialNetwork.BLL.Contracts;
-using SocialNetwork.BLL.DTO.Chats.Request;
 using SocialNetwork.BLL.DTO.Chats.Response;
 using SocialNetwork.BLL.DTO.Communities.Response;
+using SocialNetwork.BLL.DTO.Medias.Response;
 using SocialNetwork.BLL.DTO.Posts.Request;
 using SocialNetwork.BLL.DTO.Posts.Response;
 using SocialNetwork.BLL.DTO.Users.Request;
 using SocialNetwork.BLL.DTO.Users.Response;
-using SocialNetwork.DAL.Context;
-using SocialNetwork.DAL.Contracts;
 using SocialNetwork.DAL.Entities.Users;
-using SocialNetwork.DAL.Repositories;
 
 namespace SocialNetwork.API.Controllers;
 
@@ -21,176 +19,253 @@ namespace SocialNetwork.API.Controllers;
 [Route("[controller]")]
 public class UsersController : ControllerBase
 {
+    private readonly IWebHostEnvironment _webHostEnvironment;
     private readonly IMapper _mapper;
-    private readonly IUserRepository _userRepository;
-    private readonly IPasswordHashService _passwordHashService;
-    
-    public UsersController(IMapper mapper, IUserRepository userRepository, IPasswordHashService passwordHashService)
+    private readonly IMediaService _mediaService;
+    private readonly IFileService _fileService;
+    private readonly IUserService _userService;
+    private readonly IPostService _postService;
+
+    public UsersController(
+        IMapper mapper,
+        IMediaService mediaService,
+        IUserService userService,
+        IPostService postService,
+        IFileService fileService,
+        IWebHostEnvironment webHostEnvironment)
     {
         _mapper = mapper;
-        _userRepository = userRepository;
-        _passwordHashService = passwordHashService;
+        _userService = userService;
+        _postService = postService;
+        _mediaService = mediaService;
+        _fileService = fileService;
+        _webHostEnvironment = webHostEnvironment;
     }
-
-    /// <summary>
-    /// GetAllUsers
-    /// </summary>
+    
+    /// <summary>Get Users</summary>
     /// <remarks>Returns all users using pagination.</remarks>
-    [HttpGet]        
-    public virtual ActionResult<List<UserProfileResponseDto>> GetUsers([FromQuery][Required()]uint? limit, [FromQuery] uint? currCursor)
+    /// <param name="limit">The maximum number of users to retrieve.</param>
+    /// <param name="nextCursor">The cursor value for pagination.</param>
+    /// <response code="200">Returns a list of <see cref="UserResponseDto"/> with the details of the each user.</response>
+    /// <response code="401">Returns a string message if the user is unauthorized.</response>
+    [HttpGet]
+    [Authorize(Roles = "User")]
+    [ProducesResponseType(typeof(List<UserResponseDto>), StatusCodes.Status200OK)]
+    public virtual async Task<ActionResult<List<UserResponseDto>>> GetUsers(
+        [FromQuery, Required] int limit,
+        [FromQuery] int nextCursor)
     {
+        var usersDto = await _userService.GetUsers(limit, nextCursor);
+        return Ok(usersDto);
+    }
         
-        var users = new List<UserProfile>
-        {
-            new (){ UserSex = "helicopter", UserName = "Zhanna" },
-            new (){UserSex = "Mig - 29", UserName = "Palina"},
-        };
-        return Ok(users.Select(user => _mapper.Map<UserProfileResponseDto>(user)));        
-    }
-
-    /// <summary>
-    /// GetAllUserChats
-    /// </summary>
-    /// <remarks>Get all users chats using pagination (for account owner).</remarks>    
-    [HttpGet]
-    [Route("{userId}/chats")]        
-    public virtual ActionResult<List<ChatResponseDto>> GetUsersUserIdChats([FromQuery][Required()] uint? limit, [FromQuery] uint? nextCursor)
+    /// <summary>Get User Profile</summary>
+    /// <remarks>Get user's profile.</remarks>
+    [Authorize(Roles = "User")]
+    [HttpGet, Route("{userId}/profile")]
+    public virtual async Task<ActionResult<UserProfileResponseDto>> GetUsersUserIdProfile([FromRoute, Required] uint userId)
     {
-        return Ok(new List<ChatResponseDto>() { new ChatResponseDto()});
+        var userProfile = await _userService.GetUserProfile(userId);
+        return Ok(_mapper.Map<UserProfileResponseDto>(userProfile));
     }
 
-    /// <summary>
-    /// GetAllUserCommunities
-    /// </summary>
-    /// <remarks>Get user's communities using pagination.</remarks>    
-    [HttpGet]
-    [Route("{userId}/communities")]
-    public virtual ActionResult<List<CommunityResponseDto>> GetUsersUserIdCommunities([FromRoute][Required] uint userId, [FromQuery][Required()] uint? limit, [FromQuery] uint? nextCursor)
+    /// <summary>Change User Profile</summary>
+    /// <remarks>Change user profile(status, sex).</remarks>
+    [Authorize(Roles = "User")]
+    [HttpPatch, Route("profile")]
+    public virtual async Task<ActionResult<UserProfileResponseDto>> PutUsersUserIdProfile(
+        [FromBody, Required] UserProfilePatchRequestDto userProfilePatchRequestDto)
     {
-        return Ok(new List<CommunityResponseDto>(){ new CommunityResponseDto()});
+        var userId = HttpContext.GetAuthenticatedUserId();
+        var updatedUserProfile = await _userService.ChangeUserProfile(userId, userProfilePatchRequestDto);
+        return Ok(updatedUserProfile);
     }
 
-    /// <summary>
-    /// GetAllUserFriends
-    /// </summary>
-    /// <remarks>Get all user's friends using pagination.</remarks>    
-    [HttpGet]
-    [Route("{userId}/friends")]  
-    public virtual ActionResult<List<UserProfileResponseDto>> GetUsersUserIdFriends([FromRoute][Required] uint userId, [FromQuery][Required()] uint? limit, [FromQuery] uint? nextCursor)
+    /// <summary>Get User Account</summary>
+    /// <remarks>Get user's profile.</remarks>
+    [Authorize(Roles = "User")]
+    [HttpGet, Route("account")]
+    public virtual async Task<ActionResult<UserResponseDto>> GetUsersUserIdAccount()
     {
-        return Ok(new List<UserProfileResponseDto>() { new UserProfileResponseDto() });
+        var userId = HttpContext.GetAuthenticatedUserId();
+        var userAccount = await _userService.GetUserAccount(userId);
+        return Ok(userAccount);
     }
 
-    /// <summary>
-    /// GetAllUserPosts
-    /// </summary>
-    /// <remarks>Get all user's posts using pagination.</remarks>    
-    [HttpGet]
-    [Route("{userId}/posts")]
-    public virtual ActionResult<List<PostResponseDto>> GetUsersUserIdPosts([FromRoute][Required] uint userId, [FromQuery]uint? limit, [FromQuery]uint? currCursor)
+    ///// <summary>Change Activity Of User Account</summary>
+    ///// <remarks>Makes user's account activated / deactivated (for account owner).</remarks>
+    //[Authorize(Roles = "User")]
+    //[HttpPut, Route("{userId}/activity")]
+    //public virtual ActionResult<UserActivityResponseDto> PutUsersUserId(
+    //    [FromRoute, Required] uint userId,
+    //    [FromBody, Required] UserActivityRequestDto userActivityRequestDto)
+    //{
+    //    // TODO
+    //    var user = new User { LastActiveAt = DateTime.Now };
+
+    //    return Ok(_mapper.Map<UserActivityResponseDto>(user));
+    //}
+
+    /// <summary>Change User Login</summary>
+    /// <remarks>Change Login.</remarks>
+    [Authorize(Roles = "User")]
+    [HttpPut, Route("login")]
+    public virtual async Task<ActionResult<UserResponseDto>> PutUsersUserIdLogin(
+        [FromBody, Required] UserLoginRequestDto userLoginRequestDto)
     {
-        return Ok(new List<PostResponseDto>() { new PostResponseDto()});
+        var userId = HttpContext.GetAuthenticatedUserId();
+        var changedUserLoginDto = await _userService.ChangeUserLogin(userId, userLoginRequestDto);
+        return Ok(changedUserLoginDto);
     }
 
-    /// <summary>
-    /// GetUserProfile
-    /// </summary>
-    /// <remarks>Get user's profile.</remarks>           
-    [HttpGet]
-    [Route("{userId}/profile")]
-    public virtual ActionResult<UserProfileResponseDto> GetUsersUserIdProfile([FromRoute][Required]uint userId)
+    /// <summary>Change User Password</summary>
+    /// <remarks>Change Password.</remarks>
+    [Authorize(Roles = "User")]
+    [HttpPut, Route("password")]
+    public virtual async Task<ActionResult<UserResponseDto>> PutUsersUserIdPassword(
+        [FromBody, Required] UserPasswordRequestDto userPasswordRequestDto)
     {
-        return Ok(new UserProfileResponseDto());
+        var userId = HttpContext.GetAuthenticatedUserId();
+        var changeUserPasswordDto = await _userService.ChangeUserPassword(userId, userPasswordRequestDto);
+        return Ok(changeUserPasswordDto);
     }
 
-    /// <summary>
-    /// ChangeUserActivityFields
-    /// </summary>
-    /// <remarks>Makes user's account deactivated (for account owner or admin).</remarks>    
-    [HttpPatch]
-    [Route("{userId}/activity")]
-    public virtual ActionResult<UserActivityResponseDto> PatchUsersUserId([FromRoute][Required]uint userId, [FromBody][Required] UserActivityRequestDto userActivityRequestDto)
+    /// <summary>Change User Email</summary>
+    /// <remarks>Change user email.</remarks>
+    [Authorize(Roles = "User")]
+    [HttpPut, Route("email")]
+    public virtual async Task<ActionResult<UserEmailResponseDto>> PutUsersUserIdProfile(
+        [FromBody, Required] UserEmailRequestDto userEmailRequestDto)
     {
-        return Ok(new UserActivityResponseDto());
+        var userId = HttpContext.GetAuthenticatedUserId();
+        var changedUserEmailDto = await _userService.ChangeUserEmail(userId, userEmailRequestDto);
+        return Ok(_mapper.Map<UserEmailResponseDto>(changedUserEmailDto));
     }
-
-    /// <summary>
-    /// ChangeUserLogin
-    /// </summary>
-    /// <remarks>Change Login.</remarks>        
-    [HttpPatch]
-    [Route("{userId}/login")]
-    public virtual ActionResult<UserLoginResponseDto> PatchUsersUserIdLogin([FromRoute][Required]uint userId, [FromBody][Required] UserChangeLoginRequestDto userChangeLoginRequestDto)
+    /// <summary>Get User Chats</summary>
+    /// <remarks>Get all users chats using pagination.</remarks>
+    [Authorize(Roles = "User")]
+    [HttpGet, Route("chats")]
+    public virtual async Task<ActionResult<List<ChatResponseDto>>> GetUsersUserIdChats(
+        [FromQuery, Required] int limit,
+        [FromQuery] int nextCursor)
     {
-        return Ok(new UserLoginResponseDto());
+        var userId = HttpContext.GetAuthenticatedUserId();
+        var userChatsDto = await _userService.GetUserChats(userId, limit, nextCursor);
+        return Ok(userChatsDto);
     }
 
-    /// <summary>
-    /// ChangeUserLogin
-    /// </summary>
-    /// <remarks>Change Login.</remarks>        
-    [HttpPut]
-    [Route("{userId}/login")]
-    public virtual async Task<ActionResult<UserLoginResponseDto>> PutUsersUserIdLogin([FromRoute][Required] uint userId, [FromBody][Required] UserChangeLoginRequestDto userChangeLoginRequestDto)
+    /// <summary>Get User Communities</summary>
+    /// <remarks>Get user's communities using pagination.</remarks>
+    [Authorize(Roles = "User")]
+    [HttpGet, Route("{userId}/communities")]
+    public virtual async Task<ActionResult<List<CommunityResponseDto>>> GetUsersUserIdCommunities(
+        [FromRoute, Required] uint userId,
+        [FromQuery, Required] int limit,
+        [FromQuery] int nextCursor)
     {
-        var users = await _userRepository.SelectAsync((user) => user.Id == userId);
-        if (users.Count == 0)
-        {
-            return NotFound();
-        }
-
-        var existingUser = users.First();
-        _mapper.Map(userChangeLoginRequestDto, existingUser);
-
-        _userRepository.Update(existingUser);
-
-        await _userRepository.SaveAsync();
-
-        return Ok(_mapper.Map<UserLoginResponseDto>(existingUser));
+        var userCommunitiesDto = await _userService.GetUserCommunities(userId, limit, nextCursor);
+        return Ok(userCommunitiesDto);
     }
 
-    /// <summary>
-    /// ChangeUserPassword
-    /// </summary>
-    /// <remarks>Change Password.</remarks>        
-    [HttpPatch]
-    [Route("{userId}/password")]
-    public virtual ActionResult<UserPasswordResponseDto> PatchUsersUserIdPassword([FromRoute][Required] uint userId, [FromBody][Required] UserChangeLoginRequestDto userChangeLoginRequestDto)
+    /// <summary>Get Managed Communities</summary>
+    /// <remarks>Get user's communities where user is admin or owner using pagination.</remarks>
+    [Authorize(Roles = "User")]
+    [HttpGet, Route("{userId}/communities/managed")]
+    public virtual async Task<ActionResult<List<CommunityResponseDto>>> GetUsersUserIdCommunitiesManaged(
+        [FromRoute, Required] uint userId,
+        [FromQuery, Required] int limit,
+        [FromQuery] int nextCursor)
     {
-        return Ok(new UserPasswordResponseDto());
+        var managedCommunitiesDto = await _userService.GetUserManagedCommunities(userId, limit, nextCursor);
+        return Ok(managedCommunitiesDto);
     }
 
-    /// <summary>
-    /// ChangeUserEmail
-    /// </summary>
-    /// <remarks>Change user email.</remarks>        
-    [HttpPatch]
-    [Route("{userId}/email")]
-    public virtual ActionResult<UserEmailResponseDto> PatchUsersUserIdProfile([FromRoute][Required] uint userId, [FromBody][Required] UserEmailRequestDto userLoginRequestDto)
-    {        
-        return Ok(new UserEmailResponseDto());
-    }
-
-    /// <summary>
-    /// ChangeUserProfile
-    /// </summary>
-    /// <remarks>Change user profile(status, sex).</remarks>        
-    [HttpPatch]
-    [Route("{userId}/profile")]
-    public virtual ActionResult<UserProfileResponseDto> PatchUsersUserIdProfile([FromRoute][Required]uint userId, [FromBody][Required] UserProfileRequestDto userLoginRequestDto)
+    /// <summary>Get User Posts</summary>
+    /// <remarks>Get all user's posts using pagination.</remarks>
+    [Authorize(Roles = "User")]
+    [HttpGet, Route("{userId}/posts")]
+    public virtual async Task<ActionResult<List<PostResponseDto>>> GetUsersUserIdPosts(
+        [FromRoute, Required] uint userId,
+        [FromQuery, Required] int limit,
+        [FromQuery] int nextCursor)
     {
-        return Ok(new UserProfileResponseDto());
+        var userPosts = await _userService.GetUserPosts(userId, limit, nextCursor);
+        return Ok(userPosts);
     }
 
-
-    /// <summary>
-    /// CreateUserPost
-    /// </summary>
-    /// <remarks>Create user's post.</remarks>    
-    [HttpPost]
-    [Route("{userId}/posts")]
-    public virtual ActionResult<PostResponseDto> PostUsersUserIdPosts([FromRoute][Required]uint userId, [FromBody][Required] PostRequestDto postRequestDto)
+    /// <summary>Get User Medias</summary>
+    /// <remarks>Get all user's posts using pagination. (only for user or admin)</remarks>
+    [Authorize(Roles = "User")]
+    [HttpGet, Route("medias")]
+    public virtual async Task<ActionResult<List<MediaResponseDto>>> GetUsersUserIdMedias(        
+        [FromQuery, Required] int limit,
+        [FromQuery] int currCursor)
     {
-        return Ok(new PostResponseDto());
+        var userId = HttpContext.GetAuthenticatedUserId();
+        var userMediasDto = await _mediaService.GetUserMediaList(userId, limit, currCursor);
+        return Ok(userMediasDto);
     }
+
+    /// <summary>AddFriend</summary>
+    /// <remarks>Add friend.</remarks>
+    [Authorize(Roles = "User")]
+    [HttpPost, Route("{userId}/friends/{friendId}")]
+    public virtual async Task<ActionResult<UserProfileResponseDto>> PostUserFriendsFriendId(
+        [FromRoute, Required] uint userId,
+        [FromRoute, Required] uint friendId)
+    {
+        var friendProfileDto = await _userService.AddFriend(userId, friendId);
+        return Ok(friendProfileDto);
+    }
+
+    /// <summary>Get User Friends</summary>
+    /// <remarks>Get all user's friends using pagination.</remarks>
+    [Authorize(Roles = "User")]
+    [HttpGet, Route("{userId}/friends")]
+    public virtual async Task<ActionResult<List<UserResponseDto>>> GetUsersUserIdFriends(
+        [FromRoute, Required] uint userId,
+        [FromQuery, Required] int limit,
+        [FromQuery] int nextCursor)
+    {
+        var userFriendsDto = await _userService.GetUserFriends(userId, limit, nextCursor);
+        return Ok(userFriendsDto);
+    }
+
+    /// <summary>DeleteFriend</summary>
+    /// <remarks>Move friend to followers.</remarks>
+    [Authorize(Roles = "User")]
+    [HttpDelete, Route("{userId}/friends/{friendId}")]
+    public virtual async Task<ActionResult<UserProfileResponseDto>> DeleteUserFriends(
+        [FromRoute, Required] uint userId,
+        [FromRoute, Required] uint friendId)
+    {
+        var deletedUserDto = await _userService.DeleteFriend(userId, friendId);
+        return Ok(deletedUserDto);
+    }
+
+    /// <summary>GetFollowers</summary>
+    /// <remarks>Get followers.</remarks>
+    [Authorize(Roles = "User")]
+    [HttpGet, Route("{userId}/followers")]
+    public virtual async Task<ActionResult<List<UserResponseDto>>> GetUserFollowers(
+        [FromRoute, Required] uint userId,
+        [FromQuery, Required] int limit,
+        [FromQuery] int currCursor)
+    {
+        var userFollowersDto = await _userService.GetUserFollowers(userId, limit, currCursor);
+        return Ok(userFollowersDto);
+    }
+
+    /// <summary>DeleteFollower</summary>
+    /// <remarks>Delete follower.</remarks>
+    [Authorize(Roles = "User")]
+    [HttpDelete, Route("{userId}/followers/{followerId}")]
+    public virtual async Task<ActionResult<UserProfileResponseDto>> DeleteUserFollowers(
+        [FromRoute, Required] uint userId,
+        [FromRoute, Required] uint followerId)
+    {
+        var deletedFollowerDto = await _userService.DeleteFollower(userId, followerId);
+        return Ok(deletedFollowerDto);
+    }
+
 }

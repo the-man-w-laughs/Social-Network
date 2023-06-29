@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using SocialNetwork.DAL;
 using SocialNetwork.BLL;
+using System.Reflection;
+using SocialNetwork.API.Middlewares;
+using SocialNetwork.API.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,9 +13,11 @@ builder.Services.AddControllers();
 builder.Services.RegisterDalDependencies(builder.Configuration);
 builder.Services.RegisterBllDependencies(builder.Configuration);
 
+builder.Services.AddControllersWithNewtonsoftJson();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerWithXmlComments();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -35,9 +40,10 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<AuthenticationMiddleware>();
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.MapControllers();
-
 
 app.Run();
 

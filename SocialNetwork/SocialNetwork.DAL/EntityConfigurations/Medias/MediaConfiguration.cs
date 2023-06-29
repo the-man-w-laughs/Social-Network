@@ -20,7 +20,11 @@ public class MediaConfiguration : IEntityTypeConfiguration<Media>
             .HasMaxLength(Constants.MediaFilePathMaxLength);
         builder.Property(e => e.MediaTypeId).HasColumnName("media_type").IsRequired();
         builder.Property(e => e.CreatedAt).HasColumnName("created_at").IsRequired()
-            .HasColumnType("datetime").HasDefaultValueSql("CURRENT_TIMESTAMP");
-        builder.Property(e => e.UpdatedAt).HasColumnName("updated_at").HasColumnType("datetime");
+            .HasColumnType("datetime").HasDefaultValueSql("CURRENT_TIMESTAMP");        
+
+        builder.HasOne(b => b.Owner)
+            .WithMany(a => a.Medias)
+            .HasForeignKey(b => b.OwnerId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

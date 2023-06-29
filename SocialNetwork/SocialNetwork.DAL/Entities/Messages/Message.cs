@@ -18,5 +18,5 @@ public partial class Message
     
     public virtual ICollection<Message> InverseRepliedMessage { get; set; } = new List<Message>();
     public virtual ICollection<MessageLike> MessageLikes { get; set; } = new List<MessageLike>();
-    public virtual ICollection<MessageMedia> MessageMedia { get; set; } = new List<MessageMedia>();
+    public virtual ICollection<MessageMedia> Attachments { get; set; } = new List<MessageMedia>();
 }

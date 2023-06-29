@@ -29,5 +29,25 @@ public class PostConfiguration : IEntityTypeConfiguration<Post>
             .HasForeignKey(d => d.RepostId)
             .OnDelete(DeleteBehavior.ClientSetNull)
             .HasConstraintName("FK_posts_posts");
+
+        builder.HasMany(c => c.Attachments)
+            .WithMany(s => s.Posts)
+            .UsingEntity(j =>
+            {
+                j.ToTable("posts_attachments");
+            });
+
+        builder.Property(e => e.CommunityId).HasColumnName("community_id")
+        .IsRequired(false);
+
+        builder.HasOne(d => d.Community).WithMany(p => p.CommunityPosts)
+            .HasForeignKey(d => d.CommunityId)
+            .OnDelete(DeleteBehavior.Cascade)
+            .HasConstraintName("FK_community_posts_communities");
+
+        builder.HasOne(d => d.Author).WithMany(p => p.Posts)
+            .HasForeignKey(d => d.AuthorId)
+            .OnDelete(DeleteBehavior.Cascade)
+            .HasConstraintName("FK_users_posts_users");
     }
 }

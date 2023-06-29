@@ -1,16 +1,13 @@
-using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
-using AutoMapper;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Win32.SafeHandles;
 using SocialNetwork.BLL.Contracts;
-using SocialNetwork.BLL.DTO.Users.Request;
+using SocialNetwork.BLL.Exceptions;
+using SocialNetwork.BLL.DTO.Auth.Request;
 using SocialNetwork.BLL.DTO.Users.Response;
-using SocialNetwork.BLL.Services;
-using SocialNetwork.DAL.Entities.Users;
 
 namespace SocialNetwork.API.Controllers;
 
@@ -18,134 +15,76 @@ namespace SocialNetwork.API.Controllers;
 public sealed class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
-    private readonly IPasswordHashService _passwordHashService;
-    private readonly ISaltService _saltService;
-    private readonly IMapper _mapper;
 
-    public AuthController(IAuthService authService, IPasswordHashService passwordHashService, ISaltService saltService, IMapper mapper)
+    public AuthController(IAuthService authService)
     {
         _authService = authService;
-        _passwordHashService = passwordHashService;
-        _saltService = saltService;
-        _mapper = mapper;
     }
 
-    /// <summary>
-    /// SignUp
-    /// </summary>
-    /// <remarks>Creates new user using login, Mail and Password.</remarks>    
-    [HttpPost]
-    [Route("sign-up")]
-    public async Task<ActionResult<UserResponseDto>> SignUp([FromBody] [Required] UserSignUpRequestDto userSignUpRequestDto)
+    /// <summary>Sign Up</summary>
+    /// <remarks>Creates a new user and his profile using the provided email, login, and password.</remarks>
+    /// <param name="userSignUpRequestDto">The user sign-up request data transfer object.</param>    
+    /// <response code="200">Returns a <see cref="UserResponseDto"/> with details of successfully created user.</response>
+    /// <response code="400">Returns a string message if the login or password is invalid.</response>
+    /// <response code="409">Returns a string message if the user with the same login already exists.</response>
+    [HttpPost, Route("sign-up")]
+    [ProducesResponseType(typeof(UserResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
+    public async Task<ActionResult<UserResponseDto>> SignUp([FromBody, Required] SignUpRequestDto userSignUpRequestDto)
     {
-        // сначала проверяем все поля на валидность 
-        // далее нужно проверить еслть ли пользователь с таким логином если есть возвращаем Conflict
-        // иначе генерируем соль, формируем хэш пароля записываем все в бд возвращаем ok с dto
-
-        if (!_authService.IsLoginValid(userSignUpRequestDto.Login))
-        {
-            return BadRequest("Invalid Login");
-        }
-
-        if (!_authService.IsPasswordValid(userSignUpRequestDto.Password))
-        {
-            return BadRequest("Invalid Password");
-        }
-        
-        var isLoginExisted = await _authService.IsLoginAlreadyExists(userSignUpRequestDto.Login);
-        
-        if (isLoginExisted)
-        {
-            return Conflict("User with this login Already Exist");
-        }
-
-        var salt = _saltService.GenerateSalt();
-
-        var hashedPassword = _passwordHashService.HashPassword(userSignUpRequestDto.Password, salt);
-
-        var newUser = new User
-        {
-            Login = userSignUpRequestDto.Login,
-            PasswordHash = hashedPassword,
-            Email = userSignUpRequestDto.Email,
-            Salt = salt,
-            TypeId = UserType.User,
-            CreatedAt = DateTime.Now
-        };        
-
-        await _authService.AddUser(newUser);
-        
-        return Ok(_mapper.Map<UserResponseDto>(newUser));
-        
+        var addedUserDto = await _authService.SignUp(userSignUpRequestDto);
+        return Ok(addedUserDto);
     }
 
-    /// <summary>
-    /// Login
-    /// </summary>
-    /// <remarks>Login user using login and password.</remarks>    
-    [HttpPost]
-    [Route("login")]
-    public async Task<ActionResult<UserResponseDto>> Login([FromBody] [Required] UserLoginRequestDto userLoginRequestDto)
+    /// <summary>Login</summary>
+    /// <remarks>Login user using login and password.</remarks>
+    /// <param name="userLoginRequestDto">The user login request data transfer object.</param>    
+    /// <response code="200">Returns a <see cref="UserResponseDto"/> with details the user logged in.</response>
+    /// <response code="400">Returns a string message if the login or password is incorrect.</response>
+    /// <response code="409">Returns a string message if the user is already authenticated.</response>    
+    [HttpPost, Route("login")]
+    [ProducesResponseType(typeof(UserResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
+    public async Task<ActionResult<UserResponseDto>> Login([FromBody, Required] LoginRequestDto userLoginRequestDto)
     {
-        // проверяем не авторизован ли пользователь уже
-        // провреяем есть ли такой логин если нет возвращаем ошибку авторизации
-        // если есть берем введенный пароль прибавляем соль из бд хэшим и сверяем с хэшированным паролем в бд
-        // если пароль неверный возвращаем ошибку авторизации
-        // иначе ok с dto
-        // выставляем куки либо header auth
-;
+        var authenticatedUserDto = await AuthenticateUser(userLoginRequestDto);
+        return Ok(authenticatedUserDto);
+    }
+
+    /// <summary>Logout</summary>
+    /// <remarks>Logs out the current user.</remarks>
+    /// <response code="200">Returns a string message indicated successful logout.</response>
+    /// <response code="401">Returns a string message if the user unauthorized.</response>
+    [Authorize(Roles = "User")]
+    [HttpPost, Route("logout")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<string>> Logout()
+    {
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        return Ok("Logout was successful");
+    }
+    
+    private async Task<UserResponseDto> AuthenticateUser(LoginRequestDto userLoginRequestDto)
+    {
         var isUserAuthenticated =
             await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        
         if (isUserAuthenticated.Succeeded)
-        {
-            return Conflict("User is already authenticated");
-        }
+            throw new LoggedInUserAccessException("User is already authenticated");
 
-        var user = await _authService.GetUserByLogin(userLoginRequestDto.Login);
+        var authenticatedUser = await _authService.Login(userLoginRequestDto);
 
-        var isUserExisted = user != null;
-
-        if (!isUserExisted)
-        {
-            return BadRequest("User with this login Doesn't exist");
-        }
-
-        var hashedPassword = user!.PasswordHash;
-
-        var salt = user.Salt;
-        
-        var isPasswordCorrect = _passwordHashService.VerifyPassword(userLoginRequestDto.Password, salt, hashedPassword);
-
-        if (!isPasswordCorrect)
-        {
-            return Unauthorized("Incorrect password");
-        }
-        
         var claims = new List<Claim>
         {
-            new(ClaimsIdentity.DefaultNameClaimType, user.Id.ToString()),
-            new(ClaimsIdentity.DefaultRoleClaimType, UserType.User.ToString())
+            new(ClaimsIdentity.DefaultNameClaimType, authenticatedUser.Id.ToString()),
+            new(ClaimsIdentity.DefaultRoleClaimType, authenticatedUser.TypeId.ToString()),
         };
         var claimsIdentity = new ClaimsIdentity(claims, "Cookies");
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
         await HttpContext.SignInAsync(claimsPrincipal);
-
-        return Ok(_mapper.Map<UserResponseDto>(user));
-    }
-
-    /// <summary>
-    /// Logout
-    /// </summary>
-    /// <remarks>logout.</remarks>    
-    [HttpPost]
-    [Authorize(Roles = "Admin, User")]
-    [Route("logout")]
-    public async Task<ActionResult<string>> Logout()
-    {
-        // доступ только для авторизованных пользователей
-        // просто снимаем куки или headers
-        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        return Ok("Logout");
+        return authenticatedUser;
     }
 }

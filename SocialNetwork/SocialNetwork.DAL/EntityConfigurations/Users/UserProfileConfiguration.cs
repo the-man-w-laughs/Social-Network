@@ -41,10 +41,20 @@ public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
         builder.Property(e => e.UserId)
             .HasColumnName("user_id")
             .IsRequired();
+        builder.Property(e => e.ProfilePictureId)
+            .HasColumnName("profile_picture_id");
     
-        builder.HasOne(d => d.User).WithMany(p => p.UserProfiles)
-            .HasForeignKey(d => d.UserId)
+        builder.HasOne(up => up.User).WithOne(u => u.UserProfile)
+            .HasForeignKey<UserProfile>(up => up.UserId)
             .OnDelete(DeleteBehavior.Cascade)
             .HasConstraintName("FK_user_profiles_users");
+
+        builder.Property(e => e.ProfilePictureId)
+    .HasColumnName("profile_picture_id");    
+
+        builder.HasOne(up => up.ProfilePicture).WithMany(u => u.UserProfile)
+            .HasForeignKey(up => up.ProfilePictureId)
+            .OnDelete(DeleteBehavior.SetNull)
+            .HasConstraintName("FK_picture_profiles_picture");
     }
 }

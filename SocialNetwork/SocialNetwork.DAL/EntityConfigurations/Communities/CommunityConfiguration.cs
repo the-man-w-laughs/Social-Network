@@ -13,7 +13,8 @@ public class CommunityConfiguration : IEntityTypeConfiguration<Community>
         builder.HasKey(e => e.Id).HasName("PRIMARY");
 
         builder.Property(e => e.Id).HasColumnName("id").IsRequired()
-            .ValueGeneratedNever();
+            .ValueGeneratedOnAdd();
+
         builder.Property(e => e.Name).HasColumnName("name").IsRequired()
             .HasMaxLength(Constants.CommunityNameMaxLength);
         builder.Property(e => e.Description).HasColumnName("description")
@@ -22,5 +23,11 @@ public class CommunityConfiguration : IEntityTypeConfiguration<Community>
         builder.Property(e => e.CreatedAt).HasColumnName("created_at").IsRequired()
             .HasColumnType("datetime").HasDefaultValueSql("CURRENT_TIMESTAMP");
         builder.Property(e => e.UpdatedAt).HasColumnName("updated_at").HasColumnType("datetime");
+        builder.Property(e => e.CommunityPictureId)
+    .HasColumnName("community_picture_id");
+        builder.HasOne(up => up.CommunityPicture).WithMany(u => u.Community)
+            .HasForeignKey(up => up.CommunityPictureId)
+            .OnDelete(DeleteBehavior.SetNull)
+            .HasConstraintName("FK_picture_community_picture");
     }
 }

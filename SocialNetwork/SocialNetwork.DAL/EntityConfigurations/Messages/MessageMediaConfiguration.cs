@@ -27,7 +27,7 @@ public class MessageMediaConfiguration : IEntityTypeConfiguration<MessageMedia>
             .OnDelete(DeleteBehavior.Cascade)
             .HasConstraintName("FK_message_medias_medias");
 
-        builder.HasOne(d => d.Message).WithMany(p => p.MessageMedia)
+        builder.HasOne(d => d.Message).WithMany(p => p.Attachments)
             .HasForeignKey(d => d.MessageId)
             .OnDelete(DeleteBehavior.Cascade)
             .HasConstraintName("FK_message_medias_messages");
