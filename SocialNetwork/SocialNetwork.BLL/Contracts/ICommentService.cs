@@ -7,7 +7,7 @@ namespace SocialNetwork.BLL.Contracts
     public interface ICommentService
     {
         Task<CommentResponseDto> GetComment(uint commentId);
-        Task<CommentResponseDto> AddComment(uint userId, uint postId, CommentRequestDto commentRequestDto);
+        Task<CommentResponseDto> AddComment(uint userId, CommentRequestDto commentRequestDto);
         Task<CommentResponseDto> ChangeComment(uint userId, uint commentId, CommentPatchRequestDto commentRequestDto);
         Task<CommentResponseDto> DeleteComment(uint userId, uint commentId);
         Task<CommentLikeResponseDto> LikeComment(uint userId, uint commentId);

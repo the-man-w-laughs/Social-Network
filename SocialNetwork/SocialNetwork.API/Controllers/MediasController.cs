@@ -25,6 +25,37 @@ public class MediasController : ControllerBase
         _mediaService = mediaService;
         _fileService = fileService;
     }
+    /// <summary>Create User Media</summary>
+    /// <remarks>Create user media.</remarks>    
+    [Authorize(Roles = "User")]
+    [HttpPost]
+    public virtual async Task<ActionResult<List<MediaResponseDto>>> PostUsersUserIdMedias([Required] List<IFormFile> files)
+    {
+        var userId = HttpContext.GetAuthenticatedUserId();
+        if (files.Count == 0)
+            BadRequest("File list can't be empty");
+
+        var directoryPath = Path.Combine(_webHostEnvironment.ContentRootPath, "UploadedFiles");
+        if (!Directory.Exists(directoryPath))
+            Directory.CreateDirectory(directoryPath);
+
+        var medias = new List<MediaResponseDto>(files.Count);
+
+        foreach (var file in files)
+        {
+            var filePath = Path.Combine(directoryPath, file.FileName);
+            var modifiedFilePath = _fileService.ModifyFilePath(filePath);
+            await using (var stream = new FileStream(modifiedFilePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            var addedMedia = await _mediaService.AddUserMedia(modifiedFilePath, userId, file.FileName);
+            medias.Add(addedMedia);
+        }
+
+        return Ok(medias);
+    }
 
     /// <summary>
     /// GetMedia

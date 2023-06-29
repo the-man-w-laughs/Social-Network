@@ -5,6 +5,7 @@ using SocialNetwork.API.Middlewares;
 using SocialNetwork.BLL.Contracts;
 using SocialNetwork.BLL.DTO.Comments.Request;
 using SocialNetwork.BLL.DTO.Comments.Response;
+using SocialNetwork.BLL.Services;
 using SocialNetwork.DAL.Contracts.Comments;
 using SocialNetwork.DAL.Entities.Comments;
 
@@ -15,12 +16,25 @@ namespace SocialNetwork.API.Controllers;
 public class CommentsController : ControllerBase
 {
     private readonly IMapper _mapper;
-    private readonly ICommentService _commentRepository;
+    private readonly ICommentService _commentService;
 
-    public CommentsController(IMapper mapper, ICommentService commentRepository)
+    public CommentsController(IMapper mapper, ICommentService commentService)
     {
         _mapper = mapper;
-        _commentRepository = commentRepository;
+        _commentService = commentService;
+    }
+    /// <summary>
+    /// CommentPost
+    /// </summary>
+    /// <remarks>Comment post.</remarks>
+    [HttpPost]    
+    public virtual async Task<ActionResult<CommentResponseDto>> PostPostsPostIdComments(        
+        [FromBody, Required] CommentRequestDto commentRequestDto)
+    {
+        var userId = HttpContext.GetAuthenticatedUserId();
+        var comment = await _commentService.AddComment(userId, commentRequestDto);
+
+        return Ok(comment);
     }
 
     /// <summary>
@@ -34,7 +48,7 @@ public class CommentsController : ControllerBase
         [FromBody, Required] CommentPatchRequestDto commentPatchRequestDto)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
-        var comment = await _commentRepository.GetComment(userId);
+        var comment = await _commentService.GetComment(userId);
         return Ok(comment);
     }
 
@@ -49,7 +63,7 @@ public class CommentsController : ControllerBase
         [FromBody, Required] CommentPatchRequestDto commentPatchRequestDto)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
-        var updatedComment = await _commentRepository.ChangeComment(userId, commentId, commentPatchRequestDto);
+        var updatedComment = await _commentService.ChangeComment(userId, commentId, commentPatchRequestDto);
         return Ok(updatedComment);
     }
 
@@ -62,7 +76,7 @@ public class CommentsController : ControllerBase
     public virtual async Task<ActionResult<CommentResponseDto>> DeleteCommentsCommentId([FromRoute, Required] uint commentId)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
-        var deletedComment = await _commentRepository.DeleteComment(userId, commentId);
+        var deletedComment = await _commentService.DeleteComment(userId, commentId);
         return Ok(deletedComment);
     }
 
@@ -75,7 +89,7 @@ public class CommentsController : ControllerBase
     public virtual async Task<ActionResult<CommentLikeResponseDto>> PostCommentsCommentIdLikes([FromRoute, Required] uint commentId)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
-        var commentLike = await _commentRepository.LikeComment(userId, commentId);
+        var commentLike = await _commentService.LikeComment(userId, commentId);
         return Ok(commentLike);
     }
 
@@ -91,7 +105,7 @@ public class CommentsController : ControllerBase
         [FromQuery] int currCursor)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
-        var commentLikes = await _commentRepository.GetCommentLikes(commentId, limit, currCursor);
+        var commentLikes = await _commentService.GetCommentLikes(commentId, limit, currCursor);
         return Ok(commentLikes);
     }
 
@@ -104,7 +118,7 @@ public class CommentsController : ControllerBase
     public virtual async Task<ActionResult<CommentLikeResponseDto>> DeleteCommentsCommentIdLikes([FromRoute, Required] uint commentId)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
-        var commentLike = await _commentRepository.UnlikeComment(userId, commentId);
+        var commentLike = await _commentService.UnlikeComment(userId, commentId);
         return Ok(commentLike);
     }
 }

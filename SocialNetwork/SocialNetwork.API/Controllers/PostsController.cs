@@ -118,22 +118,6 @@ public class PostsController : ControllerBase
     }
 
     /// <summary>
-    /// CommentPost
-    /// </summary>
-    /// <remarks>Comment post.</remarks>
-    [HttpPost]
-    [Route("{postId}/comments")]
-    public virtual async Task<ActionResult<CommentResponseDto>> PostPostsPostIdComments(
-        [FromRoute, Required] uint postId,
-        [FromBody, Required] CommentRequestDto commentRequestDto)
-    {
-        var userId = HttpContext.GetAuthenticatedUserId();
-        var comment = await _commentService.AddComment(userId, postId, commentRequestDto);
-        
-        return Ok(comment);
-    }
-
-    /// <summary>
     /// GetAllPostComments
     /// </summary>
     /// <remarks>Get all post comments using pagination.</remarks>

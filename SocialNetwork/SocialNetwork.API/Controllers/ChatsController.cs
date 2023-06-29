@@ -257,10 +257,10 @@ public class ChatsController : ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
     public virtual async Task<ActionResult<MessageResponseDto>> PostChatsChatIdMessages(
         [FromRoute, Required] uint chatId,
-        [FromBody, Required] MessageRequestDto postChatMemberDto)
+        [FromBody, Required] MessageRequestDto messageRequestDto)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
-        var addedMessage = await _chatService.SendMessage(chatId, userId, postChatMemberDto);
+        var addedMessage = await _chatService.SendMessage(chatId, userId, messageRequestDto);
         return Ok(addedMessage);
     }
 

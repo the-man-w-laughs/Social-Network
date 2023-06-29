@@ -37,24 +37,26 @@ public class CommentService : ICommentService
         _commentLikeRepository = commentLikeRepository;
     }
 
-    public async Task<CommentResponseDto> AddComment(uint userId, uint postId, CommentRequestDto commentRequestDto)
+    public async Task<CommentResponseDto> AddComment(uint userId, CommentRequestDto commentRequestDto)
     {
-        var post = await _postRepository.GetByIdAsync(postId);
+        var post = await _postRepository.GetByIdAsync(commentRequestDto.PostId);
         if (post == null)
             throw new NotFoundException("Post with this id is not found.");
 
         if (string.IsNullOrWhiteSpace(commentRequestDto.Content))
             throw new ArgumentException("Content should have at least 1 character without whitespaces.");
-
-        var newComment = new Comment()
+        if (commentRequestDto.RepliedCommentId != null)
         {
-            AuthorId = userId,
-            PostId = postId,
-            Content = commentRequestDto.Content,
-            CreatedAt = DateTime.Now,
-        };
-        await _commentRepository.AddAsync(newComment);
-        await _commentRepository.SaveAsync();
+            var repliedComment = await _commentRepository.GetByIdAsync((uint)commentRequestDto.RepliedCommentId);
+            if (repliedComment == null)
+                throw new NotFoundException("Comment with this id is not found.");
+        }
+
+        var newComment = _mapper.Map<Comment>(commentRequestDto);
+        newComment.AuthorId = userId;
+        newComment.CreatedAt = DateTime.Now;
+
+        await _commentRepository.AddAsync(newComment);        
 
         var validAttachments = new List<uint>();
 
@@ -69,8 +71,9 @@ public class CommentService : ICommentService
                     validAttachments.Add(media.Id);
                 }
             }
-            await _commentRepository.SaveAsync();
         }
+
+        await _commentRepository.SaveAsync();
         var commentResponseDto = _mapper.Map<CommentResponseDto>(newComment);
         return commentResponseDto;
     }
