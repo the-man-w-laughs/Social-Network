@@ -123,6 +123,9 @@ public class MessageService : IMessageService
     {
         var message = await GetMessageById(messageId);
 
+        if (message.SenderId != userId)
+            throw new OwnershipException("Only message sender can change the message.");
+
         if (messagePatchRequestDto.Content != null)
         {
             message.Content = messagePatchRequestDto.Content;
