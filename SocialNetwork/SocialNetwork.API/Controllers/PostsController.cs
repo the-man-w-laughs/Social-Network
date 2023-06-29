@@ -60,12 +60,12 @@ public class PostsController : ControllerBase
     /// <remarks>Get post.</remarks>
     [HttpGet]
     [Route("{postId}")]
-    public virtual ActionResult<PostResponseDto> PostPostsPostId(
+    public virtual async Task<ActionResult<PostResponseDto>> PostPostsPostId(
         [FromRoute, Required] uint postId)
     {
-        var post = new Post { Id = 200, Content = "TestPostDescription", CreatedAt = DateTime.Now };
-
-        return Ok(_mapper.Map<PostResponseDto>(post));
+        var userId = HttpContext.GetAuthenticatedUserId();
+        var post = await _postService.GetPost(userId, postId);
+        return Ok(post);
     }
 
     /// <summary>
@@ -74,13 +74,13 @@ public class PostsController : ControllerBase
     /// <remarks>Change post.</remarks>
     [HttpPatch]
     [Route("{postId}")]       
-    public virtual ActionResult<PostResponseDto> PatchPostsPostId(
+    public virtual async Task<ActionResult<PostResponseDto>> PatchPostsPostId(
         [FromRoute, Required]uint postId,
-        [FromBody, Required] PostRequestDto postRequestDto)
+        [FromBody, Required] PostPatchRequestDto postPatchRequestDto)
     {
-        var post = new Post { Id = 200, Content = "TestPostDescription", CreatedAt = DateTime.Now };
-        
-        return Ok(_mapper.Map<PostResponseDto>(post));
+        var userId = HttpContext.GetAuthenticatedUserId();
+        var updatedPost = await _postService.ChangePost(userId, postPatchRequestDto);
+        return Ok(updatedPost);
     }
 
     /// <summary>
@@ -89,11 +89,11 @@ public class PostsController : ControllerBase
     /// <remarks>Delete post.</remarks>
     [HttpDelete]
     [Route("{postId}")]
-    public virtual ActionResult<PostResponseDto> DeletePostsPostId([FromRoute, Required] uint postId)
+    public virtual async Task<ActionResult<PostResponseDto>> DeletePostsPostId([FromRoute, Required] uint postId)
     {
-        var post = new Post { Id = 200, Content = "TestPostDescription", CreatedAt = DateTime.Now };
-        
-        return Ok(_mapper.Map<PostResponseDto>(post));
+        var userId = HttpContext.GetAuthenticatedUserId();
+        var deletedPost = await _postService.DeletePost(userId, postId);
+        return Ok(deletedPost);
     }
 
     /// <summary>

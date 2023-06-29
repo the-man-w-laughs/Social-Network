@@ -33,7 +33,6 @@ public class PostService : IPostService
     {
         throw new NotImplementedException();
     }
-
     public async Task<Post> GetLocalPost(uint postId)
     {
         var post = await _postRepository.GetByIdAsync(postId) ??
@@ -41,6 +40,21 @@ public class PostService : IPostService
         return post;
     }
 
+    public Task<PostResponseDto> GetPost(uint userId, object postRequestDto)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<PostResponseDto> ChangePost(uint userId, PostPatchRequestDto postPatchRequestDto)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<PostResponseDto> DeletePost(uint userId, uint postId)
+    {
+        throw new NotImplementedException();
+    }
+    
     public async Task<List<CommentResponseDto>> GetComments(uint postId, int limit, int currCursor)
     {
         var post = await GetLocalPost(postId);   
@@ -87,5 +101,5 @@ public class PostService : IPostService
         _postLikeRepository.Delete(postLIke);
         await _postLikeRepository.SaveAsync();
         return _mapper.Map<PostLikeResponseDto>(postLIke);
-    }    
+    }
 }
