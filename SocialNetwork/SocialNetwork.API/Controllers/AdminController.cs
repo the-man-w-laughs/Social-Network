@@ -3,7 +3,9 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialNetwork.BLL.Contracts;
+using SocialNetwork.BLL.DTO.Comments.Response;
 using SocialNetwork.BLL.DTO.Medias.Response;
+using SocialNetwork.BLL.DTO.Posts.Response;
 using SocialNetwork.BLL.DTO.Users.Response;
 using SocialNetwork.BLL.Exceptions;
 
@@ -15,13 +17,13 @@ public sealed class AdminController : ControllerBase
 {
     private readonly IMapper _mapper;
     private readonly IMediaService _mediaService;
-    private readonly ICommunityService _communityService;
+    private readonly IAdminService _adminService;
 
-    public AdminController(IMapper mapper, IMediaService mediaService, ICommunityService communityService)
+    public AdminController(IMapper mapper, IMediaService mediaService, IAdminService adminService)
     {
         _mapper = mapper;
         _mediaService = mediaService;
-        _communityService = communityService;
+        _adminService = adminService;
     }
 
     /// <summary>
@@ -51,15 +53,8 @@ public sealed class AdminController : ControllerBase
     [Route("communities/{communityId}")]
     public async Task<ActionResult<UserResponseDto>> DeleteAdminCommunities([FromRoute, Required] uint communityId)
     {
-        try
-        {
-            var deletedCommunity = await _communityService.DeleteCommunity(communityId);
-            return Ok(deletedCommunity);
-        }
-        catch (NotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
+        var deletedCommunity = await _adminService.DeleteCommunity(communityId);
+        return Ok(deletedCommunity);
     }
 
     /// <summary>
@@ -71,7 +66,8 @@ public sealed class AdminController : ControllerBase
     [Route("users/{userId}")]
     public async Task<ActionResult<UserResponseDto>> DeleteAdminUsers([FromRoute, Required] uint userId)
     {
-        return Ok();
+        var deletedUser = await _adminService.DeleteUser(userId);
+        return Ok(deletedUser);
     }
 
     /// <summary>
@@ -81,9 +77,10 @@ public sealed class AdminController : ControllerBase
     [HttpDelete]
     [Authorize(Roles = "Admin")]
     [Route("posts/postId")]
-    public async Task<ActionResult<UserResponseDto>> DeleteAdminPosts([FromRoute, Required] uint postId)
+    public async Task<ActionResult<PostResponseDto>> DeleteAdminPosts([FromRoute, Required] uint postId)
     {
-        return Ok();
+        var deletedPost = await _adminService.DeletePost(postId);
+        return Ok(deletedPost);
     }
 
     /// <summary>
@@ -93,8 +90,9 @@ public sealed class AdminController : ControllerBase
     [HttpDelete]
     [Authorize(Roles = "Admin")]
     [Route("comments/commentId")]
-    public async Task<ActionResult<UserResponseDto>> DeleteAdminComments([FromRoute, Required] uint commentId)
+    public async Task<ActionResult<CommentResponseDto>> DeleteAdminComments([FromRoute, Required] uint commentId)
     {
-        return Ok();
+        var deletedComment = await _adminService.DeleteComment(commentId);
+        return Ok(deletedComment);
     }
 }
