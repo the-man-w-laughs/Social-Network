@@ -12,8 +12,7 @@ public interface IMediaService
     public Task<bool> IsUserMediaOwner(uint userId, uint mediaId);
     public Task<Media> DeleteMedia(uint mediaId);
     public Task<Media> DeleteMedia(uint userId, uint mediaId);
-    public Task<MediaLikeResponseDto> LikeMedia(uint userId, uint mediaId);
-    public Task<bool> IsUserLiked(uint userId, uint mediaId);
+    public Task<MediaLikeResponseDto> LikeMedia(uint userId, uint mediaId);    
     public Task<List<MediaLikeResponseDto>> GetMediaLikes(uint mediaId, int limit, int currCursor);
     public Task<MediaLikeResponseDto> UnLikeMedia(uint userId, uint mediaId);
 }

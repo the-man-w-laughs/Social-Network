@@ -2,14 +2,17 @@ using AutoMapper;
 using SocialNetwork.BLL.Contracts;
 using SocialNetwork.BLL.DTO.Chats.Response;
 using SocialNetwork.BLL.DTO.Communities.Response;
+using SocialNetwork.BLL.DTO.Medias.Response;
 using SocialNetwork.BLL.DTO.Posts.Response;
 using SocialNetwork.BLL.DTO.Users.Request;
 using SocialNetwork.BLL.DTO.Users.Response;
 using SocialNetwork.BLL.Exceptions;
 using SocialNetwork.DAL;
 using SocialNetwork.DAL.Contracts.Medias;
+using SocialNetwork.DAL.Contracts.Posts;
 using SocialNetwork.DAL.Contracts.Users;
 using SocialNetwork.DAL.Entities.Communities;
+using SocialNetwork.DAL.Entities.Medias;
 using SocialNetwork.DAL.Entities.Users;
 
 namespace SocialNetwork.BLL.Services;
@@ -24,6 +27,7 @@ public class UserService : IUserService
     private readonly IMediaRepository _mediaRepository;
 
     private readonly IPasswordHashService _passwordHashService;
+    private readonly IPostRepository _postRepository;
 
     public UserService(
         IMapper mapper,
@@ -32,7 +36,8 @@ public class UserService : IUserService
         IUserFriendRepository userFriendRepository,
         IUserFollowerRepository userFollowerRepository,
         IMediaRepository mediaRepository,
-        IPasswordHashService passwordHashService)
+        IPasswordHashService passwordHashService,
+        IPostRepository postRepository)
     {
         _mapper = mapper;
         _userRepository = userRepository;
@@ -41,6 +46,7 @@ public class UserService : IUserService
         _userFollowerRepository = userFollowerRepository;
         _mediaRepository = mediaRepository;
         _passwordHashService = passwordHashService;
+        _postRepository = postRepository;
     }
 
     public async Task<List<UserResponseDto>> GetUsers(int limit, int currCursor)
@@ -112,17 +118,12 @@ public class UserService : IUserService
 
     public async Task<List<PostResponseDto>> GetUserPosts(uint userId, int limit, int currCursor)
     {
-        //    var user = await _userRepository.GetByIdAsync(userId);
-        //    if (user == null)
-        //        throw new NotFoundException($"User (ID: {userId}) doesn't exist");
-
-        //    return user.UserProfilePosts.Select(upp => upp.Post)
-        //        .OrderBy(p => p.Id)
-        //        .Skip(currCursor)
-        //        .Take(limit)
-        //        .Select(p => _mapper.Map<PostResponseDto>(p))
-        //        .ToList();
-        return new List<PostResponseDto>();
+        var posts = await _postRepository.GetAllAsync(post => post.AuthorId == userId && !post.IsCommunityPost);
+        var paginatedPosts = posts.OrderBy(cm => cm.Id)
+            .Skip(currCursor)
+            .Take(limit)
+            .ToList();
+        return _mapper.Map<List<PostResponseDto>>(paginatedPosts);
     }
 
     public async Task<UserProfileResponseDto> GetUserProfile(uint userId)

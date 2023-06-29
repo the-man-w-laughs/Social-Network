@@ -52,9 +52,7 @@ public class CommentService : ICommentService
 
         var newComment = _mapper.Map<Comment>(commentRequestDto);
         newComment.AuthorId = userId;
-        newComment.CreatedAt = DateTime.Now;
-
-        await _commentRepository.AddAsync(newComment);                
+        newComment.CreatedAt = DateTime.Now;                       
 
         if (commentRequestDto.Attachments != null)
         {
@@ -71,6 +69,7 @@ public class CommentService : ICommentService
         if (newComment.Attachments.Count == 0 && string.IsNullOrWhiteSpace(commentRequestDto.Content))
             throw new ArgumentException("You can't make comment without any attachments and content.");
 
+        await _commentRepository.AddAsync(newComment);
         await _commentRepository.SaveAsync();
         var commentResponseDto = _mapper.Map<CommentResponseDto>(newComment);
         return commentResponseDto;
@@ -145,17 +144,17 @@ public class CommentService : ICommentService
         return commentResponseDto;
     }
 
+
+    private async Task<CommentLike?> GetCommentLike(uint userId, uint commentId)
+    {
+        var result = await _commentLikeRepository.GetAsync((commentLike) => commentLike.UserId == userId && commentLike.CommentId == commentId);
+        return result;
+    }
     public async Task<CommentLikeResponseDto> LikeComment(uint userId, uint commentId)
     {
-        if (await IsUserLiked(userId, commentId)) throw new DuplicateEntryException("User already liked this comment.");
+        if (await GetCommentLike(userId, commentId) != null) throw new DuplicateEntryException("User already liked this comment.");
         var newLike = await _commentLikeRepository.LikeComment(userId, commentId);
         return _mapper.Map<CommentLikeResponseDto>(newLike);
-    }
-
-    private async Task<bool> IsUserLiked(uint userId, uint mediaId)
-    {
-        var result = await _commentLikeRepository.GetAsync((mediaLike) => mediaLike.UserId == userId && mediaLike.CommentId == mediaId);
-        if (result != null) return true; else return false;
     }
 
     public async Task<List<CommentLikeResponseDto>> GetCommentLikes(uint commentId, int limit, int currCursor)
@@ -170,8 +169,10 @@ public class CommentService : ICommentService
 
     public async Task<CommentLikeResponseDto> UnlikeComment(uint userId, uint commentId)
     {
-        if (!await IsUserLiked(userId, commentId)) throw new NotFoundException("User didn't like this comment.");
-        var mediaLike = await _commentLikeRepository.UnLikeComment(userId, commentId);
-        return _mapper.Map<CommentLikeResponseDto>(mediaLike);
+        var commentLike = await GetCommentLike(userId, commentId);
+        if (commentLike == null) throw new NotFoundException("User didn't like this comment.");
+        _commentLikeRepository.Delete(commentLike);
+        await _commentLikeRepository.SaveAsync();
+        return _mapper.Map<CommentLikeResponseDto>(commentLike);
     }
 }

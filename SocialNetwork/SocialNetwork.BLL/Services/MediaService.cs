@@ -75,19 +75,19 @@ namespace SocialNetwork.BLL.Services
                 throw new NotFoundException("Media is not found.");
             }
         }
+        public async Task<MediaLike?> GetMediaLike(uint userId, uint mediaId)
+        {
+            var result = await _mediaLikeRepository.GetAsync((mediaLike) => mediaLike.UserId == userId && mediaLike.MediaId == mediaId);
+            return result;
+        }
 
         public async Task<MediaLikeResponseDto> LikeMedia(uint userId, uint mediaId)
         {            
-            if (await IsUserLiked(userId, mediaId)) throw new DuplicateEntryException("User already liked this media.");
+            if (await GetMediaLike(userId, mediaId) != null) throw new DuplicateEntryException("User already liked this media.");
             var newLike = await _mediaLikeRepository.LikeMedia(userId, mediaId);
             return _mapper.Map<MediaLikeResponseDto>(newLike);
         }
 
-        public async Task<bool> IsUserLiked(uint userId, uint mediaId)
-        {
-            var result = await _mediaLikeRepository.GetAsync((mediaLike) => mediaLike.UserId == userId && mediaLike.MediaId == mediaId);
-            if (result != null) return true; else return false;                
-        }
 
         public async Task<List<MediaLikeResponseDto>> GetMediaLikes(uint mediaId, int limit, int currCursor)
         {
@@ -100,9 +100,11 @@ namespace SocialNetwork.BLL.Services
         }
 
         public async Task<MediaLikeResponseDto> UnLikeMedia(uint userId, uint mediaId)
-        {            
-            if (!await IsUserLiked(userId, mediaId)) throw new NotFoundException("User didn't like this media.");
-            var mediaLike = await _mediaLikeRepository.UnLikeMedia(userId, mediaId);
+        {
+            var mediaLike = await GetMediaLike(userId, mediaId);
+            if (mediaLike == null) throw new NotFoundException("User didn't like this media.");
+            _mediaLikeRepository.Delete(mediaLike);
+            await _mediaLikeRepository.SaveAsync();
             return _mapper.Map<MediaLikeResponseDto>(mediaLike);
         }
     }

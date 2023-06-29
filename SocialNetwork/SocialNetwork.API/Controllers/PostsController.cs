@@ -104,9 +104,9 @@ public class PostsController : ControllerBase
     [Route("{postId}/likes")]
     public virtual ActionResult<PostLikeResponseDto> PostPostsPostIdLikes([FromRoute, Required] uint postId)
     {
-        var postLike = new PostLike { Id = 200, CreatedAt = DateTime.Now };
-        
-        return Ok(_mapper.Map<PostLikeResponseDto>(postLike));
+        var userId = HttpContext.GetAuthenticatedUserId();
+        var postLike = _postService.LikePost(userId, postId);        
+        return Ok(postLike);
     }
 
     /// <summary>
@@ -116,17 +116,12 @@ public class PostsController : ControllerBase
     [HttpGet]
     [Route("{postId}/likes")]
     public virtual ActionResult<List<PostLikeResponseDto>> GetPostsPostIdLikes(
-        [FromRoute, Required] string postId,
-        [FromQuery, Required] uint limit,
-        [FromQuery, Required] uint currCursor)
+        [FromRoute, Required] uint postId,
+        [FromQuery, Required] int limit,
+        [FromQuery] int currCursor)
     {
-        var postLikes = new List<PostLike>
-        {
-            new() { Id = 200, CreatedAt = DateTime.Now },
-            new() { Id = 201, CreatedAt = DateTime.Now.AddDays(-1) }
-        };
-        
-        return Ok(postLikes.Select(pl => _mapper.Map<PostLikeResponseDto>(pl)));
+        var postLikes = _postService.GetLikes(postId, limit, currCursor);        
+        return Ok(postLikes);
     }
 
     /// <summary>
@@ -137,9 +132,9 @@ public class PostsController : ControllerBase
     [Route("{postId}/likes")]
     public virtual ActionResult<PostLikeResponseDto> DeletePostsPostIdLikes([FromRoute, Required] uint postId)
     {
-        var postLike = new PostLike { Id = 200, CreatedAt = DateTime.Now };
-        
-        return Ok(_mapper.Map<PostLikeResponseDto>(postLike));
+        var userId = HttpContext.GetAuthenticatedUserId();
+        var postLike = _postService.UnlikePost(userId, postId);
+        return Ok(postLike);
     }
 
     /// <summary>
@@ -150,15 +145,10 @@ public class PostsController : ControllerBase
     [Route("{postId}/comments")]
     public virtual ActionResult<List<CommentResponseDto>> GetPostsPostIdComments(
         [FromRoute, Required] uint postId,
-        [FromQuery, Required] uint limit,
-        [FromQuery, Required] uint currCursor)
-    {
-        var comments = new List<Comment>
-        {
-            new() { Id = 200, Content = "TestComment1", CreatedAt = DateTime.Now },
-            new() { Id = 201, Content = "TestComment2", CreatedAt = DateTime.Now.AddDays(-1) }
-        };
-
-        return Ok(_mapper.Map<CommentResponseDto>(comments));
+        [FromQuery, Required] int limit,
+        [FromQuery] int currCursor)
+    {        
+        var comments = _postService.GetComments(postId, limit, currCursor);
+        return Ok(comments);        
     }
 }

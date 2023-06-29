@@ -179,9 +179,8 @@ public class UsersController : ControllerBase
         [FromQuery, Required] int limit,
         [FromQuery] int nextCursor)
     {
-        //var userPosts = await _userService.GetUserPosts(userId, limit, nextCursor);
-        //return Ok(userPosts);
-        return Ok();
+        var userPosts = await _userService.GetUserPosts(userId, limit, nextCursor);
+        return Ok(userPosts);
     }
 
     /// <summary>Get User Medias</summary>
