@@ -201,7 +201,7 @@ public class ChatsController : ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
-    public virtual async Task<ActionResult<ChangeChatMemberResponseDto>> PatchChatsChatIdMembersMemberId(
+    public virtual async Task<ActionResult<ChatMemberResponseDto>> PatchChatsChatIdMembersMemberId(
         [FromRoute, Required] uint chatId,
         [FromRoute, Required] uint memberId,
         [FromBody, Required] ChangeChatMemberRequestDto changeChatMemberRequestDto)
@@ -245,7 +245,7 @@ public class ChatsController : ControllerBase
     /// </summary>
     /// <remarks>Send a message to the chat.</remarks>
     /// <param name="chatId">The ID of the chat.</param>
-    /// <param name="postChatMemberDto">The message request data transfer object.</param>    
+    /// <param name="messageRequestDto">The message request data transfer object.</param>    
     /// <response code="200">Returns the sent message information.</response>
     /// <response code="400">Returns a string message if the chat does not exist.</response>
     /// <response code="403">Returns a string message if the user is unauthorized or is not a chat member.</response>

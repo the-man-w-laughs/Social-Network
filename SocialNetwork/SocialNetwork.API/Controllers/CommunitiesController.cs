@@ -201,13 +201,13 @@ public class CommunitiesController : ControllerBase
     [Route("{communityId}/members/{userIdToChange}")]
     [Authorize(Roles = "User")]
     public virtual async Task<ActionResult<CommunityMemberResponseDto>> PutCommunitiesCommunityIdMembersMemberId(
-        [FromRoute, Required] uint userIdToAdd,
+        [FromRoute, Required] uint userIdToChange,
         [FromRoute, Required] uint communityId,
         [FromBody, Required] CommunityMemberRequestDto communityMemberRequestDto)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
         var deletedMember = await _communityService
-            .ChangeCommunityMember(userId, communityId, userIdToAdd, communityMemberRequestDto);
+            .ChangeCommunityMember(userId, communityId, userIdToChange, communityMemberRequestDto);
         return Ok(deletedMember);
     }
 

@@ -2,6 +2,8 @@ using AutoMapper;
 using SocialNetwork.BLL.Contracts;
 using SocialNetwork.BLL.DTO.Chats.Request;
 using SocialNetwork.BLL.DTO.Chats.Response;
+using SocialNetwork.BLL.DTO.Communities.Request;
+using SocialNetwork.BLL.DTO.Communities.Response;
 using SocialNetwork.BLL.DTO.Medias.Response;
 using SocialNetwork.BLL.DTO.Messages.Request;
 using SocialNetwork.BLL.DTO.Messages.Response;
@@ -10,6 +12,7 @@ using SocialNetwork.DAL.Contracts.Chats;
 using SocialNetwork.DAL.Contracts.Medias;
 using SocialNetwork.DAL.Contracts.Messages;
 using SocialNetwork.DAL.Entities.Chats;
+using SocialNetwork.DAL.Entities.Communities;
 using SocialNetwork.DAL.Entities.Messages;
 
 namespace SocialNetwork.BLL.Services;
@@ -66,17 +69,48 @@ public class ChatService : IChatService
         var chatMember = chat?.ChatMembers.FirstOrDefault(cm => cm.UserId == userId);
         return chatMember?.TypeId is ChatMemberType.Admin or ChatMemberType.Owner;
     }
-
-    public async Task<ChatMember?> DeleteChatMember(uint chatId, uint userId)
+    private async Task<ChatMember?> GetChatMember(uint chatId, uint userId)
     {
-        var chat = await _chatRepository.GetByIdAsync(chatId);
-        var memberToDelete = chat?.ChatMembers.FirstOrDefault(cm => cm.UserId == userId);
-        if (memberToDelete != null)
+        return await _chatMemberRepository.GetAsync(m => m.UserId == userId && m.ChatId == chatId);
+    }
+    public async Task<ChatMemberResponseDto> DeleteChatMember(uint userId, uint userToDeleteId, uint chatId)
+    {
+        var chat = await _chatRepository.GetByIdAsync(chatId) ??
+            throw new NotFoundException("No chat with this Id.");
+        var chatMemberToDelete = await GetChatMember(chatId, userToDeleteId);
+        if (chatMemberToDelete == null)
+            throw new NotFoundException("User is not a chat member.");
+
+        var chatMember = await GetChatMember(chatId, userId);
+        if (chatMember == null)
+            throw new OwnershipException("Only chat members can delete members from communities.");
+
+        if (userToDeleteId != userId)
         {
-            await _chatMemberRepository.DeleteById(memberToDelete.Id);
-            await _chatMemberRepository.SaveAsync();
+            if (chatMember.TypeId == ChatMemberType.Member)
+            {
+                throw new OwnershipException("Chat members can't delete chat members.");
+            }
+            else if (chatMember.TypeId == ChatMemberType.Admin && chatMemberToDelete.TypeId == ChatMemberType.Admin)
+            {
+                throw new OwnershipException("Chat admin can't delete chat admin.");
+            }
+            else if (chatMember.TypeId == ChatMemberType.Admin && chatMemberToDelete.TypeId == ChatMemberType.Owner)
+            {
+                throw new OwnershipException("Chat admin can't delete chat owner.");
+            }
         }
-        return memberToDelete;
+        else
+        {
+            if (chatMemberToDelete.TypeId == ChatMemberType.Owner)
+            {
+                throw new OwnershipException("Owner can't delete himself.");
+            }
+        }
+
+        _chatMemberRepository.Delete(chatMemberToDelete);
+        await _chatMemberRepository.SaveAsync();
+        return _mapper.Map<ChatMemberResponseDto>(chatMemberToDelete);
     }
 
     public async Task<bool> IsUserChatMember(uint chatId, uint userId)
@@ -84,13 +118,6 @@ public class ChatService : IChatService
         var chat = await _chatRepository.GetByIdAsync(chatId);
         var chatMember = chat?.ChatMembers.FirstOrDefault(cm => cm.UserId == userId);
         return chatMember != null;
-    }
-
-    public async Task<ChatMember?> GetChatMember(uint chatId, uint userId)
-    {
-        var chat = await _chatRepository.GetByIdAsync(chatId);
-        var chatMember = chat?.ChatMembers.FirstOrDefault(cm => cm.UserId == userId);
-        return chatMember;
     }
 
     public async Task<List<ChatMember>> GetAllChatMembers(uint chatId, int limit, int currCursor)
@@ -303,53 +330,45 @@ public class ChatService : IChatService
         return chatMembers.Select(cm => _mapper.Map<ChatMemberResponseDto>(cm)).ToList();
     }
 
-    public async Task<ChangeChatMemberResponseDto> UpdateChatMember(uint chatId, uint userId, uint memberId,
+    public async Task<ChatMemberResponseDto> UpdateChatMember(uint chatId, uint userId, uint memberId,
         ChangeChatMemberRequestDto changeChatMemberRequestDto)
     {
-        var chat = await GetChatById(chatId);
-        if (chat == null)
-            throw new NotFoundException("Chat doesn't exist");
-        
-        var isUserChatMember = await IsUserChatMember(chatId, memberId);
-        if (!isUserChatMember)
-            throw new NotFoundException("ChatMember doesn't exist");
-        
-        var isUserHaveAdminPermissions = await IsUserHaveChatAdminPermissions(chatId, userId);
-        if (!isUserHaveAdminPermissions)
-            throw new OwnershipException("You are not chat Owner");
+        var community = await _chatRepository.GetByIdAsync(chatId) ??
+    throw new NotFoundException("No community with this Id.");
+        var communityMemberToChange = await GetChatMember(chatId, memberId);
+        if (communityMemberToChange == null)
+            throw new NotFoundException("User is not a community member.");
 
-        switch (changeChatMemberRequestDto.Type)
+        var chatMember = await GetChatMember(chatId, userId);
+        if (chatMember == null)
+            throw new OwnershipException("Only community members can change members in communities.");
+
+        if (chatMember.TypeId == ChatMemberType.Owner)
         {
-            case ChatMemberType.Member:
-                break;
-            case ChatMemberType.Admin:
-                break;
-            case ChatMemberType.Owner:
-                throw new OwnershipException("There can only be 1 owner");
-            default:
-                throw new ArgumentOutOfRangeException(nameof(changeChatMemberRequestDto.Type));
+            if (memberId == userId)
+            {
+                throw new OwnershipException("Owner cant change himself.");
+            }
         }
 
-        var updatedChatMember = new ChatMember();
+        if (chatMember.TypeId == ChatMemberType.Admin)
+        {
+            if (memberId != userId && changeChatMemberRequestDto.Type != ChatMemberType.Member)
+            {
+                throw new OwnershipException("Admin can only change himself to user.");
+            }
+        }
 
-        return _mapper.Map<ChangeChatMemberResponseDto>(updatedChatMember);
-    }
+        if (chatMember.TypeId == ChatMemberType.Member)
+        {
+            throw new OwnershipException("Member can't change anything.");
+        }
 
-    public async Task<ChatMemberResponseDto> DeleteChatMember(uint userId, uint userToDeleteId, uint chatId)
-    {
-        var chat = await GetChatById(chatId);
-        if (chat == null)
-            throw new NotFoundException("Chat with request ID doesn't exist");
-        
-        var isUserHaveAdminPermissions = await IsUserHaveChatAdminPermissions(chatId, userId);
-        if (!isUserHaveAdminPermissions) 
-            throw new AccessDeniedException("User hasn't chat admin permissions");
-        
-        var deletedChatMember = await DeleteChatMember(chatId, userToDeleteId);
-        if (deletedChatMember == null)
-            throw new NotFoundException("Chat member not found");
-
-        return _mapper.Map<ChatMemberResponseDto>(deletedChatMember);
+        communityMemberToChange.UpdatedAt = DateTime.Now;
+        communityMemberToChange.TypeId = changeChatMemberRequestDto.Type;
+        _chatMemberRepository.Update(communityMemberToChange);
+        await _chatMemberRepository.SaveAsync();
+        return _mapper.Map<ChatMemberResponseDto>(communityMemberToChange);
     }
 
     public async Task<MessageResponseDto> SendMessage(uint chatId, uint userId, MessageRequestDto postChatMemberDto)

@@ -15,7 +15,7 @@ public interface IChatService
     Task<ChatResponseDto> DeleteChat(uint chatId, uint userId);
     Task<ChatMemberResponseDto> AddChatMember(uint userId, uint chatId, ChatMemberRequestDto postChatMemberDto);
     Task<List<ChatMemberResponseDto>> GetChatMembers(uint userId, uint chatId, int limit, int nextCursor);
-    Task<ChangeChatMemberResponseDto> UpdateChatMember(uint chatId, uint userId,uint memberId,
+    Task<ChatMemberResponseDto> UpdateChatMember(uint chatId, uint userId,uint memberId,
         ChangeChatMemberRequestDto changeChatMemberRequestDto);
     Task<ChatMemberResponseDto> DeleteChatMember(uint userId, uint userToDeleteId, uint chatId);
     Task<MessageResponseDto> SendMessage(uint chatId, uint userId, MessageRequestDto postChatMemberDto);
