@@ -35,10 +35,4 @@ public class PasswordHashService : IPasswordHashService
         var newHash = argon2.GetBytes(hashedPassword.Length);
         return hashedPassword.SequenceEqual(newHash);
     }
-
-    public bool IsPasswordValid(string password)
-    {
-        if (string.IsNullOrWhiteSpace(password)) return false;
-        return password.Length >= Constants.UserPasswordMinLength;
-    }
 }

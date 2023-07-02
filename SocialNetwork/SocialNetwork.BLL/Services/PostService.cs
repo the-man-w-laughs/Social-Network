@@ -137,18 +137,10 @@ public class PostService : IPostService
             throw new OwnershipException("Only post author can change it.");    
 
         bool updated = false;
-        if (postPatchRequestDto.Content != null)
-        {
-            if (postPatchRequestDto.Content.Length == 0)
-                throw new ArgumentException($"Content should have at least 1 character without whitespaces.");
-            else
-            {
-                if (postPatchRequestDto.Content != postPatchRequestDto.Content)
-                {
-                    postPatchRequestDto.Content = postPatchRequestDto.Content;
-                    updated = true;
-                }
-            }
+        if (postPatchRequestDto.Content != null && postPatchRequestDto.Content != postPatchRequestDto.Content)
+        {                                        
+            postPatchRequestDto.Content = postPatchRequestDto.Content;
+            updated = true;                
         }
         if (postPatchRequestDto.Attachments != null)
         {            

@@ -289,16 +289,10 @@ public class ChatService : IChatService
                 updated = true;
             }
         }
-        if (chatPatchRequestDto.Name != null)
-        {
-            if (chatPatchRequestDto.Name.Length == 0)
-                throw new ArgumentException($"Chat name should have at east one character.");
-            
-            if (chat.Name != chatPatchRequestDto.Name)
-            {
-                chat.Name = chatPatchRequestDto.Name;
-                updated = true;
-            }
+        if (chatPatchRequestDto.Name != null && chat.Name != chatPatchRequestDto.Name)
+        {            
+            chat.Name = chatPatchRequestDto.Name;
+            updated = true;            
         }
         
         if (updated)

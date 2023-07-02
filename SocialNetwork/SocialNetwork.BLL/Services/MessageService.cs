@@ -93,18 +93,10 @@ public class MessageService : IMessageService
             throw new OwnershipException("Only message sender can change the message.");
 
         bool updated = false;
-        if (messagePatchRequestDto.Content != null)
-        {
-            if (messagePatchRequestDto.Content.Length == 0)
-                throw new ArgumentException($"Content should have at least 1 character without whitespaces.");
-            else
-            {
-                if (messagePatchRequestDto.Content != messagePatchRequestDto.Content)
-                {
-                    messagePatchRequestDto.Content = messagePatchRequestDto.Content;
-                    updated = true;
-                }
-            }
+        if (messagePatchRequestDto.Content != null && messagePatchRequestDto.Content != messagePatchRequestDto.Content)
+        {                                      
+            messagePatchRequestDto.Content = messagePatchRequestDto.Content;
+            updated = true;                
         }
         if (messagePatchRequestDto.Attachments != null)
         {            

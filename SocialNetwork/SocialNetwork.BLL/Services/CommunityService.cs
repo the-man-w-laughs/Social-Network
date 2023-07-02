@@ -36,9 +36,7 @@ public class CommunityService : ICommunityService
     }
 
     public async Task<CommunityResponseDto> AddCommunity(CommunityPostDto communityRequestDto)
-    {
-        if (communityRequestDto.Name.Length == 0) throw new ArgumentException("Community name should have at east one character.");
-
+    {       
         var community = _mapper.Map<Community>(communityRequestDto);
         community.CreatedAt = DateTime.Now;
         await _communityRepository.AddAsync(community);
@@ -210,31 +208,6 @@ public class CommunityService : ICommunityService
         return _mapper.Map<CommunityResponseDto>(community);
     }
 
-    //public async Task<PostResponseDto> AddCommunityPost(uint proposerId, uint communityId, PostRequestDto postRequestDto)
-    //{
-    //    var community = await _communityRepository.GetByIdAsync(communityId) ?? throw new NotFoundException("No community with this Id.");
-    //    var communityMember = await GetCommunityMember(communityId, proposerId);
-
-    //    if (communityMember == null && community.IsPrivate) throw new OwnershipException("In private communities only members can propose posts.");
-
-    //    var post = _mapper.Map<Post>(postRequestDto);
-    //    post.CreatedAt = DateTime.Now;
-    //    var addedPost = await _postRepository.AddAsync(post);
-    //    await _postRepository.SaveAsync();
-
-    //    var communityPost = new CommunityPost()
-    //    {
-    //        PostId = addedPost.Id,
-    //        CommunityId = communityId,
-    //        ProposerId = proposerId
-    //    };
-
-    //    await _communityPostRepository.AddAsync(communityPost);
-    //    await _communityPostRepository.SaveAsync();
-
-    //    return _mapper.Map<CommunityPostResponseDto>(communityPost);
-    //}
-
     public async Task<List<PostResponseDto>> GetCommunityPosts(uint userId, uint communityId, int limit, int currCursor)
     {
         var community = await _communityRepository.GetByIdAsync(communityId) ??
@@ -274,39 +247,21 @@ public class CommunityService : ICommunityService
                 }
             }
         }
-        if (communityPatchRequestDto.Name != null)
-        {
-            if (communityPatchRequestDto.Name.Length == 0)
-                throw new ArgumentException($"Community name should have at east one character.");
-            else
-            {
-                if (community.Name != communityPatchRequestDto.Name)
-                {
-                    community.Name = communityPatchRequestDto.Name;
-                    updated = true;
-                }
-            }
+        if (communityPatchRequestDto.Name != null && community.Name != communityPatchRequestDto.Name)
+        {                            
+            community.Name = communityPatchRequestDto.Name;
+            updated = true;                           
         }
-        if (communityPatchRequestDto.Description != null)
+        if (communityPatchRequestDto.Description != null && community.Description != communityPatchRequestDto.Description)
         {
-            if (communityPatchRequestDto.Description.Length == 0)
-                throw new ArgumentException($"Community description should have at east one character.");
-            else
-            {
-                if (community.Description != communityPatchRequestDto.Description)
-                {
-                    community.Description = communityPatchRequestDto.Description;
-                    updated = true;
-                }
-            }
+
+            community.Description = communityPatchRequestDto.Description;
+            updated = true;                            
         }
-        if (communityPatchRequestDto.IsPrivate != null)
-        {
-            if (community.IsPrivate != communityPatchRequestDto.IsPrivate)
-            {
-                community.Description = communityPatchRequestDto.Description;
-                updated = true;
-            }
+        if (communityPatchRequestDto.IsPrivate != null && community.IsPrivate != communityPatchRequestDto.IsPrivate)
+        {            
+            community.IsPrivate = (bool)communityPatchRequestDto.IsPrivate;
+            updated = true;            
         }
         if (updated)
         {
