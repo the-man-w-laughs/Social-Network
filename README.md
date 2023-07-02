@@ -8,4 +8,4 @@ You can find the detailed API documentation and endpoints on the [Swagger Page](
 
 ## Database Schema
 
-![Database Schema](docs/database.jpg)
+![Database Schema](docs/database.png)
