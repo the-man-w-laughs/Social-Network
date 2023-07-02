@@ -29,7 +29,7 @@ public class CommentsController : ControllerBase
     /// <remarks>Comment post.</remarks>
     [HttpPost]    
     public virtual async Task<ActionResult<CommentResponseDto>> PostPostsPostIdComments(        
-        [FromBody, Required] CommentRequestDto commentRequestDto)
+        [FromBody, Required] CommentPostDto commentRequestDto)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
         var comment = await _commentService.AddComment(userId, commentRequestDto);
@@ -59,7 +59,7 @@ public class CommentsController : ControllerBase
     [Route("{commentId}")]
     public virtual async Task<ActionResult<CommentResponseDto>> PatchCommentsCommentId(        
         [FromRoute, Required] uint commentId,
-        [FromBody, Required] CommentPatchRequestDto commentPatchRequestDto)
+        [FromBody, Required] CommentPatchDto commentPatchRequestDto)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
         var updatedComment = await _commentService.ChangeComment(userId, commentId, commentPatchRequestDto);

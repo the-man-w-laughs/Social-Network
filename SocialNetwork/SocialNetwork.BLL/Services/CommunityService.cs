@@ -35,7 +35,7 @@ public class CommunityService : ICommunityService
         _postRepository = postRepository;        
     }
 
-    public async Task<CommunityResponseDto> AddCommunity(CommunityRequestDto communityRequestDto)
+    public async Task<CommunityResponseDto> AddCommunity(CommunityPostDto communityRequestDto)
     {
         if (communityRequestDto.Name.Length == 0) throw new ArgumentException("Community name should have at east one character.");
 
@@ -96,7 +96,7 @@ public class CommunityService : ICommunityService
         return _mapper.Map<CommunityMemberResponseDto>(addedCommunityMember);
     }
 
-    public async Task<CommunityMemberResponseDto> ChangeCommunityMember(uint userId, uint communityId, uint userIdToChange, CommunityMemberRequestDto communityMemberRequestDto)
+    public async Task<CommunityMemberResponseDto> ChangeCommunityMember(uint userId, uint communityId, uint userIdToChange, CommunityMemberPutDto communityMemberRequestDto)
     {
         var community = await _communityRepository.GetByIdAsync(communityId) ??
             throw new NotFoundException("No community with this Id.");
@@ -252,7 +252,7 @@ public class CommunityService : ICommunityService
         return _mapper.Map<List<PostResponseDto>>(pagenatedPosts);       
 
     }
-    public async Task<CommunityResponseDto> ChangeCommunity(uint userId, uint communityId, CommunityPatchRequestDto communityPatchRequestDto)
+    public async Task<CommunityResponseDto> ChangeCommunity(uint userId, uint communityId, CommunityPatchDto communityPatchRequestDto)
     {
         var community = await _communityRepository.GetByIdAsync(communityId) ?? throw new NotFoundException("No community with this Id.");
 

@@ -27,7 +27,7 @@ public class AuthService : IAuthService
         _passwordHashService = passwordHashService;
     }
     
-    public async Task<UserResponseDto> SignUp(SignUpRequestDto userSignUpRequestDto)
+    public async Task<UserResponseDto> SignUp(SignUpPostDto userSignUpRequestDto)
     {
         if (!IsLoginValid(userSignUpRequestDto.Login))
             throw new ArgumentException($"Login must be between {Constants.UserLoginMinLength} and {Constants.UserLoginMaxLength} characters");
@@ -67,7 +67,7 @@ public class AuthService : IAuthService
        return _mapper.Map<UserResponseDto>(addedUser);
     }
 
-    public async Task<UserResponseDto> Login(LoginRequestDto userLoginRequestDto)
+    public async Task<UserResponseDto> Login(LoginPostDto userLoginRequestDto)
     {
         var user = await _userRepository.GetAsync(u => u.Login == userLoginRequestDto.Login);
         if (user == null) 

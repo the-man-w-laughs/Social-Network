@@ -38,7 +38,7 @@ public class CommentService : ICommentService
         _commentLikeRepository = commentLikeRepository;
     }
 
-    public async Task<CommentResponseDto> AddComment(uint userId, CommentRequestDto commentRequestDto)
+    public async Task<CommentResponseDto> AddComment(uint userId, CommentPostDto commentRequestDto)
     {
         var post = await _postRepository.GetByIdAsync(commentRequestDto.PostId);
         if (post == null)
@@ -97,7 +97,7 @@ public class CommentService : ICommentService
         return comment;
     }
 
-    public async Task<CommentResponseDto> ChangeComment(uint userId, uint commentId, CommentPatchRequestDto commentPatchRequestDto)
+    public async Task<CommentResponseDto> ChangeComment(uint userId, uint commentId, CommentPatchDto commentPatchRequestDto)
     {
         var comment = await GetLocalComment(commentId);
         if (comment.Author.Id != userId)

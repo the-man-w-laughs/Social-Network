@@ -31,7 +31,7 @@ public sealed class AuthController : ControllerBase
     [ProducesResponseType(typeof(UserResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<UserResponseDto>> SignUp([FromBody, Required] SignUpRequestDto userSignUpRequestDto)
+    public async Task<ActionResult<UserResponseDto>> SignUp([FromBody, Required] SignUpPostDto userSignUpRequestDto)
     {
         var addedUserDto = await _authService.SignUp(userSignUpRequestDto);
         return Ok(addedUserDto);
@@ -47,7 +47,7 @@ public sealed class AuthController : ControllerBase
     [ProducesResponseType(typeof(UserResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<UserResponseDto>> Login([FromBody, Required] LoginRequestDto userLoginRequestDto)
+    public async Task<ActionResult<UserResponseDto>> Login([FromBody, Required] LoginPostDto userLoginRequestDto)
     {
         var authenticatedUserDto = await AuthenticateUser(userLoginRequestDto);
         return Ok(authenticatedUserDto);
@@ -67,7 +67,7 @@ public sealed class AuthController : ControllerBase
         return Ok("Logout was successful");
     }
     
-    private async Task<UserResponseDto> AuthenticateUser(LoginRequestDto userLoginRequestDto)
+    private async Task<UserResponseDto> AuthenticateUser(LoginPostDto userLoginRequestDto)
     {
         var isUserAuthenticated =
             await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);

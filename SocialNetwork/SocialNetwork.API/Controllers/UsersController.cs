@@ -74,7 +74,7 @@ public class UsersController : ControllerBase
     [Authorize(Roles = "User")]
     [HttpPatch, Route("profile")]
     public virtual async Task<ActionResult<UserProfileResponseDto>> PutUsersUserIdProfile(
-        [FromBody, Required] UserProfilePatchRequestDto userProfilePatchRequestDto)
+        [FromBody, Required] UserProfilePatchDto userProfilePatchRequestDto)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
         var updatedUserProfile = await _userService.ChangeUserProfile(userId, userProfilePatchRequestDto);
@@ -111,7 +111,7 @@ public class UsersController : ControllerBase
     [Authorize(Roles = "User")]
     [HttpPut, Route("login")]
     public virtual async Task<ActionResult<UserResponseDto>> PutUsersUserIdLogin(
-        [FromBody, Required] UserLoginRequestDto userLoginRequestDto)
+        [FromBody, Required] UserLoginPutDto userLoginRequestDto)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
         var changedUserLoginDto = await _userService.ChangeUserLogin(userId, userLoginRequestDto);
@@ -123,7 +123,7 @@ public class UsersController : ControllerBase
     [Authorize(Roles = "User")]
     [HttpPut, Route("password")]
     public virtual async Task<ActionResult<UserResponseDto>> PutUsersUserIdPassword(
-        [FromBody, Required] UserPasswordRequestDto userPasswordRequestDto)
+        [FromBody, Required] UserPasswordPutDto userPasswordRequestDto)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
         var changeUserPasswordDto = await _userService.ChangeUserPassword(userId, userPasswordRequestDto);
@@ -135,7 +135,7 @@ public class UsersController : ControllerBase
     [Authorize(Roles = "User")]
     [HttpPut, Route("email")]
     public virtual async Task<ActionResult<UserEmailResponseDto>> PutUsersUserIdProfile(
-        [FromBody, Required] UserEmailRequestDto userEmailRequestDto)
+        [FromBody, Required] UserEmailPutDto userEmailRequestDto)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
         var changedUserEmailDto = await _userService.ChangeUserEmail(userId, userEmailRequestDto);

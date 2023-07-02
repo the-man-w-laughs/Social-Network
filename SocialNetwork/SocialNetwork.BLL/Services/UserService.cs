@@ -136,7 +136,7 @@ public class UserService : IUserService
         return _mapper.Map<UserProfileResponseDto>(user.UserProfile);
     }
 
-    public async Task<UserProfileResponseDto> ChangeUserProfile(uint userId, UserProfilePatchRequestDto userProfilePatchRequestDto)
+    public async Task<UserProfileResponseDto> ChangeUserProfile(uint userId, UserProfilePatchDto userProfilePatchRequestDto)
     {
         var userProfile = await _userProfileRepository.GetAsync(userProfile => userProfile.UserId == userId);
         if (userProfile == null)
@@ -370,7 +370,7 @@ public class UserService : IUserService
         return _mapper.Map<UserProfileResponseDto>(deletedFollower.Source.UserProfile);
     }
 
-    public async Task<UserResponseDto> ChangeUserLogin(uint userId, UserLoginRequestDto userLoginRequestDto)
+    public async Task<UserResponseDto> ChangeUserLogin(uint userId, UserLoginPutDto userLoginRequestDto)
     {
         var user = await GetUserById(userId);
         if (user == null)
@@ -389,7 +389,7 @@ public class UserService : IUserService
         return _mapper.Map<UserResponseDto>(user);
     }
 
-    public async Task<UserResponseDto> ChangeUserPassword(uint userId, UserPasswordRequestDto userPasswordRequestDto)
+    public async Task<UserResponseDto> ChangeUserPassword(uint userId, UserPasswordPutDto userPasswordRequestDto)
     {
         var user = await GetUserById(userId);
         if (user == null)
@@ -413,7 +413,7 @@ public class UserService : IUserService
         return _mapper.Map<UserResponseDto>(user);
     }
 
-    public async Task<UserResponseDto> ChangeUserEmail(uint userId, UserEmailRequestDto userEmailRequestDto)
+    public async Task<UserResponseDto> ChangeUserEmail(uint userId, UserEmailPutDto userEmailRequestDto)
     {
         var user = await GetUserById(userId);
         if (user == null)

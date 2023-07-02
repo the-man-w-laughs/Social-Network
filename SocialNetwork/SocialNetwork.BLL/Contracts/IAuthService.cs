@@ -5,6 +5,6 @@ namespace SocialNetwork.BLL.Contracts;
 
 public interface IAuthService
 {
-    Task<UserResponseDto> SignUp(SignUpRequestDto userSignUpRequestDto);
-    Task<UserResponseDto> Login(LoginRequestDto userLoginRequestDto);
+    Task<UserResponseDto> SignUp(SignUpPostDto userSignUpRequestDto);
+    Task<UserResponseDto> Login(LoginPostDto userLoginRequestDto);
 }

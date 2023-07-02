@@ -47,7 +47,7 @@ public class MessageService : IMessageService
         return _mapper.Map<MessageResponseDto>(message);
     }
 
-    public async Task<MessageResponseDto> SendMessage(uint userId, uint chatId, MessageRequestDto messageRequestDto)
+    public async Task<MessageResponseDto> SendMessage(uint userId, uint chatId, MessagePostDto messageRequestDto)
     {
         var chat = await _chatRepository.GetByIdAsync(chatId);
         if (chat == null)
@@ -85,7 +85,7 @@ public class MessageService : IMessageService
         return _mapper.Map<MessageResponseDto>(addedMessage);
     }
 
-    public async Task<MessageResponseDto> ChangeMessage(uint userId, uint messageId, MessagePatchRequestDto messagePatchRequestDto)
+    public async Task<MessageResponseDto> ChangeMessage(uint userId, uint messageId, MessagePatchDto messagePatchRequestDto)
     {
         var message = await GetMessageById(messageId);
 

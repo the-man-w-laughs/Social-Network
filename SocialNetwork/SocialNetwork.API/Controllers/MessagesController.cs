@@ -31,7 +31,7 @@ public class MessagesController : ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
     public virtual async Task<ActionResult<MessageResponseDto>> PostChatsChatIdMessages(
         [FromRoute, Required] uint chatId,
-        [FromBody, Required] MessageRequestDto messageRequestDto)
+        [FromBody, Required] MessagePostDto messageRequestDto)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
         var addedMessage = await _messageService.SendMessage(userId, chatId, messageRequestDto);
@@ -63,7 +63,7 @@ public class MessagesController : ControllerBase
     [HttpPatch, Route("{messageId}")]
     public virtual async Task<ActionResult<MessageResponseDto>> PatchMessagesMessageId(
         [FromRoute, Required] uint messageId,
-        [FromBody, Required] MessagePatchRequestDto messagePatchRequestDto)
+        [FromBody, Required] MessagePatchDto messagePatchRequestDto)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
         var changedMessageDto = await _messageService.ChangeMessage(userId, messageId, messagePatchRequestDto);

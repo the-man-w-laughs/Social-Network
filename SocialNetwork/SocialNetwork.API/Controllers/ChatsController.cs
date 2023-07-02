@@ -31,7 +31,7 @@ public class ChatsController : ControllerBase
     [ProducesResponseType(typeof(ChatResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
     public virtual async Task<ActionResult<ChatResponseDto>> PostChats(
-        [FromBody, Required] ChatRequestDto chatRequestDto)
+        [FromBody, Required] ChatPostDto chatRequestDto)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
         var addedChat = await _chatService.CreateChat(userId, chatRequestDto);
@@ -72,7 +72,7 @@ public class ChatsController : ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
     public virtual async Task<ActionResult<ChatResponseDto>> PatchChatsChatId(
         [FromRoute, Required] uint chatId,
-        [FromBody, Required] ChatPatchRequestDto chatPatchRequestDto)
+        [FromBody, Required] ChatPatchDto chatPatchRequestDto)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
         var updatedChat = await _chatService.UpdateChat(chatId, userId, chatPatchRequestDto);
@@ -101,7 +101,7 @@ public class ChatsController : ControllerBase
     /// <summary>Add Chat Member</summary>
     /// <remarks>Adds a new member to the chat (for chat members).</remarks>
     /// <param name="chatId">The ID of the chat to add a member to.</param>
-    /// <param name="chatMemberRequestDto">The chat member request data transfer object.</param>    
+    /// <param name="userToAddId">The id of user to add.</param>    
     /// <response code="200">Returns a <see cref="ChatMemberResponseDto"/> the added chat member information.</response>
     /// <response code="400">Returns a string message if the chat doesn't exist.</response>
     /// <response code="401">Returns a string message if the user unauthorized.</response>
@@ -115,10 +115,10 @@ public class ChatsController : ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
     public virtual async Task<ActionResult<ChatMemberResponseDto>> PostChatsChatIdMembers(
         [FromRoute, Required] uint chatId,
-        [FromBody, Required] ChatMemberRequestDto chatMemberRequestDto)
+        [FromBody, Required] uint userToAddId)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
-        var addedChatMember = await _chatService.AddChatMember(userId, chatId, chatMemberRequestDto);
+        var addedChatMember = await _chatService.AddChatMember(userId, chatId, userToAddId);
         return Ok(addedChatMember);
     }
 
@@ -163,7 +163,7 @@ public class ChatsController : ControllerBase
     public virtual async Task<ActionResult<ChatMemberResponseDto>> PatchChatsChatIdMembersMemberId(
         [FromRoute, Required] uint chatId,
         [FromRoute, Required] uint memberId,
-        [FromBody, Required] ChangeChatMemberRequestDto changeChatMemberRequestDto)
+        [FromBody, Required] ChatMemberPutDto changeChatMemberRequestDto)
     {        
         var userId = HttpContext.GetAuthenticatedUserId();
         var updatedChatMember = await _chatService.UpdateChatMember(chatId, userId, memberId, changeChatMemberRequestDto);

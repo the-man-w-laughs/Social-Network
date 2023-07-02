@@ -44,7 +44,7 @@ public class PostService : IPostService
         _mediaRepository = mediaRepository;
     }
 
-    public async Task<PostResponseDto> CreatePost(uint userId, PostRequestDto postRequestDto)
+    public async Task<PostResponseDto> CreatePost(uint userId, PostPostDto postRequestDto)
     {
         if (postRequestDto.CommunityId != null)
         {
@@ -129,7 +129,7 @@ public class PostService : IPostService
         return postResponseDto;
     }
 
-    public async Task<PostResponseDto> ChangePost(uint userId, uint postId, PostPatchRequestDto postPatchRequestDto)
+    public async Task<PostResponseDto> ChangePost(uint userId, uint postId, PostPatchDto postPatchRequestDto)
     {
         var post = await GetLocalPost(postId);
         

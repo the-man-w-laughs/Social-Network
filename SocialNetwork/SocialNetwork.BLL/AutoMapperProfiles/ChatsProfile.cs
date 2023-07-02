@@ -8,8 +8,7 @@ public class ChatsProfile : BaseProfile
 {
     public ChatsProfile()
     {
-        CreateMap<ChatRequestDto, Chat>();
-        CreateMap<ChatMemberRequestDto, Chat>();
+        CreateMap<ChatPostDto, Chat>();        
 
         CreateMap<Chat, ChatResponseDto>().ForMember(
             dto => dto.UserCount,

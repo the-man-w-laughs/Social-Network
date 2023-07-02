@@ -34,7 +34,7 @@ public class CommunitiesController : ControllerBase
     [ProducesResponseType(typeof(CommunityResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     public virtual async Task<ActionResult<CommunityResponseDto>> PostCommunities(
-        [FromBody, Required] CommunityRequestDto communityRequestDto)
+        [FromBody, Required] CommunityPostDto communityRequestDto)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
         var addedCommunity = await _communityService.AddCommunity(communityRequestDto);
@@ -102,7 +102,7 @@ public class CommunitiesController : ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     public virtual async Task<ActionResult<CommunityResponseDto>> PatchCommunitiesCommunityId(
         [FromRoute, Required] uint communityId,
-        [FromBody, Required] CommunityPatchRequestDto communityPatchRequestDto)
+        [FromBody, Required] CommunityPatchDto communityPatchRequestDto)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
         var updatedCommunity =
@@ -203,7 +203,7 @@ public class CommunitiesController : ControllerBase
     public virtual async Task<ActionResult<CommunityMemberResponseDto>> PutCommunitiesCommunityIdMembersMemberId(
         [FromRoute, Required] uint userIdToChange,
         [FromRoute, Required] uint communityId,
-        [FromBody, Required] CommunityMemberRequestDto communityMemberRequestDto)
+        [FromBody, Required] CommunityMemberPutDto communityMemberRequestDto)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
         var deletedMember = await _communityService
