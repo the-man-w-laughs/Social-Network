@@ -18,7 +18,7 @@ public class CommunityConfiguration : IEntityTypeConfiguration<Community>
         builder.Property(e => e.Name).HasColumnName("name").IsRequired()
             .HasMaxLength(Constants.CommunityNameMaxLength);
         builder.Property(e => e.Description).HasColumnName("description")
-            .HasColumnType("text");
+            .HasMaxLength(Constants.CommunityDescriptionMaxLength);
         builder.Property(e => e.IsPrivate).HasColumnName("is_private").IsRequired();
         builder.Property(e => e.CreatedAt).HasColumnName("created_at").IsRequired()
             .HasColumnType("datetime").HasDefaultValueSql("CURRENT_TIMESTAMP");

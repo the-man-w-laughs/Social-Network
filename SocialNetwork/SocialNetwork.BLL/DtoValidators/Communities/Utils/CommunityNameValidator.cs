@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using SocialNetwork.BLL.DTO.Chats.Request;
+using SocialNetwork.DAL;
 
 namespace SocialNetwork.BLL.DtoValidators.Communities.Utils;
 
@@ -8,6 +9,7 @@ public class CommunityNameValidator : AbstractValidator<string>
     public CommunityNameValidator()
     {
         RuleFor(CommunityName => CommunityName)
-            .Length(1, 50).WithMessage("Name must be between 1 and 50 characters.");            
+            .MaximumLength(Constants.CommunityNameMaxLength)
+            .WithMessage($"Community name must be no more than {Constants.CommunityNameMaxLength} characters.");
     }
 }

@@ -17,7 +17,6 @@ public class PostConfiguration : IEntityTypeConfiguration<Post>
         builder.Property(e => e.Id).HasColumnName("id").IsRequired()
             .ValueGeneratedOnAdd();
         builder.Property(e => e.Content).HasColumnName("content")
-            .HasColumnType("text")
             .HasMaxLength(Constants.PostContentMaxLength);
         builder.Property(e => e.CreatedAt).HasColumnName("created_at").IsRequired()
             .HasColumnType("datetime").HasDefaultValueSql("CURRENT_TIMESTAMP");

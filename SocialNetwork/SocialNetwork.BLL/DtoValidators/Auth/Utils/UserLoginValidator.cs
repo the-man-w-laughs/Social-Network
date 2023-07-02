@@ -1,4 +1,5 @@
 using FluentValidation;
+using SocialNetwork.DAL;
 
 namespace SocialNetwork.BLL.DtoValidators.Auth.Utils;
 public class UserLoginValidator : AbstractValidator<string>
@@ -7,6 +8,7 @@ public class UserLoginValidator : AbstractValidator<string>
     {
         RuleFor(login => login)
             .NotEmpty().WithMessage("Login is required.")
-            .Length(3, 50).WithMessage("Login must be between 3 and 50 characters.");
+            .Length(Constants.UserLoginMinLength, Constants.UserLoginMaxLength)
+            .WithMessage($"Login must be between {Constants.UserLoginMinLength} and {Constants.UserLoginMaxLength} characters.");
     }
 }
