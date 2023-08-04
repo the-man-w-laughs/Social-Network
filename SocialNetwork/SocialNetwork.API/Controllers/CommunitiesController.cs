@@ -206,9 +206,9 @@ public class CommunitiesController : ControllerBase
         [FromBody, Required] CommunityMemberRequestDto communityMemberRequestDto)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
-        var deletedMember = await _communityService
+        var updatedMember = await _communityService
             .ChangeCommunityMember(userId, communityId, userIdToChange, communityMemberRequestDto);
-        return Ok(deletedMember);
+        return Ok(updatedMember);
     }
 
     /// <summary>
@@ -219,11 +219,11 @@ public class CommunitiesController : ControllerBase
     [Route("{communityId}/members/{userIdToDelete}")]
     [Authorize(Roles = "User")]
     public virtual async Task<ActionResult<CommunityMemberResponseDto>> DeleteCommunityMembers(
-        [FromRoute, Required] uint userIdToAdd,
-        [FromRoute, Required] uint communityId)
+        [FromRoute, Required] uint communityId,
+        [FromRoute, Required] uint userIdToDelete)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
-        var deletedMember = await _communityService.DeleteCommunityMember(userId, communityId, userIdToAdd);
+        var deletedMember = await _communityService.DeleteCommunityMember(userId, communityId, userIdToDelete);
         return Ok(deletedMember);
     }
 }
