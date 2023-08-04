@@ -20,7 +20,7 @@ public class MessageConfiguration : IEntityTypeConfiguration<Message>
         builder.Property(e => e.Id).HasColumnName("id").IsRequired()
             .ValueGeneratedOnAdd();
         builder.Property(e => e.Content).HasColumnName("content")
-            .HasColumnType("text").HasMaxLength(Constants.MessageTextMaxLength);
+            .HasMaxLength(Constants.MessageContentMaxLength);
         builder.Property(e => e.CreatedAt).HasColumnName("created_at").IsRequired()
             .HasColumnType("datetime").HasDefaultValueSql("CURRENT_TIMESTAMP");
         builder.Property(e => e.UpdatedAt).HasColumnName("updated_at").HasColumnType("datetime");

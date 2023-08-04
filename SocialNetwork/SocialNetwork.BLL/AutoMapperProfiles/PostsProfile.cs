@@ -8,7 +8,7 @@ public class PostsProfile : BaseProfile
 {
     public PostsProfile()
     {
-        CreateMap<PostRequestDto, Post>();
+        CreateMap<PostPostDto, Post>();
 
         CreateMap<PostLike, PostLikeResponseDto>();
         CreateMap<Post, PostResponseDto>().ForMember(

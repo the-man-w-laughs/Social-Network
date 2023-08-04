@@ -31,7 +31,7 @@ public class ChatService : IChatService
         _messageMediaRepository = messageMediaRepository;
     }
 
-    public async Task<ChatResponseDto> CreateChat(uint userId, ChatRequestDto chatRequestDto)
+    public async Task<ChatResponseDto> CreateChat(uint userId, ChatPostDto chatRequestDto)
     {
         var newChat = new Chat { Name = chatRequestDto.Name, CreatedAt = DateTime.Now };
         
@@ -83,7 +83,7 @@ public class ChatService : IChatService
         return mediaList;
     }
 
-    public async Task<ChatResponseDto> UpdateChat(uint chatId, uint userId, ChatPatchRequestDto chatPatchRequestDto)
+    public async Task<ChatResponseDto> UpdateChat(uint chatId, uint userId, ChatPatchDto chatPatchRequestDto)
     {
         var chat = await GetChatById(chatId);
 
@@ -114,14 +114,14 @@ public class ChatService : IChatService
         return chatResponseDto;
     }
 
-    public async Task<ChatMemberResponseDto> AddChatMember(uint userId, uint chatId, ChatMemberRequestDto postChatMemberDto)
+    public async Task<ChatMemberResponseDto> AddChatMember(uint userId, uint chatId, uint userToAddId)
     {
         var chat = await GetChatById(chatId);
         var isUserChatMember = await IsUserChatMember(chat.Id, userId);
         if (!isUserChatMember) 
             throw new AccessDeniedException($"User (ID: {userId}) isn't a member of chat (ID: {chatId})");
         
-        var isNewMemberAlreadyInChat = await IsUserChatMember(chat.Id, postChatMemberDto.UserId); 
+        var isNewMemberAlreadyInChat = await IsUserChatMember(chat.Id, userToAddId); 
         if (isNewMemberAlreadyInChat)
             throw new DuplicateEntryException($"User (ID: {userId}) is already in chat (ID: {chatId})");
         
@@ -130,7 +130,7 @@ public class ChatService : IChatService
             ChatId = chatId,
             CreatedAt = DateTime.Now,
             TypeId = ChatMemberType.Member,
-            UserId = postChatMemberDto.UserId
+            UserId = userToAddId
         };
 
         var addedChatMember = await _chatMemberRepository.AddAsync(newChatMember);
@@ -154,7 +154,7 @@ public class ChatService : IChatService
     }
 
     public async Task<ChatMemberResponseDto> UpdateChatMember(uint chatId, uint userId, uint memberId,
-        ChangeChatMemberRequestDto changeChatMemberRequestDto)
+        ChatMemberPutDto changeChatMemberRequestDto)
     {
         var chat = await _chatRepository.GetByIdAsync(chatId);
         if (chat == null)
@@ -270,7 +270,7 @@ public class ChatService : IChatService
         return chatMember != null;
     }
 
-    private async Task<ChatResponseDto> ChangeChat(uint chatId, ChatPatchRequestDto chatPatchRequestDto)
+    private async Task<ChatResponseDto> ChangeChat(uint chatId, ChatPatchDto chatPatchRequestDto)
     {
         var chat = await _chatRepository.GetByIdAsync(chatId);
         if (chat == null)
@@ -289,16 +289,10 @@ public class ChatService : IChatService
                 updated = true;
             }
         }
-        if (chatPatchRequestDto.Name != null)
-        {
-            if (chatPatchRequestDto.Name.Length == 0)
-                throw new ArgumentException($"Chat name should have at east one character.");
-            
-            if (chat.Name != chatPatchRequestDto.Name)
-            {
-                chat.Name = chatPatchRequestDto.Name;
-                updated = true;
-            }
+        if (chatPatchRequestDto.Name != null && chat.Name != chatPatchRequestDto.Name)
+        {            
+            chat.Name = chatPatchRequestDto.Name;
+            updated = true;            
         }
         
         if (updated)

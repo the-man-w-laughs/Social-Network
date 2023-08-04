@@ -46,7 +46,7 @@ public class PostsController : ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     public virtual async Task<ActionResult<PostResponseDto>> PostPosts(        
-        [FromBody, Required] PostRequestDto postRequestDto)
+        [FromBody, Required] PostPostDto postRequestDto)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
         var addedPost = await _postService.CreatePost(userId, postRequestDto);
@@ -75,7 +75,7 @@ public class PostsController : ControllerBase
     [Route("{postId}")]       
     public virtual async Task<ActionResult<PostResponseDto>> PatchPostsPostId(
         [FromRoute, Required]uint postId,
-        [FromBody, Required] PostPatchRequestDto postPatchRequestDto)
+        [FromBody, Required] PostPatchDto postPatchRequestDto)
     {
         var userId = HttpContext.GetAuthenticatedUserId();
         var updatedPost = await _postService.ChangePost(userId, postId, postPatchRequestDto);

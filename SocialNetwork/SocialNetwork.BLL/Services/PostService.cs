@@ -44,7 +44,7 @@ public class PostService : IPostService
         _mediaRepository = mediaRepository;
     }
 
-    public async Task<PostResponseDto> CreatePost(uint userId, PostRequestDto postRequestDto)
+    public async Task<PostResponseDto> CreatePost(uint userId, PostPostDto postRequestDto)
     {
         if (postRequestDto.CommunityId != null)
         {
@@ -129,7 +129,7 @@ public class PostService : IPostService
         return postResponseDto;
     }
 
-    public async Task<PostResponseDto> ChangePost(uint userId, uint postId, PostPatchRequestDto postPatchRequestDto)
+    public async Task<PostResponseDto> ChangePost(uint userId, uint postId, PostPatchDto postPatchRequestDto)
     {
         var post = await GetLocalPost(postId);
         
@@ -137,18 +137,10 @@ public class PostService : IPostService
             throw new OwnershipException("Only post author can change it.");    
 
         bool updated = false;
-        if (postPatchRequestDto.Content != null)
-        {
-            if (postPatchRequestDto.Content.Length == 0)
-                throw new ArgumentException($"Content should have at least 1 character without whitespaces.");
-            else
-            {
-                if (postPatchRequestDto.Content != postPatchRequestDto.Content)
-                {
-                    postPatchRequestDto.Content = postPatchRequestDto.Content;
-                    updated = true;
-                }
-            }
+        if (postPatchRequestDto.Content != null && postPatchRequestDto.Content != postPatchRequestDto.Content)
+        {                                        
+            postPatchRequestDto.Content = postPatchRequestDto.Content;
+            updated = true;                
         }
         if (postPatchRequestDto.Attachments != null)
         {            

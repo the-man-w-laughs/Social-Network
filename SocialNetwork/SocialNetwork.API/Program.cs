@@ -1,14 +1,20 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using SocialNetwork.DAL;
-using SocialNetwork.BLL;
-using System.Reflection;
 using SocialNetwork.API.Middlewares;
 using SocialNetwork.API.Extensions;
+using SocialNetwork.BLL.Extensions;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using FluentValidation.AspNetCore;
+using FluentValidation;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.Web.Http.Validation;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+
+builder.Services.AddControllers()
+            .AddFluentValidation();
 
 builder.Services.RegisterDalDependencies(builder.Configuration);
 builder.Services.RegisterBllDependencies(builder.Configuration);

@@ -38,7 +38,7 @@ public class CommentService : ICommentService
         _commentLikeRepository = commentLikeRepository;
     }
 
-    public async Task<CommentResponseDto> AddComment(uint userId, CommentRequestDto commentRequestDto)
+    public async Task<CommentResponseDto> AddComment(uint userId, CommentPostDto commentRequestDto)
     {
         var post = await _postRepository.GetByIdAsync(commentRequestDto.PostId);
         if (post == null)
@@ -97,25 +97,18 @@ public class CommentService : ICommentService
         return comment;
     }
 
-    public async Task<CommentResponseDto> ChangeComment(uint userId, uint commentId, CommentPatchRequestDto commentPatchRequestDto)
+    public async Task<CommentResponseDto> ChangeComment(uint userId, uint commentId, CommentPatchDto commentPatchRequestDto)
     {
         var comment = await GetLocalComment(commentId);
         if (comment.Author.Id != userId)
             throw new OwnershipException("Only comment owner can change it.");
 
         bool updated = false;
-        if (commentPatchRequestDto.Content != null)
-        {
-            if (commentPatchRequestDto.Content.Length == 0)
-                throw new ArgumentException($"Content should have at least 1 character without whitespaces.");
-            else
-            {
-                if (comment.Content != commentPatchRequestDto.Content)
-                {
-                    comment.Content = commentPatchRequestDto.Content;
-                    updated = true;
-                }
-            }
+        if (commentPatchRequestDto.Content != null && comment.Content != commentPatchRequestDto.Content)
+{                
+            comment.Content = commentPatchRequestDto.Content;
+            updated = true;
+                    
         }
         if (commentPatchRequestDto.Attachments != null)
         {            

@@ -27,14 +27,8 @@ public class AuthService : IAuthService
         _passwordHashService = passwordHashService;
     }
     
-    public async Task<UserResponseDto> SignUp(SignUpRequestDto userSignUpRequestDto)
-    {
-        if (!IsLoginValid(userSignUpRequestDto.Login))
-            throw new ArgumentException($"Login must be between {Constants.UserLoginMinLength} and {Constants.UserLoginMaxLength} characters");
-        
-        if (!_passwordHashService.IsPasswordValid(userSignUpRequestDto.Password))
-            throw new ArgumentException($"Password must be at least {Constants.UserPasswordMinLength} characters");
-
+    public async Task<UserResponseDto> SignUp(SignUpPostDto userSignUpRequestDto)
+    {        
         var isLoginExisted = await IsLoginAlreadyExists(userSignUpRequestDto.Login);
         if (isLoginExisted) 
             throw new DuplicateEntryException($"Login \"{userSignUpRequestDto.Login}\" already exists");
@@ -67,7 +61,7 @@ public class AuthService : IAuthService
        return _mapper.Map<UserResponseDto>(addedUser);
     }
 
-    public async Task<UserResponseDto> Login(LoginRequestDto userLoginRequestDto)
+    public async Task<UserResponseDto> Login(LoginPostDto userLoginRequestDto)
     {
         var user = await _userRepository.GetAsync(u => u.Login == userLoginRequestDto.Login);
         if (user == null) 
@@ -87,10 +81,5 @@ public class AuthService : IAuthService
     {
         var user = await _userRepository.GetAsync(u => u.Login == login);
         return user != null;
-    }
-
-    private bool IsLoginValid(string login)
-    {
-        return login.Length is <= Constants.UserLoginMaxLength and >= Constants.UserLoginMinLength;
     }
 }

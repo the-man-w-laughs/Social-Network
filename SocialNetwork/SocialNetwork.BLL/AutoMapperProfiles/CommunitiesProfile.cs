@@ -8,7 +8,7 @@ public class CommunitiesProfile : BaseProfile
 {
     public CommunitiesProfile()
     {
-        CreateMap<CommunityRequestDto, Community>();
+        CreateMap<CommunityPostDto, Community>();
         
         CreateMap<CommunityMember, CommunityMemberResponseDto>();
         CreateMap<Community, CommunityResponseDto>().ForMember(

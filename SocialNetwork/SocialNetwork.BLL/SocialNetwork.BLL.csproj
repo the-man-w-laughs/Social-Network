@@ -7,9 +7,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Compile Remove="DTO\Medias\Request\**" />
-      <EmbeddedResource Remove="DTO\Medias\Request\**" />
-      <None Remove="DTO\Medias\Request\**" />
+      <Compile Remove="Dtos\Medias\Request\**" />
+      <EmbeddedResource Remove="Dtos\Medias\Request\**" />
+      <None Remove="Dtos\Medias\Request\**" />
     </ItemGroup>
 
     <ItemGroup>
@@ -19,6 +19,8 @@
     <ItemGroup>
       <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
       <PackageReference Include="BCrypt.Net" Version="0.1.0" />
+      <PackageReference Include="FluentValidation" Version="11.5.2" />
+      <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.5.2" />
       <PackageReference Include="Konscious.Security.Cryptography.Argon2" Version="1.3.0" />
     </ItemGroup>
 

@@ -47,7 +47,7 @@ public class MessageService : IMessageService
         return _mapper.Map<MessageResponseDto>(message);
     }
 
-    public async Task<MessageResponseDto> SendMessage(uint userId, uint chatId, MessageRequestDto messageRequestDto)
+    public async Task<MessageResponseDto> SendMessage(uint userId, uint chatId, MessagePostDto messageRequestDto)
     {
         var chat = await _chatRepository.GetByIdAsync(chatId);
         if (chat == null)
@@ -85,7 +85,7 @@ public class MessageService : IMessageService
         return _mapper.Map<MessageResponseDto>(addedMessage);
     }
 
-    public async Task<MessageResponseDto> ChangeMessage(uint userId, uint messageId, MessagePatchRequestDto messagePatchRequestDto)
+    public async Task<MessageResponseDto> ChangeMessage(uint userId, uint messageId, MessagePatchDto messagePatchRequestDto)
     {
         var message = await GetMessageById(messageId);
 
@@ -93,18 +93,10 @@ public class MessageService : IMessageService
             throw new OwnershipException("Only message sender can change the message.");
 
         bool updated = false;
-        if (messagePatchRequestDto.Content != null)
-        {
-            if (messagePatchRequestDto.Content.Length == 0)
-                throw new ArgumentException($"Content should have at least 1 character without whitespaces.");
-            else
-            {
-                if (messagePatchRequestDto.Content != messagePatchRequestDto.Content)
-                {
-                    messagePatchRequestDto.Content = messagePatchRequestDto.Content;
-                    updated = true;
-                }
-            }
+        if (messagePatchRequestDto.Content != null && messagePatchRequestDto.Content != messagePatchRequestDto.Content)
+        {                                      
+            messagePatchRequestDto.Content = messagePatchRequestDto.Content;
+            updated = true;                
         }
         if (messagePatchRequestDto.Attachments != null)
         {            

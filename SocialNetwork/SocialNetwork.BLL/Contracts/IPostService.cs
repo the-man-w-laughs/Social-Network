@@ -6,9 +6,9 @@ namespace SocialNetwork.BLL.Contracts;
 
 public interface IPostService
 {
-    Task<PostResponseDto> CreatePost(uint userId, PostRequestDto postRequestDto);
+    Task<PostResponseDto> CreatePost(uint userId, PostPostDto postRequestDto);
     Task<PostResponseDto> GetPost(uint userId, uint postId);    
-    Task<PostResponseDto> ChangePost(uint userId, uint postId, PostPatchRequestDto postPatchRequestDto);
+    Task<PostResponseDto> ChangePost(uint userId, uint postId, PostPatchDto postPatchRequestDto);
     Task<PostResponseDto> DeletePost(uint userId, uint postId);
     Task<List<CommentResponseDto>> GetComments(uint postId, int limit, int currCursor);
     Task<PostLikeResponseDto> LikePost(uint userId, uint postId);

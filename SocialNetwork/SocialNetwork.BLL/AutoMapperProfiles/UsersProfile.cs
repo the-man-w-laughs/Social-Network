@@ -8,8 +8,8 @@ public class UsersProfile: BaseProfile
 {
     public UsersProfile()
     {
-        CreateMap<UserLoginRequestDto, User>();
-        CreateMap<UserProfilePatchRequestDto, UserProfile>();
+        CreateMap<UserLoginPutDto, User>();
+        CreateMap<UserProfilePatchDto, UserProfile>();
 
         CreateMap<User, UserActivityResponseDto>();
         CreateMap<User, UserEmailResponseDto>();

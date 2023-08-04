@@ -136,7 +136,7 @@ public class UserService : IUserService
         return _mapper.Map<UserProfileResponseDto>(user.UserProfile);
     }
 
-    public async Task<UserProfileResponseDto> ChangeUserProfile(uint userId, UserProfilePatchRequestDto userProfilePatchRequestDto)
+    public async Task<UserProfileResponseDto> ChangeUserProfile(uint userId, UserProfilePatchDto userProfilePatchRequestDto)
     {
         var userProfile = await _userProfileRepository.GetAsync(userProfile => userProfile.UserId == userId);
         if (userProfile == null)
@@ -158,9 +158,6 @@ public class UserService : IUserService
 
         if (userProfilePatchRequestDto.UserName != null)
         {
-            if (string.IsNullOrWhiteSpace(userProfilePatchRequestDto.UserName))
-                throw new ArgumentException("User name should have at least 1 character without whitespaces.");
-            
             if (userProfile.UserName != userProfilePatchRequestDto.UserName)
             {
                 userProfile.UserName = userProfilePatchRequestDto.UserName;
@@ -170,9 +167,6 @@ public class UserService : IUserService
 
         if (userProfilePatchRequestDto.UserSurname != null)
         {
-            if (string.IsNullOrWhiteSpace(userProfilePatchRequestDto.UserSurname))
-                throw new ArgumentException("User surname should have at least 1 character without whitespaces.");
-            
             if (userProfile.UserSurname != userProfilePatchRequestDto.UserSurname)
             {
                 userProfile.UserSurname = userProfilePatchRequestDto.UserSurname;
@@ -181,10 +175,7 @@ public class UserService : IUserService
         }
 
         if (userProfilePatchRequestDto.UserSex != null)
-        {
-            if (string.IsNullOrWhiteSpace(userProfilePatchRequestDto.UserSex))
-                throw new ArgumentException("User sex should have at least 1 character without whitespaces.");
-            
+        { 
             if (userProfile.UserSex != userProfilePatchRequestDto.UserSex)
             {
                 userProfile.UserSex = userProfilePatchRequestDto.UserSex;
@@ -194,9 +185,6 @@ public class UserService : IUserService
 
         if (userProfilePatchRequestDto.UserCountry != null)
         {
-            if (string.IsNullOrWhiteSpace(userProfilePatchRequestDto.UserCountry))
-                throw new ArgumentException("User country should have at least 1 character without whitespaces.");
-            
             if (userProfile.UserCountry != userProfilePatchRequestDto.UserCountry)
             {
                 userProfile.UserCountry = userProfilePatchRequestDto.UserCountry;
@@ -205,10 +193,7 @@ public class UserService : IUserService
         }
 
         if (userProfilePatchRequestDto.UserEducation != null)
-        {
-            if (string.IsNullOrWhiteSpace(userProfilePatchRequestDto.UserEducation))
-                throw new ArgumentException("User education should have at least 1 character without whitespaces.");
-            
+        {            
             if (userProfile.UserEducation != userProfilePatchRequestDto.UserEducation)
             {
                 userProfile.UserEducation = userProfilePatchRequestDto.UserEducation;
@@ -370,7 +355,7 @@ public class UserService : IUserService
         return _mapper.Map<UserProfileResponseDto>(deletedFollower.Source.UserProfile);
     }
 
-    public async Task<UserResponseDto> ChangeUserLogin(uint userId, UserLoginRequestDto userLoginRequestDto)
+    public async Task<UserResponseDto> ChangeUserLogin(uint userId, UserLoginPutDto userLoginRequestDto)
     {
         var user = await GetUserById(userId);
         if (user == null)
@@ -389,7 +374,7 @@ public class UserService : IUserService
         return _mapper.Map<UserResponseDto>(user);
     }
 
-    public async Task<UserResponseDto> ChangeUserPassword(uint userId, UserPasswordRequestDto userPasswordRequestDto)
+    public async Task<UserResponseDto> ChangeUserPassword(uint userId, UserPasswordPutDto userPasswordRequestDto)
     {
         var user = await GetUserById(userId);
         if (user == null)
@@ -413,7 +398,7 @@ public class UserService : IUserService
         return _mapper.Map<UserResponseDto>(user);
     }
 
-    public async Task<UserResponseDto> ChangeUserEmail(uint userId, UserEmailRequestDto userEmailRequestDto)
+    public async Task<UserResponseDto> ChangeUserEmail(uint userId, UserEmailPutDto userEmailRequestDto)
     {
         var user = await GetUserById(userId);
         if (user == null)
