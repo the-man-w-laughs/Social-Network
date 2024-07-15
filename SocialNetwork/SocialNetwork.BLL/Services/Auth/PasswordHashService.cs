@@ -25,6 +25,17 @@ public class PasswordHashService : IPasswordHashService
         return argon2.GetBytes(32); 
     }
 
+    public bool IsPasswordValid(string password)
+    {
+        if (password.Length < Constants.UserPasswordMinLength)
+            return false;
+
+        if (password.Any(char.IsWhiteSpace))
+            return false;
+
+        return true;
+    }
+
     public bool VerifyPassword(string password,string salt, byte[] hashedPassword)
     {
         var argon2 = new Argon2id(Encoding.UTF8.GetBytes(password + Pepper));
